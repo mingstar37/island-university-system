@@ -1,0 +1,22 @@
+
+
+.middle-section{
+    /* padding-left: 100px; */
+    padding-top: 100px;
+    padding-right:50px;
+}
+
+.content{
+    position: relative;
+    display:inline-block;
+    width:70%;
+    float:right;
+}
+
+.main-page{
+    position: relative;
+    display:inline-block;
+    width:70%;
+    float:right;
+    height:100%;
+}

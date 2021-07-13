@@ -1,0 +1,137 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+
+#header{
+    position: relative;
+    width:100%;
+    height:100px;
+}
+
+#upper-header{
+    position: relative;
+    height:50px;
+}
+
+#lower-header{
+    position: relative;
+    height:50px;
+    padding-left:40px;
+}
+
+
+
+.navi{
+    display: inline-block;
+    width:14%;
+    text-align: center;
+    border-right: 1px solid black;
+}
+
+.navi2{
+    display: inline-block;
+    width:19%;
+    text-align: center;
+    border-right: 1px solid black;
+}
+
+#main-section{
+    position:relative;
+    height:100%;
+    width:100%;
+    padding-top:30px;
+}
+
+#banner{
+    text-align: center;
+}
+
+#calender-section{
+    display:inline-block;
+    width:69%;
+    float:left;
+}
+
+#login-section{
+    display:inline-block;
+    width:30%;
+}
+
+.input-box{
+    height:30px;
+    width:250px;
+}
+
+.input{
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+.search-box{
+    float: right;
+    margin-right:40px;
+    margin-top:10px;
+}
+
+.view-table{
+    border:1px solid black;
+    border-collapse: collapse;
+    width:70%;
+    margin-left:70px;
+}
+
+.view-table td, .view-table th{
+    border:1px solid black;
+}
+
+.calender-table{
+    border: 1px solid black;
+    border-collapse: collapse;
+
+}
+
+.calender-table tr, .calender-table td, .calender-table th{
+    border: 1px solid black;
+    padding:5px;
+}
+
+.calender-section{
+    width:49%;
+    display: inline-block;
+}
+
+.calender-heading{
+    padding-top:30px;
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:30px;
+}
+
+.calender-term{
+    font-weight:bold;
+    font-size:18px;
+}
+
+.available_courses{
+    margin-top:50px;
+}
+
+.error-message {
+    color: red;
+}
+
+.limit-time {
+    color: #0044FF;
+}
+
+.disable-login {
+    pointer-events: none !important;
+    opacity: 0.7;
+}
+
+.disabled {
+    pointer-events: none;
+}
+

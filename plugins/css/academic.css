@@ -1,0 +1,17 @@
+.page-heading{
+    padding-top:30px;
+    font-size:30px;
+    font-weight: bold;
+}
+
+.master-table{
+    border:1px solid black;
+    border-collapse: collapse;
+    width:90%;
+    margin-left:30px;
+}
+
+.master-table th, td, tr{
+    border:1px solid black;
+    padding:5px;
+}
