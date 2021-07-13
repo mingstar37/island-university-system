@@ -25,7 +25,7 @@ if(isset($_POST["submit"])){
     $query = mysqli_query($conn,$sql);
     $rowUser = mysqli_fetch_assoc($query);
 
-   
+
 
     $sqlUnder = "SELECT * FROM undergraduate WHERE Student_ID = '".$sId."'";
     $queryUnder = mysqli_query($conn,$sqlUnder);
@@ -46,12 +46,12 @@ if(isset($_POST["submit"])){
 
     $sqlHolds = "SELECT * FROM student_holds WHERE Student_ID = '".$sId."'";
     $queryHolds = mysqli_query($conn,$sqlHolds);
-    
 
-   
 
-   
-    
+
+
+
+
 
 
     // major
@@ -71,7 +71,7 @@ if(isset($_POST["submit"])){
     $sqlAdvisor = "SELECT * FROM advisor WHERE Student_ID = '".$sId."'";
     $queryAdvisor = mysqli_query($conn,$sqlAdvisor);
 
-    
+
     while ($rowAdvisor = mysqli_fetch_assoc($queryAdvisor)){
         $advisorId = $rowAdvisor["Faculty_ID"];
         array_push($advisors, $rowAdvisor);
@@ -97,7 +97,7 @@ if(isset($_POST["submit"])){
         array_push($gradeYear, $rowTrans);
         array_push($crnsTrans, $rowTrans2["Course_ID"]);
     }
-    
+
 
     for($i=0; $i< count($crnsTrans); $i++){
         $sqlTrans3 = "SELECT * FROM course WHERE Course_ID = '".$crnsTrans[$i]."'";
@@ -105,7 +105,7 @@ if(isset($_POST["submit"])){
         $rowTrans3 = mysqli_fetch_assoc($queryTrans3);
         array_push($coursesTrans, $rowTrans3["Course_Name"]);
     }
-    
+
 
     // enrolled
     $sqlEnrolled = "SELECT * FROM enrollment WHERE Student_ID = '".$sId."'";
@@ -118,7 +118,7 @@ if(isset($_POST["submit"])){
         array_push($gradeYear2, $rowEnrolled);
         array_push($crnsEnrolled, $rowEnrolled2["Course_ID"]);
     }
-    
+
 
     for($i=0; $i< count($crnsEnrolled); $i++){
         $sqlEnrolled3 = "SELECT * FROM course WHERE Course_ID = '".$crnsEnrolled[$i]."'";
@@ -150,40 +150,9 @@ if(isset($_POST["submit"])){
 </head>
 
 <body>
-    <div id="header">
-        <div id="upper-header">
-            <!-- <div class="user-name"><a href="profile.php">Hello admin</a></div> -->
-            <div class="search-box">
-                <!-- <input type="text" placeholder="Search" />
-                <button>Search</button> -->
-
-                <a href="../logout.php"><button>Logout</button></a>
-            </div>
-        </div>
-        <div id="lower-header">
-            <a href="index.php">
-                <div class="navi"> Home </div>
-            </a>
-            <a href="departments.php">
-                <div class="navi"> Departments </div>
-            </a>
-            <a href="addStudent.php">
-                <div class="navi"> Students </div>
-            </a>
-            <a href="enrolled.php">
-                <div class="navi"> Academics </div>
-            </a>
-            <a href="courses.php">
-                <div class="navi"> Courses </div>
-            </a>
-            <a href="faculty.php">
-                <div class="navi"> Faculty </div>
-            </a>
-            <a href="researcher.php">
-                <div class="navi"> Researcher </div>
-            </a>
-        </div>
-    </div>
+     <?php
+    include "header.php";
+    ?>
 
 
     <div id="main-section">
@@ -215,7 +184,7 @@ if(isset($_POST["submit"])){
                 Student Major: <span style="font-weight:bold;font-size:20px;"><?php  echo $rowMaj["Major_Name"] ?></span> <br>
 
                 <br>
-        
+
 
         <br>
         <br>
@@ -223,9 +192,9 @@ if(isset($_POST["submit"])){
         <?php
                     for($i=0; $i<count($advisors); $i++){
                         ?>
-                        Advisor Name: <span style="font-weight:bold;font-size:20px;"><?php echo $faculties[$i]["F_Name"].' '.$faculties[$i]["L_Name"] ?></span> 
+                        Advisor Name: <span style="font-weight:bold;font-size:20px;"><?php echo $faculties[$i]["F_Name"].' '.$faculties[$i]["L_Name"] ?></span>
                         <br>
-                        Time of Advisement: <span style="font-weight:bold;font-size:20px;"><?php echo $advisors[$i]["Time_Of_Advisement"]?></span> 
+                        Time of Advisement: <span style="font-weight:bold;font-size:20px;"><?php echo $advisors[$i]["Time_Of_Advisement"]?></span>
                         <br><br>
                         <?php
                     }

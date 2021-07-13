@@ -13,7 +13,7 @@ if(isset($_POST["submit"])){
 
 
     while($rowFaculty = mysqli_fetch_assoc($queryFaculty)){
-        
+
         $deptId = $rowFaculty['Dept_ID'];
         $sql = "SELECT * FROM department WHERE Dept_ID ='".$deptId."'";
         $query = mysqli_query($conn,$sql);
@@ -21,8 +21,8 @@ if(isset($_POST["submit"])){
         while($rowDepartment = mysqli_fetch_assoc($query)){
             array_push($deptFaculty, $rowDepartment);
         }
-    
-        
+
+
     }
 
 
@@ -50,40 +50,9 @@ if(isset($_POST["submit"])){
 </head>
 
 <body>
-    <div id="header">
-        <div id="upper-header">
-            <!-- <div class="user-name"><a href="profile.php">Hello admin</a></div> -->
-            <div class="search-box">
-                <!-- <input type="text" placeholder="Search" />
-                <button>Search</button> -->
-
-                <a href="../logout.php"><button>Logout</button></a>
-            </div>
-        </div>
-        <div id="lower-header">
-            <a href="index.php">
-                <div class="navi"> Home </div>
-            </a>
-            <a href="departments.php">
-                <div class="navi"> Departments </div>
-            </a>
-            <a href="addStudent.php">
-                <div class="navi"> Students </div>
-            </a>
-            <a href="enrolled.php">
-                <div class="navi"> Academics </div>
-            </a>
-            <a href="courses.php">
-                <div class="navi"> Courses </div>
-            </a>
-            <a href="faculty.php">
-                <div class="navi"> Faculty </div>
-            </a>
-            <a href="researcher.php">
-                <div class="navi"> Researcher </div>
-            </a>
-        </div>
-    </div>
+     <?php
+    include "header.php";
+    ?>
 
 
     <div id="main-section">
@@ -108,7 +77,7 @@ if(isset($_POST["submit"])){
                                 <li>
                                     <a href="registerResearcher.php">Researcher</a>
                                 </li>
-                              
+
                             </ul>
                         </li>
                         <li>
@@ -123,7 +92,7 @@ if(isset($_POST["submit"])){
                                 <li>
                                     <a href="departments.php">Delete</a>
                                 </li>
-                                
+
                             </ul>
                         </li>
                         <li>
@@ -138,7 +107,7 @@ if(isset($_POST["submit"])){
                                 <li>
                                     <a href="courses.php">Delete</a>
                                 </li>
-                                
+
                             </ul>
                         </li>
                         <li>
@@ -248,7 +217,7 @@ if(isset($_POST["submit"])){
                 echo '<td>'.$deptFaculty[$i]["Building_Name"].'</td>';
                 echo '</tr>';
             }
-                    
+
             ?>
 
         </table>

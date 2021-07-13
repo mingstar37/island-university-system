@@ -14,7 +14,7 @@ if(isset($_POST["submit"])){
     $sqlStudent2 = "SELECT * FROM users WHERE User_ID='".$sId."'";
     $queryStudent2 = mysqli_query($conn,$sqlStudent2);
     $rowStudent2 = mysqli_fetch_assoc($queryStudent2);
-    
+
     $currstudentid = $sId;
     $currstudentgpa = $rowStudent["Student_GPA"];
     $currstudenttype = $rowStudent["Student_Type"];
@@ -75,7 +75,7 @@ if(isset($_POST["editSubmit"])){
         echo "Error: " . $sqlEdit . "<br>" . $conn->error;
       }
 
-    
+
     $student_fetched = true;
 }
 
@@ -99,40 +99,9 @@ if(isset($_POST["editSubmit"])){
 </head>
 
 <body>
-    <div id="header">
-        <div id="upper-header">
-            <!-- <div class="user-name"><a href="profile.php">Hello admin</a></div> -->
-            <div class="search-box">
-                <!-- <input type="text" placeholder="Search" />
-                <button>Search</button> -->
-
-                <a href="../logout.php"><button>Logout</button></a>
-            </div>
-        </div>
-        <div id="lower-header">
-            <a href="index.php">
-                <div class="navi"> Home </div>
-            </a>
-            <a href="departments.php">
-                <div class="navi"> Departments </div>
-            </a>
-            <a href="addStudent.php">
-                <div class="navi"> Students </div>
-            </a>
-            <a href="enrolled.php">
-                <div class="navi"> Academics </div>
-            </a>
-            <a href="courses.php">
-                <div class="navi"> Courses </div>
-            </a>
-            <a href="faculty.php">
-                <div class="navi"> Faculty </div>
-            </a>
-            <a href="researcher.php">
-                <div class="navi"> Researcher </div>
-            </a>
-        </div>
-    </div>
+     <?php
+    include "header.php";
+    ?>
 
 
     <div id="main-section">
@@ -157,7 +126,7 @@ if(isset($_POST["editSubmit"])){
                                 <li>
                                     <a href="registerResearcher.php">Researcher</a>
                                 </li>
-                              
+
                             </ul>
                         </li>
                         <li>
@@ -172,7 +141,7 @@ if(isset($_POST["editSubmit"])){
                                 <li>
                                     <a href="departments.php">Delete</a>
                                 </li>
-                                
+
                             </ul>
                         </li>
                         <li>
@@ -187,7 +156,7 @@ if(isset($_POST["editSubmit"])){
                                 <li>
                                     <a href="courses.php">Delete</a>
                                 </li>
-                                
+
                             </ul>
                         </li>
                         <li>
@@ -282,9 +251,9 @@ if(isset($_POST["editSubmit"])){
         <br>
         <?php
             if($student_fetched == true){
-               
+
         ?>
-        
+
         <form method="post" action="">
             Student ID: <input type="text" name="studentId" value="<?php echo $currstudentid?>" disabled/><br><br>
             Student First Name: <input type="text" name="studentfname" value="<?php echo $currentstudentfname?>" /><br><br>
