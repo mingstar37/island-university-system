@@ -12,4 +12,5 @@ $('.side-menu li').on('click', 'a', function(e){
     e.preventDefault();
     $(this).removeClass('active');
 	$(this).parent().children('ul').slideUp();
+
   });

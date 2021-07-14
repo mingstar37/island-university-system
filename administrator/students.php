@@ -29,6 +29,7 @@ $queryStudent = mysqli_query($conn, $sqlStudent);
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </head>
 
 <body>
@@ -48,7 +49,7 @@ $queryStudent = mysqli_query($conn, $sqlStudent);
                     <h3>Students</h3>
                 </div>
                 <div class="col-lg-4 text-right">
-                    <button type="button" class="btn btn-sm btn-success">
+                    <button type="button" class="btn btn-sm btn-success" onclick="onAddNew()">
                         <i class="fa fa-plus"></i> &nbsp;Add New
                     </button>
                 </div>
@@ -67,7 +68,7 @@ $queryStudent = mysqli_query($conn, $sqlStudent);
                     <th>Action</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="table-body">
                 <?php
                 $count = 0;
                 while($rowStudent = mysqli_fetch_assoc($queryStudent)){
@@ -95,19 +96,39 @@ $queryStudent = mysqli_query($conn, $sqlStudent);
 
                 </tfoot>
             </table>
-            <div class="pagination-wrapper text-center">
-                <ul class="pagination pagination-sm">
-                    <li class="page-item" style="width: 80px"><a class="page-link" href="#">Previous</a></li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item" style="width: 80px"><a class="page-link" href="#">Next</a></li>
-                </ul>
+            <div class="pagination-wrapper text-center" id="pagination-wrapper">
+<!--                <ul class="pagination pagination-sm">-->
+<!--                    <li class="page-item" style="width: 80px"><a class="page-link" href="#">Previous</a></li>-->
+<!--                    <li class="page-item"><a class="page-link" href="#">1</a></li>-->
+<!--                    <li class="page-item active"><a class="page-link" href="#">2</a></li>-->
+<!--                    <li class="page-item"><a class="page-link" href="#">3</a></li>-->
+<!--                    <li class="page-item" style="width: 80px"><a class="page-link" href="#">Next</a></li>-->
+<!--                </ul>-->
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
             </div>
         </div>
     </div>
 
-<script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/student.js"></script>
+
+    <script src="../plugins/js/nav.js"></script>
+    <script src="../js/administrator/student.js"></script>
 </body>
 </html>
