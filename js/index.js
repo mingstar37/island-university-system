@@ -212,14 +212,14 @@ function onLogin(e) {
         return;
     }
 
-    let user_email = $('#user_email').val();
-    let user_password = $('#user_password').val();
-    let user_type = $('#user_type').val();
+    let email = $('#email').val();
+    let password = $('#password').val();
+    let type = $('#type').val();
 
     var data = {
-        user_email,
-        user_password,
-        user_type,
+        email,
+        password,
+        type,
         login: true
     };
 

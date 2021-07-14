@@ -16,7 +16,7 @@ if (isset($_POST["confirmEmail"])) {
 
     $randomNumber = rand(10000, 99999);
 
-    $sql = "SELECT * FROM `login_info` WHERE `User_Email` = '" . $email."' AND `User_Type` = '" . $type . "'";
+    $sql = "SELECT * FROM `users` WHERE `email` = '" . $email."' AND `type` = '" . $type . "'";
     $query = mysqli_query($conn,$sql);
     $row = mysqli_fetch_assoc($query);
 
@@ -24,7 +24,7 @@ if (isset($_POST["confirmEmail"])) {
         $result['error'] = "That email doesn't exist.";
         $result['success'] = false;
     } else {
-        $sql = "UPDATE `login_info` SET `confirm_number` = " . $randomNumber . " WHERE `id` = " . $row['id'];
+        $sql = "UPDATE `users` SET `confirm_number` = " . $randomNumber . " WHERE `id` = " . $row['id'];
 
         if ($conn->query($sql) === true) {
             // send email to user
@@ -49,7 +49,7 @@ if (isset($_POST["confirmNumber"])) {
     $number = $_POST['number'];
     $type = $_POST["type"];
 
-    $sql = "SELECT * FROM `login_info` WHERE `User_Email` = '" . $email."' AND `confirm_number` = " . $number . " AND `User_Type` = '" . $type ."'";
+    $sql = "SELECT * FROM `users` WHERE `email` = '" . $email."' AND `confirm_number` = " . $number . " AND `type` = '" . $type ."'";
     $query = mysqli_query($conn,$sql);
     $row = mysqli_fetch_assoc($query);
 
@@ -75,7 +75,7 @@ if (isset($_POST["confirmPassword"])) {
     $password = $_POST['newPassword'];
     $type = $_POST['type'];
 
-    $sql = "UPDATE `login_info` SET `User_Password` = '" . $password . "' WHERE `User_Email` = '" . $email. "' AND `confirm_number` = " . $number . " AND `User_Type` = '" . $type . "'";
+    $sql = "UPDATE `users` SET `password` = '" . $password . "' WHERE `email` = '" . $email. "' AND `confirm_number` = " . $number . " AND `type` = '" . $type . "'";
 
     if ($conn->query($sql) == true) {
         $result['success'] = true;
@@ -89,12 +89,12 @@ if (isset($_POST["confirmPassword"])) {
 }
 
 if(isset($_POST["login"])){
-    $userEmail = $_POST["user_email"];
-    $password = $_POST["user_password"];
-    $userType = $_POST["user_type"];
+    $userEmail = $_POST["email"];
+    $password = $_POST["password"];
+    $userType = $_POST["type"];
 
     $sql = "";
-    $sql = "SELECT * FROM `login_info` WHERE `User_Email` = '" . $userEmail."' and  `User_Password` = '" . $password."' AND `User_Type` = '" . $userType . "'";
+    $sql = "SELECT * FROM `users` WHERE `email` = '" . $userEmail."' and  `password` = '" . $password."' AND `type` = '" . $userType . "'";
     $query = mysqli_query($conn,$sql);
     $row = mysqli_fetch_assoc($query);
 
@@ -107,42 +107,13 @@ if(isset($_POST["login"])){
     if(mysqli_num_rows($query) == 0){
         $result['error'] = "The login credentials entered are invalid";
     }else{
+        $_SESSION["type"] = $row["type"];
+        $_SESSION["user_email"] = $row['email'];
+        $_SESSION["user_id"] = $row['id'];
 
-        if($row["User_Type"] == "Student"){
-            $_SESSION["user"] = "Student";
-            $_SESSION["uemail"] = $row['User_Email'];
-            $_SESSION["uId"] = $row['User_ID'];
-
-            $result['type'] = "Student";
-            $result['success'] = true;
-//            header("location:student/index.php");
-        }else if($row["User_Type"] == "Administrator"){
-            $_SESSION["user"] = "admin";
-            $_SESSION["uemail"] = $row['User_Email'];
-            $_SESSION["uId"] = $row['User_ID'];
-            $result['success'] = true;
-            $result['type'] = "admin";
-//            header("location:admin/index.php");
-//            echo $row['User_Email'];
-        }else if($row["User_Type"] == "Faculty"){
-            $_SESSION["user"] = "Faculty";
-            $_SESSION["uemail"] = $row['User_Email'];
-            $_SESSION["uId"] = $row['User_ID'];
-
-            $result['success'] = true;
-            $result['type'] = "faculty";
-//            header("location:faculty/index.php");
-//            echo $row['User_Email'];
-        }
-
-
+        $result['success'] = true;
+        $result['type'] = $row["type"];
     }
-
-//    $_SESSION["enrollDate"] = $springEnrollEnd;
-//    $_SESSION["enrollStartDate"] = $springEnrollStart;
-//    $_SESSION["fallDate"] = $fallEnrollStart;
-//    $_SESSION["fallDateEnd"] = $fallEnrollEnd;
-//    $_SESSION["gradeDate"] = $lastGradeDate;
 
     echo json_encode($result);
     exit;
@@ -291,14 +262,14 @@ if(isset($_POST["login"])){
         <form onsubmit="return onLogin(event)">
             <h3>Login</h3>
             <div class="input">
-                <input type="email" id="user_email" name="user_email" onmousedown="onRemoveErrors()" placeholder="Email" class="input-box" required/>
+                <input type="email" id="email" name="email" onmousedown="onRemoveErrors()" placeholder="Email" class="input-box" required/>
             </div>
 
             <div class="input">
-            <input type="password" id="user_password" onmousedown="onRemoveErrors()" name="user_password" placeholder="Password" class="input-box"/>
+            <input type="password" id="password" onmousedown="onRemoveErrors()" name="password" placeholder="Password" class="input-box"/>
             </div>
             <div class="input">
-                <select id="user_type" name="user_type">
+                <select id="type" name="type">
                     <option value="Administrator">Administrator</option>
                     <option value="Faculty">Faculty</option>
                     <option value="Student">Student</option>
@@ -321,6 +292,6 @@ if(isset($_POST["login"])){
         </form>
         </div>
     </div>
-<script src="./plugins/js/index.js"></script>
+<script src="js/index.js"></script>
 </body>
 </html>
