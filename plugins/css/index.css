@@ -153,3 +153,23 @@ table thead {
     box-shadow: none !important;
 }
 
+.search-input {
+    max-width: 300px;
+    border: 2px solid #5a6268;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.search-input input {
+    border: none;
+}
+
+.search-input input:focus {
+    border-color: unset !important;
+    box-shadow: none !important;
+}
+
+.table-toolbar {
+    padding-bottom: 4px;
+}
+

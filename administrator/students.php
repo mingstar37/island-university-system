@@ -7,10 +7,62 @@ if (empty($_SESSION['user_id']) || empty($_SESSION['user_email']) || empty($_SES
 
 include '../connection.php';
 
-$sqlStudent = "SELECT student.*, users.first_name, users.last_name, users.dob, users.email, users.password, users.ssn, student.student_gpa, student.student_type";
-$sqlStudent .= " FROM `student` INNER JOIN `users` ON `users`.`id` = `student`.`user_id`";
+if (isset($_POST['load_data'])) {
 
-$queryStudent = mysqli_query($conn, $sqlStudent);
+    $search_text = $_POST['search_text'];
+    $start_number = $_POST['start_number'];
+    $page_size = $_POST['page_size'];
+    $sqlStudent = "SELECT student.*, users.first_name, users.last_name, users.dob, users.email, users.password, users.ssn, student.student_gpa, student.student_type";
+    $sqlStudent .= " FROM `student` LEFT JOIN `users` ON `users`.`id` = `student`.`user_id`";
+
+    if(!empty($search_text)) {
+        $sqlStudent .= " WHERE users.first_name LIKE '%$search_text%' OR users.email LIKE '%$search_text%'";
+        $sqlStudent .= " OR users.last_name LIKE '%$search_text%' OR student.id LIKE '%$search_text%'";
+        $sqlStudent .= " OR student.student_gpa LIKE '%$search_text%' OR student.student_type LIKE '%$search_text%'";
+    }
+
+    $totalQuery = mysqli_query($conn, $sqlStudent);
+    $total_count = mysqli_num_rows($totalQuery);
+
+    $sqlStudent .= " LIMIT $page_size OFFSET $start_number";
+
+    $queryStudent = mysqli_query($conn, $sqlStudent);
+
+
+    $count = 0;
+    $resultHtml = "";
+    while($rowStudent = mysqli_fetch_assoc($queryStudent)){
+        $resultHtml .= '<tr id="row_' . $rowStudent["id"] . '">';
+        $resultHtml .= '<td>'.$rowStudent["id"].'</td>';
+        $resultHtml .= '<td>'.$rowStudent["first_name"] . " " . $rowStudent["last_name"] . '</td>';
+        $resultHtml .= '<td>'.$rowStudent["dob"].'</td>';
+        $resultHtml .= '<td>'.$rowStudent["email"].'</td>';
+        $resultHtml .= '<td>'.$rowStudent["password"].'</td>';
+        $resultHtml .= '<td>'.$rowStudent["ssn"].'</td>';
+        $resultHtml .= '<td>'.$rowStudent["student_gpa"].'</td>';
+        $resultHtml .= '<td>'.$rowStudent["student_type"].'</td>';
+        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $rowStudent["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
+            <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $rowStudent["id"] . ')" title="Delete"><i class="fa fa-trash"></i> </button> </td>';
+        $resultHtml .= '</tr>';
+
+        $count ++;
+    }
+
+    if ($count < 1) {
+        $resultHtml .= '<tr>
+                            <td colspan="10">There is no data</td></tr>';
+    }
+
+    $ret = [
+            'html' => $resultHtml,
+        'total_count' => $total_count
+    ];
+
+    echo json_encode($ret);
+    exit;
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -44,11 +96,19 @@ $queryStudent = mysqli_query($conn, $sqlStudent);
         include "sidenav.php";
         ?>
         <div class="main-page">
-            <div class="row">
-                <div class="col-lg-8">
+            <div class="row table-toolbar">
+                <div class="col-lg-6">
                     <h3>Students</h3>
                 </div>
-                <div class="col-lg-4 text-right">
+                <div class="col-lg-6 text-right" style="display: flex; justify-content: flex-end">
+                    <div class="input-group search-input" style="max-width: 300px; margin-right: 20px">
+                        <input type="text" id="search-text" class="form-control" placeholder="search" onkeyup="onSearchKeyup(event)">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" type="button" onclick="onSearch()">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
                     <button type="button" class="btn btn-sm btn-success" onclick="onAddNew()">
                         <i class="fa fa-plus"></i> &nbsp;Add New
                     </button>
@@ -69,41 +129,27 @@ $queryStudent = mysqli_query($conn, $sqlStudent);
                 </tr>
                 </thead>
                 <tbody id="table-body">
-                <?php
-                $count = 0;
-                while($rowStudent = mysqli_fetch_assoc($queryStudent)){
-                    echo '<tr>';
-                    echo '<td>'.$rowStudent["id"].'</td>';
-                    echo '<td>'.$rowStudent["first_name"] . " " . $rowStudent["last_name"] . '</td>';
-                    echo '<td>'.$rowStudent["dob"].'</td>';
-                    echo '<td>'.$rowStudent["email"].'</td>';
-                    echo '<td>'.$rowStudent["password"].'</td>';
-                    echo '<td>'.$rowStudent["student_gpa"].'</td>';
-                    echo '<td>'.$rowStudent["student_type"].'</td>';
-                    echo '<td></td>';
-                    echo '</tr>';
 
-                    $count ++;
-                }
-
-                if ($count < 1) {
-                    echo '<tr>
-                        <td colspan="10">There is no data</td></tr>';
-                }
-                ?>
                 </tbody>
                 <tfoot>
 
                 </tfoot>
             </table>
             <div class="pagination-wrapper text-center" id="pagination-wrapper">
-<!--                <ul class="pagination pagination-sm">-->
-<!--                    <li class="page-item" style="width: 80px"><a class="page-link" href="#">Previous</a></li>-->
-<!--                    <li class="page-item"><a class="page-link" href="#">1</a></li>-->
-<!--                    <li class="page-item active"><a class="page-link" href="#">2</a></li>-->
-<!--                    <li class="page-item"><a class="page-link" href="#">3</a></li>-->
-<!--                    <li class="page-item" style="width: 80px"><a class="page-link" href="#">Next</a></li>-->
-<!--                </ul>-->
+                <ul class="pagination pagination-sm">
+                    <li class="page-item" style="width: 80px; background-color: #86cfda"><a class="page-link" id="pagination-prev" href="javascript:void(0)">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="javascript:void(0)" id="pagination-one">1</a></li>
+                    <li class="page-item"><a class="page-link" href="javascript:void(0)" id="pagination-two">2</a></li>
+                    <li class="page-item"><a class="page-link" href="javascript:void(0)" id="pagination-three">3</a></li>
+                    <li class="page-item" style="width: 80px"><a class="page-link" href="javascript:void(0)" id="pagination-next">Next</a></li>
+                    <li class="page-item">
+                        <select id="page-select" style="width: 60px; height: 100%" onchange="onChangePageNumber(event)">
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
