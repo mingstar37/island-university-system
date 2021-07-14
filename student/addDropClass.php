@@ -91,7 +91,7 @@ if(isset($_POST["termSubmit"])){
         $query = mysqli_query($conn,$sql);
 
 
-        $userId = $_SESSION["uId"];
+        $userId = $_SESSION["user_id"]];
         $sql3 = "SELECT * FROM enrollment WHERE Student_ID='".$userId."' and Date_Enrolled LIKE '%2021%'";
         $query3 = mysqli_query($conn,$sql3);
 
@@ -159,7 +159,7 @@ if(isset($_POST["termSubmit"])){
 
         $available = array();
         for($i=0; $i<count($prereqs); $i++){
-            $sqlAllowed = "SELECT * FROM enrollment WHERE Student_ID = '".$_SESSION["uId"]."' and CRN_Num = '".getCrn($prereqs[$i] , $conn)."'";
+            $sqlAllowed = "SELECT * FROM enrollment WHERE Student_ID = '".$_SESSION["user_id"]]."' and CRN_Num = '".getCrn($prereqs[$i] , $conn)."'";
             $queryAllowed = mysqli_query($conn, $sqlAllowed);
             $rowAllowed = mysqli_num_rows($queryAllowed);
 
@@ -223,7 +223,7 @@ function getCrn($courseid, $conn) {
             <div class="search-box">
                 <!-- <input type="text" placeholder="Search"/> -->
                 <!-- <button>Search</button> -->
-                <?php 
+                <?php
                        echo $_SESSION["uemail"];
                 ?>
                 <a href="../logout.php"><button>Logout</button></a>
@@ -258,7 +258,7 @@ function getCrn($courseid, $conn) {
            <br>
            <hr>
            <br>
-        
+
         <div class="add-class-div">
         <?php
          if(isset($_POST["termSubmit"]) && $bEnable == true){
@@ -270,7 +270,7 @@ function getCrn($courseid, $conn) {
                 }else{
                     echo '<p> <b>Last date to enroll: '.$fallEnrollEnd.'</b></p>';
                 }
-                
+
                 echo '<table class="view-table">';
                 echo '<tr>';
                 echo '<th>S. No.</th>';
@@ -280,7 +280,7 @@ function getCrn($courseid, $conn) {
                 echo '<th>Drop</th>';
                 echo '</tr>';
                 if($term == 'Spring 2021'){
-                    for ($i=0; $i < count($enrolled); $i++) { 
+                    for ($i=0; $i < count($enrolled); $i++) {
                         echo '<tr>';
                         echo '<td>'.($i+1).'</td>';
                         echo '<td>'.$coursesEnrolled[$i].'</td>';
@@ -291,7 +291,7 @@ function getCrn($courseid, $conn) {
                         echo '</tr>';
                     }
                 }else{
-                    for ($i=0; $i < count($enrolled2); $i++) { 
+                    for ($i=0; $i < count($enrolled2); $i++) {
                         echo '<tr>';
                         echo '<td>'.($i+1).'</td>';
                         echo '<td>'.$coursesEnrolled2[$i].'</td>';
@@ -302,12 +302,12 @@ function getCrn($courseid, $conn) {
                         echo '</tr>';
                     }
                 }
-                
+
                 echo '</table>';
 
 
                 echo '</div>';
-         
+
 
                 echo '<div class="available_courses" style="margin-top:100px;">';
                 echo '<h2 style="padding-left:50px;">Available Courses </h2>';
@@ -351,7 +351,7 @@ function getCrn($courseid, $conn) {
                     while($rowDays = mysqli_fetch_assoc($queryDays)){
                         array_push($days, $rowDays["Week_Day"]);
                     }
-                    
+
                     $List = implode(', ', $days);
                     echo '<td>';
                     print_r($List);
@@ -411,10 +411,10 @@ function getCrn($courseid, $conn) {
                 echo '</div>';
 
             }
-           
+
         ?>
         </div>
-    
+
 
 
     </div>

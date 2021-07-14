@@ -2,14 +2,14 @@
 session_start();
 include '../connection.php';
 
-    $userId = $_SESSION["uId"];
+    $userId = $_SESSION["user_id"]];
     $courseID = $_GET["courseID"];
-    
+
 
     $term = $_GET["term"];
     echo $term;
-    $studentId = $_SESSION["uId"];
-    
+    $studentId = $_SESSION["user_id"]];
+
     $sqlPre = "SELECT * FROM course WHERE Course_ID = '".$courseID."'";
     $queryPre = mysqli_query($conn, $sqlPre);
     $rowPre = mysqli_fetch_assoc($queryPre);
@@ -21,7 +21,7 @@ include '../connection.php';
       if ($conn->query($sql) === TRUE) {
         $_SESSION["credits"] = $_SESSION["credits"] + $_GET["credits"];
         $_SESSION["required_creds"] = $_SESSION["required_creds"] - $_GET["credits"];
-  
+
           header('location:addDropClass.php');
       } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
@@ -36,13 +36,13 @@ include '../connection.php';
         echo '\n';
         echo $_SESSION["credits"];
         $_SESSION["required_creds2"] = $_SESSION["required_creds2"] - $_GET["credits"];
-  
+
           header('location:addDropClass.php');
       } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
       }
     }
-    
+
 
 
 ?>

@@ -16,7 +16,8 @@
 .main-page{
     position: relative;
     display:inline-block;
-    width:70%;
-    float:right;
+    /*float:right;*/
+    width: 85%;
     height:100%;
+    padding-right: 20px;
 }

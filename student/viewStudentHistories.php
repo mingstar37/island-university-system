@@ -9,7 +9,7 @@ $query = "";
 if (isset($_POST['submit'])) {
     $selYear = $_POST['selYear'];
 
-    $userId = $_SESSION["uId"];
+    $userId = $_SESSION["user_id"]];
 
     $sql = 'SELECT * FROM `student_history` as sh LEFT JOIN `users` ON users.User_ID = sh.Student_ID';
     $sql .= ' LEFT JOIN `section` ON `section`.CRN_Num = sh.CRN_Num LEFT JOIN course ON course.Course_ID = section.Course_ID WHERE sh.`Student_ID` = ' . $userId . ' AND sh.`year` = ' . $selYear;

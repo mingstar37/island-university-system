@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 $sql = "SELECT * FROM student_minor WHERE Student_ID = '".$userId."'";
 $query = mysqli_query($conn,$sql);
@@ -60,7 +60,7 @@ $row3 = mysqli_fetch_assoc($query3);
     <div id="main-section">
         <h1 id="banner"> Island - Student Minor </h1>
 
-        <?php 
+        <?php
             include 'sidebar.php';
         ?>
         <div class="main-page">
@@ -71,7 +71,7 @@ $row3 = mysqli_fetch_assoc($query3);
                     }else{
 
                         ?>
-                        Your Minor is: <span style="font-weight:bold;font-size:20px;"><?php echo $row2["Minor_Name"]?></span> 
+                        Your Minor is: <span style="font-weight:bold;font-size:20px;"><?php echo $row2["Minor_Name"]?></span>
                             <br><br>
                         Department for your minor is : <span style="font-weight:bold;font-size:20px;"><?php echo $row3["Dept_Name"]?></span>
                         <br><br>

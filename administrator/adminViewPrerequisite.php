@@ -25,7 +25,7 @@ if (isset($_POST['deleteRow'])) {
     exit;
 }
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 $sql = "SELECT * FROM `prerequisite`";
 $query = mysqli_query($conn, $sql);

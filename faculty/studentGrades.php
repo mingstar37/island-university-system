@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 $crn = $_GET['crn'];
 $cname = $_GET['cname'];
 
@@ -104,7 +104,7 @@ while($row = mysqli_fetch_assoc($querySection)){
                 $sqlSName = "SELECT * FROM users WHERE User_ID = '" . $students[$j]["Student_ID"] . "'";
                 $querySName = mysqli_query($conn, $sqlSName);
                 $rowSName = mysqli_fetch_assoc($querySName);
-                echo '<td>' . $rowSName["F_Name"] . ' ' . $rowSName["L_Name"] . '</td>';    
+                echo '<td>' . $rowSName["F_Name"] . ' ' . $rowSName["L_Name"] . '</td>';
 
 
                 echo '<td>' . $cname . '</td>';

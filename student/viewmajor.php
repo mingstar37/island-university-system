@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 $sql = "SELECT * FROM student_major WHERE Student_ID = '".$userId."'";
 $query = mysqli_query($conn,$sql);
@@ -58,14 +58,14 @@ $row3 = mysqli_fetch_assoc($query3);
     <div id="main-section">
         <h1 id="banner"> Island - Student Major </h1>
 
-        <?php 
+        <?php
             include 'sidebar.php';
         ?>
         <div class="main-page">
                 <br>
-                Your Major is: <span style="font-weight:bold;font-size:20px;"><?php echo $row2["Major_Name"]?></span> 
+                Your Major is: <span style="font-weight:bold;font-size:20px;"><?php echo $row2["Major_Name"]?></span>
                 <br><br>
-                Department for your major is : <span style="font-weight:bold;font-size:20px;"><?php echo $row3["Dept_Name"]?></span> 
+                Department for your major is : <span style="font-weight:bold;font-size:20px;"><?php echo $row3["Dept_Name"]?></span>
                 <br><br>
 
                 <input type="checkbox" value="First Major" class="disabled" <?php if (in_array('First Major', $type)) echo 'checked'; ?>/>&nbsp;First Major<br/><br/>

@@ -2,7 +2,7 @@
     session_start();
     include '../connection.php';
 
-    $userId = $_SESSION["uId"];
+    $userId = $_SESSION["user_id"]];
     $courseID = $_GET["courseID"];
 
     echo $userId;
@@ -15,7 +15,7 @@
     if ($conn->query($sql) === TRUE) {
       // $_SESSION["credits"] = $_SESSION["credits"] - $_GET["credits"];
       // $_SESSION["required_creds"] = $_SESSION["required_creds"] + $_GET["credits"];
-      
+
         header('location:addDropClass.php');
     } else {
       echo "Error: " . $sql . "<br>" . $conn->error;

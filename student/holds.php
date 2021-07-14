@@ -2,10 +2,10 @@
 session_start();
 include '../connection.php';
 
-    $userId = $_SESSION["uId"];
+    $userId = $_SESSION["user_id"]];
     $sql = "SELECT * FROM student_holds WHERE Student_ID='".$userId."' ";
     $query = mysqli_query($conn,$sql);
-    
+
 
 
 ?>
@@ -28,7 +28,7 @@ include '../connection.php';
             <div class="search-box">
                 <input type="text" placeholder="Search"/>
                 <button>Search</button>
-                <?php 
+                <?php
                        echo $_SESSION["uemail"];
                 ?>
                 <a href="../logout.php"><button>Logout</button></a>
@@ -50,8 +50,8 @@ include '../connection.php';
         ?>
         <h1 id="banner"> Island University - Student Holds </h1>
 
-       
-           
+
+
             <table class="view-table">
                 <tr>
                     <th>Student_ID</th>

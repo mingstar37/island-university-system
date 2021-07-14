@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 $sqlSection = "Select * from section where Faculty_ID = '".$userId."'";
 $querySection = mysqli_query($conn,$sqlSection);
@@ -51,10 +51,10 @@ while($row = mysqli_fetch_assoc($querySection)){
             <a href="index.php"><div class="navi"> Home </div></a>
             <a href="attendance.php"><div class="navi"> Attendance </div></a>
             <a href="students.php"><div class="navi"> Students </div></a>
-           
+
             <a href="courses.php"><div class="navi"> Courses </div></a>
             <a href="roster.php"><div class="navi"> Roster </div></a>
-        
+
         </div> -->
     </div>
 
@@ -91,7 +91,7 @@ while($row = mysqli_fetch_assoc($querySection)){
                     echo '<td>'.$crns[$i]["Building_Name"].'</td>';
                     echo '<td>'.$result["Course_Name"].'</td>';
                     echo '<td>'.$result["Course_Credits"].'</td>';
-                    
+
 
                     $sqlFac = "SELECT * FROM users where User_ID = '".$crns[$i]["Faculty_ID"]."'";
                     $query = mysqli_query($conn, $sqlFac);
@@ -108,7 +108,7 @@ while($row = mysqli_fetch_assoc($querySection)){
                     while($rowDays = mysqli_fetch_assoc($queryDays)){
                         array_push($days, $rowDays["Week_Day"]);
                     }
-                    
+
                     $List = implode(', ', $days);
                     echo '<td>';
                     print_r($List);
@@ -129,7 +129,7 @@ while($row = mysqli_fetch_assoc($querySection)){
         </table>
     </div>
 
-   
+
 </div>
 </body>
 </html>

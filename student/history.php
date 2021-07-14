@@ -6,7 +6,7 @@ include '../connection.php';
     $courseNames = array();
     $semesters = array();
 
-    $userId = $_SESSION["uId"];
+    $userId = $_SESSION["user_id"]];
     $sql = "SELECT * FROM student_history WHERE Student_ID = '".$userId."' ORDER BY year DESC";
     $query = mysqli_query($conn,$sql);
 
@@ -52,7 +52,7 @@ include '../connection.php';
             <div class="search-box">
                 <!-- <input type="text" placeholder="Search"/> -->
                 <!-- <button>Search</button> -->
-                <?php 
+                <?php
                        echo $_SESSION["uemail"];
                 ?>
                 <a href="../logout.php"><button>Logout</button></a>
@@ -68,7 +68,7 @@ include '../connection.php';
     </div>
 
 
- 
+
     <div id="main-section">
     <?php
             include 'sidebar.php';
@@ -77,8 +77,8 @@ include '../connection.php';
         <br>
 
 
-       
-        
+
+
             <table class="view-table">
                 <tr>
                     <th>S. No.</th>
@@ -86,7 +86,7 @@ include '../connection.php';
                     <th>Grade</th>
                     <th>Semester </th>
                     <th>Year</th>
-                    
+
                 </tr>
             <?php
                 for($i=0; $i<count($history); $i++){

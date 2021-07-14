@@ -3,13 +3,13 @@
         <nav class="left-nav hidden-xs hidden-sm hidden-md">
             <ul class="nolist">
                 <li class="nolistHighlight image-container">
-                    <a href="profile.php">Hello Admin <?php echo $_SESSION["uemail"] ?></a>
+                    <a href="profile.php">Hello Admin <?php echo $_SESSION["user_email"] ?></a>
                 </li>
                 <li>
-                    <a href="#">Add A User</a>
+                    <a href="#">Users</a>
                     <ul class="nolist">
                         <li>
-                            <a href="registerStudent.php">Student</a>
+                            <a href="./students.php">Student</a>
                         </li>
                         <li>
                             <a href="registerFaculty.php">Faculty</a>

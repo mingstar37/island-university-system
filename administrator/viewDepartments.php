@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 $sql = "SELECT * FROM department";
 $query = mysqli_query($conn, $sql);

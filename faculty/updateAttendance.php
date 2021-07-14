@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 $sqlSection = "Select * from section where Faculty_ID = '".$userId."'";
 $querySection = mysqli_query($conn,$sqlSection);
@@ -72,10 +72,10 @@ if(isset($_POST["edit"])){
             <a href="index.php"><div class="navi"> Home </div></a>
             <a href="attendance.php"><div class="navi"> Attendance </div></a>
             <a href="students.php"><div class="navi"> Students </div></a>
-           
+
             <a href="courses.php"><div class="navi"> Courses </div></a>
             <a href="roster.php"><div class="navi"> Roster </div></a>
-           
+
         </div> -->
     </div>
 

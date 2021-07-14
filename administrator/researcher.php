@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 $sql = "SELECT * FROM users WHERE User_Type = 'Researcher'";
 $query = mysqli_query($conn,$sql);
@@ -17,7 +17,7 @@ if(isset($_POST["submit"])){
     $studentSsn = $_POST["studentSsn"];
     $studentEmail = $_POST["studentEmail"];
     $studentPassword = $_POST["studentPassword"];
-    
+
     //Take variables
 
     $sql = "INSERT INTO users (User_ID, F_Name, L_Name, User_DOB, User_SSN, User_Type) VALUES (".$studentUid.",'".$studentFname."','".$studentLname."','".$studentDob."','".$studentSsn."','Researcher' )";
@@ -53,16 +53,16 @@ if(isset($_POST["edit"])){
     $studentSsn = $_POST["studentSsn"];
     $studentEmail = $_POST["studentEmail"];
     $studentPassword = $_POST["studentPassword"];
-   
+
     $sql7 = "UPDATE users SET F_Name = '".$studentFname."', L_Name = '".$studentLname."', User_DOB='".$studentDob."', User_SSN = '".$studentSsn."', User_Type = 'Researcher' WHERE User_ID = '".$studentUid."'";
     $sql8 = "UPDATE login_info SET User_Email = '".$studentEmail."', User_Password = '".$studentPassword."', User_Type='Researcher' WHERE User_ID = '".$studentUid."'";
-    
+
         if ($conn->query($sql7) === TRUE) {
             echo 'Successfully updated users';
-            
+
             if ($conn->query($sql8) === TRUE) {
                 echo 'Successfully updated login_info';
-        
+
             } else {
               echo "Error: " . $sql8 . "<br>" . $conn->error;
             }
@@ -138,9 +138,9 @@ if(isset($_POST["edit"])){
      <br>
      <br>
 
-     <h3> Add Researcher </h3> 
-     <br>  
-    <?php 
+     <h3> Add Researcher </h3>
+     <br>
+    <?php
     if($student_added){
         echo "Student Added Successfully";
     }
@@ -153,7 +153,7 @@ if(isset($_POST["edit"])){
         <input type="text" placeholder="Researcher SSN" name="studentSsn" /> <br><br>
         <input type="text" placeholder="Researcher Email" name="studentEmail" /> <br><br>
         <input type="text" placeholder="Researcher Password" name="studentPassword" /> <br><br>
-        
+
         <input type="submit" name="submit" value="Add Researcher"/>
         <input type="submit" name="edit" value="Edit" />
 

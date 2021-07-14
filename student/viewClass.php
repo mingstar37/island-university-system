@@ -3,7 +3,7 @@ session_start();
 include '../connection.php';
 
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 $sql = "SELECT * FROM enrollment WHERE Student_ID = '".$userId."' and Date_Enrolled LIKE '%2021%'";
 $query = mysqli_query($conn, $sql);
 
@@ -27,7 +27,7 @@ while($row = mysqli_fetch_assoc($query)){
         $querytimes = mysqli_query($conn, $sqlTimes);
         $rowTimes = mysqli_fetch_assoc($querytimes);
         array_push($periods, $rowTimes["Period_No"]);
-        
+
         $sqlCourse = "SELECT * FROM course WHERE Course_ID = '".$row2["Course_ID"]."'";
         $queryCourse = mysqli_query($conn, $sqlCourse);
         $rowCourse = mysqli_fetch_assoc($queryCourse);
@@ -38,7 +38,7 @@ while($row = mysqli_fetch_assoc($query)){
         $rowFaculty = mysqli_fetch_assoc($queryFaculty);
         array_push($faculty, $rowFaculty);
     }
-   
+
 
 }
 
@@ -76,7 +76,7 @@ while($row = mysqli_fetch_assoc($query)){
 
     <div id="main-section">
         <h1 id="banner"> View Schedule </h1>
-        <?php 
+        <?php
             include 'sidebar.php';
         ?>
         <div class="main-page">
@@ -105,8 +105,8 @@ while($row = mysqli_fetch_assoc($query)){
                     echo '<td>'.$faculty[$i]["F_Name"].' '.$faculty[$i]["L_Name"].'</td>';
                     echo '<td>'.$sections[$i]["Room_Num"].'</td>';
                     echo '<td>'.$sections[$i]["Building_Name"].'</td>';
-                    
-    
+
+
                     $sqlPeriod = "SELECT * FROM period WHERE Period_No = '".$periods[$i]."'";
                     $queryPeriod = mysqli_query($conn, $sqlPeriod);
                     $rowPeriod = mysqli_fetch_assoc($queryPeriod);
@@ -132,7 +132,7 @@ while($row = mysqli_fetch_assoc($query)){
                 }else{
 
                 }
-               
+
             }
         ?>
         </table>

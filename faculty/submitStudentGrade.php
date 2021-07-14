@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 $crn = $_GET['crn'];
 $cname = $_GET['cname'];
 
@@ -72,7 +72,7 @@ if ($lastGradeResult = mysqli_fetch_assoc($squerLastGrade)) {
         <br><br>
         <form method="post" action="">
         <table class="view-table">
-        
+
                 <tr>
                     <th>S. No.</th>
                     <th>Student ID</th>
@@ -110,12 +110,12 @@ if ($lastGradeResult = mysqli_fetch_assoc($squerLastGrade)) {
                 }
             ?>
 
-        
+
         </table>
         </form>
     </div>
 
-                
+
 </div>
 
 <script src="../plugins/js/nav.js"></script>

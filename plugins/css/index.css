@@ -135,3 +135,21 @@
     pointer-events: none;
 }
 
+.pagination-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+table td, table th {
+    text-align: center;
+}
+
+table thead {
+    background-color: #2F96B4;
+    color: white;
+}
+.page-item a:focus {
+    box-shadow: none !important;
+}
+

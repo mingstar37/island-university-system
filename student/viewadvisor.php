@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 $sql = "SELECT * FROM advisor WHERE Student_ID = '".$userId."'";
 $query = mysqli_query($conn,$sql);
 
@@ -52,22 +52,22 @@ while ($row = mysqli_fetch_assoc($query)){
     <div id="main-section">
         <h1 id="banner"> View Advisors </h1>
 
-        <?php 
+        <?php
             include 'sidebar.php';
         ?>
         <div class="main-page">
                 <?php
                     for($i=0; $i<count($advisors); $i++){
                         ?>
-                        Advisor Name: <span style="font-weight:bold;font-size:20px;"><?php echo $faculties[$i]["F_Name"].' '.$faculties[$i]["L_Name"] ?></span> 
+                        Advisor Name: <span style="font-weight:bold;font-size:20px;"><?php echo $faculties[$i]["F_Name"].' '.$faculties[$i]["L_Name"] ?></span>
                         <br>
-                        Time of Advisement: <span style="font-weight:bold;font-size:20px;"><?php echo $advisors[$i]["Time_Of_Advisement"]?></span> 
+                        Time of Advisement: <span style="font-weight:bold;font-size:20px;"><?php echo $advisors[$i]["Time_Of_Advisement"]?></span>
                         <br><br>
                         <?php
                     }
 
                 ?>
-            
+
 
         </div>
 

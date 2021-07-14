@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 $deptId = $_GET["DeptId"];
 
 $facultyIds = array();
@@ -40,9 +40,9 @@ while($row = mysqli_fetch_assoc($query)){
     else{
         array_push($facultyTypes, "Part Time");
     }
-    
-    
-    
+
+
+
 }
 
 
@@ -116,7 +116,7 @@ while($row = mysqli_fetch_assoc($query)){
                     <th>Faculty Name</th>
                     <th>Faculty Rank</th>
                     <th>Faculty Type</th>
-                    
+
                 </tr>
                 <?php
                     for($i=0; $i<count($facultyIds); $i++) {
@@ -138,7 +138,7 @@ while($row = mysqli_fetch_assoc($query)){
 
     </div>
 
-   
+
 
 
     </div>

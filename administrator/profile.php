@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"];
 if(isset($_POST["submit"])){
     $password = $_POST["password"];
     $cpassword = $_POST["cpassword"];
@@ -11,7 +11,7 @@ if(isset($_POST["submit"])){
         $sql = "UPDATE login_info SET User_Password = '".$password."' WHERE User_ID = '".$userId."'";
         if ($conn->query($sql) === TRUE) {
             echo 'Successfully updated Password';
-    
+
         } else {
           echo "Error: " . $sql . "<br>" . $conn->error;
         }
@@ -29,7 +29,7 @@ if(isset($_POST["submitEmail"])){
         $sql = "UPDATE login_info SET User_Email = '".$email."' WHERE User_ID = '".$userId."' and User_Password = '".$cpassword."'";
         if ($conn->query($sql) === TRUE) {
             echo 'Successfully updated Email';
-    
+
         } else {
           echo "Error: " . $sql . "<br>" . $conn->error;
         }
@@ -37,7 +37,6 @@ if(isset($_POST["submitEmail"])){
         echo "Something went wrong";
     }
 }
-
 
 ?>
 

@@ -98,15 +98,15 @@ if(isset($_POST["edit"])){
     $sql6 = "UPDATE student SET Student_GPA = '".$studentGpa."', Student_Type = '".$studentType."' WHERE Student_ID = '".$studentUid."'";
     $sql7 = "UPDATE users SET F_Name = '".$studentFname."', L_Name = '".$studentLname."', User_DOB='".$studentDob."', User_SSN = '".$studentSsn."', User_Type = 'Student' WHERE User_ID = '".$studentUid."'";
     $sql8 = "UPDATE login_info SET User_Email = '".$studentEmail."', User_Password = '".$studentPassword."', User_Type='Student' WHERE User_ID = '".$studentUid."'";
-    
+
     if ($conn->query($sql6) === TRUE) {
         echo 'Successfully updated student';
         if ($conn->query($sql7) === TRUE) {
             echo 'Successfully updated users';
-            
+
             if ($conn->query($sql8) === TRUE) {
                 echo 'Successfully updated login_info';
-        
+
             } else {
               echo "Error: " . $sql8 . "<br>" . $conn->error;
             }
@@ -120,7 +120,7 @@ if(isset($_POST["edit"])){
     }
 }
 
-?> 
+?>
 
 
 <!DOCTYPE html>
@@ -134,25 +134,9 @@ if(isset($_POST["edit"])){
     <link rel="stylesheet" href="../plugins/css/index.css">
 </head>
 <body>
-<div id="header">
-        <div id="upper-header">
-            <div class="user-name">Hello admin</div>
-            <div class="search-box">
-                <input type="text" placeholder="Search"/>
-                <button>Search</button>
-            </div>
-        </div>
-        <div id="lower-header">
-            <a href="index.php"><div class="navi"> Home </div></a>
-            <a href="departments.php"><div class="navi"> Departments </div></a>
-            <a href="addStudent.php"><div class="navi"> Students </div></a>
-            <a href="enrolled.php"><div class="navi"> Academics </div></a>
-            <a href="courses.php"><div class="navi"> Courses </div></a>
-            <a href="faculty.php"><div class="navi"> Faculty </div></a>
-            <a href="researcher.php"><div class="navi"> Researcher </div></a>
-        </div>
-    </div>
-
+    <?php
+    include "header.php";
+    ?>
     <div id="main-section">
 
     <h2 style="margin-left:50px;"> Students </h2>
@@ -163,18 +147,29 @@ if(isset($_POST["edit"])){
         <br>
         <table class="view-table">
                 <tr>
-                    <th>Student ID</th>
-                    <th>Student GPA</th>
-                    <th>Student Type</th>
-                    <th>Drop</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>DOB</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>SSN</th>
+                    <th>GPA</th>
+                    <th>Type</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
                 </tr>
             <?php
                 while($rowStudent = mysqli_fetch_assoc($queryStudent)){
                     echo '<tr>';
-                    echo '<td>'.$rowStudent["Student_ID"].'</td>';
-                    echo '<td>'.$rowStudent["Student_GPA"].'</td>';
-                    echo '<td>'.$rowStudent["Student_Type"].'</td>';
-                    echo '<td><a href="deleteStudent.php?userId='.$rowStudent["Student_ID"].'">Delete</a></td>';
+                    echo '<td>'.$rowStudent["student_id"].'</td>';
+                    echo '<td>'.$rowStudent["first_name"] . " " . $rowStudent["last_name"] . '</td>';
+                    echo '<td>'.$rowStudent["dob"].'</td>';
+                    echo '<td>'.$rowStudent["email"].'</td>';
+                    echo '<td>'.$rowStudent["password"].'</td>';
+                    echo '<td>'.$rowStudent["gpa"].'</td>';
+                    echo '<td>'.$rowStudent["type"].'</td>';
+                    echo '<td></td>';
+                    echo '<td></td>';
                     echo '</tr>';
                 }
             ?>
@@ -188,9 +183,9 @@ if(isset($_POST["edit"])){
      <br>
      <br>
 
-     <h3 id="add-student-section"> Add Student </h3> 
-     <br>  
-    <?php 
+     <h3 id="add-student-section"> Add Student </h3>
+     <br>
+    <?php
     if($student_added){
         echo "Student Added Successfully";
     }
@@ -221,8 +216,8 @@ if(isset($_POST["edit"])){
         <input type="text" placeholder="Student Status" name="studentStatus" /><br><br>
         <input type="text" placeholder="Student Minimum Credit" name="studentMincredit" /><br><br>
         <input type="text" placeholder="Student Maximum Credit" name="studentMaxcredit" /><br><br>
-        
-        
+
+
         <input type="submit" name="submit" value="Add Student"/>
         <input type="submit" name="edit" value="Edit" />
 

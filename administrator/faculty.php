@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 $sql = "SELECT * FROM faculty";
 $query = mysqli_query($conn,$sql);
@@ -94,15 +94,15 @@ if(isset($_POST["edit"])){
     $sql6 = "UPDATE faculty SET Faculty_Rank = '".$facultyRank."', Faculty_Type = '".$facultyFullpart."' WHERE Faculty_ID = '".$facultyUid."'";
     $sql7 = "UPDATE users SET F_Name = '".$facultyFname."', L_Name = '".$facultyLname."', User_DOB='".$facultyDob."', User_SSN = '".$facultyDob."', User_Type = 'Faculty' WHERE User_ID = '".$facultyID."'";
     $sql8 = "UPDATE login_info SET User_Email = '".$facultyEmail."', User_Password = '".$facultyPassword."', User_Type='Faculty' WHERE User_ID = '".$facultyUid."'";
-    
+
     if ($conn->query($sql6) === TRUE) {
         echo 'Successfully updated faculty';
         if ($conn->query($sql7) === TRUE) {
             echo 'Successfully updated users';
-            
+
             if ($conn->query($sql8) === TRUE) {
                 echo 'Successfully updated login_info';
-        
+
             } else {
               echo "Error: " . $sql8 . "<br>" . $conn->error;
             }
@@ -137,7 +137,7 @@ if(isset($_POST["edit"])){
             </div>
         </div>
         <div id="lower-header">
-        
+
             <a href="index.php"><div class="navi"> Home </div></a>
             <a href="departments.php"><div class="navi"> Departments </div></a>
             <a href="addStudent.php"><div class="navi"> Students </div></a>
@@ -172,7 +172,7 @@ if(isset($_POST["edit"])){
         </table>
     </div>
 
-    
+
     <br>
     <hr>
     <br>
@@ -198,7 +198,7 @@ if(isset($_POST["edit"])){
             <option value="Part_T_Faculty">Part time</option>
             <option value="Full_T_Faculty">Full time</option>
         </select>
-        
+
         <br><br>
         <input type="submit" name="submit" value="Add faculty"/>
         <input type="submit" name="edit" value="Edit"/>

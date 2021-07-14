@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 $crn = $_GET['crn'];
 $cname = $_GET['cname'];
 
@@ -45,13 +45,13 @@ while($row2 = mysqli_fetch_assoc($query)){
 <body>
     <div id="header">
         <div id="upper-header">
-        
+
             <div class="search-box">
-                
+
                 <a href="../logout.php"><button>Logout</button></a>
             </div>
         </div>
-       
+
     </div>
 
     <div id="main-section">
@@ -59,7 +59,7 @@ while($row2 = mysqli_fetch_assoc($query)){
         <?php
             include 'sidebar.php';
         ?>
-    
+
         <h2 style="margin-left:50px;"> Attendance of '<?php echo $cname ?>' </h2>
         <br>
 

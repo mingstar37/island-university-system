@@ -4,14 +4,14 @@ include '../connection.php';
 
 $_SESSION["credits"] = 0;
 $_SESSION["credits2"] = 0;
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
  //student type
 
  $sqlType = "SELECT * FROM student WHERE Student_ID='".$userId."' ";
  $queryType = mysqli_query($conn,$sqlType);
  $rowType = mysqli_fetch_assoc($queryType);
- 
+
  $_SESSION["student_type"] = $rowType["Student_Type"];
  $Student_Type = $_SESSION["student_type"];
 
@@ -22,10 +22,10 @@ $userId = $_SESSION["uId"];
  }else{
     $sqlPart = "SELECT * FROM graduate WHERE Student_ID='".$userId."' ";
  }
- 
+
  $queryPart = mysqli_query($conn,$sqlPart);
  $rowPart = mysqli_fetch_assoc($queryPart);
- 
+
  if($Student_Type == 'undergraduate'){
      if($rowPart['Undergrad_Type'] == "Fulltime_Undergrad"){
          $_SESSION["full_part"] = 'full';
@@ -74,14 +74,14 @@ if ($query)
             }else{
                 $_SESSION["credits2"] = $_SESSION["credits2"] + $row2["Course_Credits"];
             }
-            
+
         }
         $_SESSION["required_creds"] = $_SESSION["required_creds"] - $_SESSION["credits"];
         $_SESSION["required_creds2"] = $_SESSION["required_creds2"] - $_SESSION["credits2"];
     }
 
 
-   
+
 
 
 ?>
@@ -104,7 +104,7 @@ if ($query)
             <div class="search-box">
                 <!-- <input type="text" placeholder="Search"/> -->
                 <!-- <button>Search</button> -->
-                <?php 
+                <?php
                        echo $_SESSION["uemail"];
                 ?>
                 <a href="../logout.php"><button>Logout</button></a>
@@ -170,7 +170,7 @@ if ($query)
                     </table>
                 </div>
             </div>
-            
+
         </div> -->
         <div id="login-section">
             Welcome Student
@@ -178,15 +178,15 @@ if ($query)
             <br>
             Number of courses enrolled: <?php echo $num_of_courses ?>
             <br>
-            Credits Fetched : 
-            <?php 
+            Credits Fetched :
+            <?php
             echo $_SESSION["credits"] ;
             ?>
             <br>
             You are: <?php echo $_SESSION["full_part"]." ".$Student_Type ?>
             <br>
              <!-- Credits Remaining: -->
-              <?php 
+              <?php
             //   echo $_SESSION["required_creds"];
               ?>
         </div>

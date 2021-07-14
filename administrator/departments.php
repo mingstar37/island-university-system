@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"];
 
 $sql = "SELECT * FROM department";
 $query = mysqli_query($conn, $sql);
@@ -26,40 +26,9 @@ $query = mysqli_query($conn, $sql);
 </head>
 
 <body>
-    <div id="header">
-        <div id="upper-header">
-            <!-- <div class="user-name">Hello admin</div> -->
-            <div class="search-box">
-                <!-- <input type="text" placeholder="Search" /> -->
-                <!-- <button>Search</button> -->
-
-                <a href="../logout.php"><button>Logout</button></a>
-            </div>
-        </div>
-        <div id="lower-header">
-            <a href="index.php">
-                <div class="navi"> Home </div>
-            </a>
-            <a href="departments.php">
-                <div class="navi"> Departments </div>
-            </a>
-            <a href="addStudent.php">
-                <div class="navi"> Students </div>
-            </a>
-            <a href="enrolled.php">
-                <div class="navi"> Academics </div>
-            </a>
-            <a href="courses.php">
-                <div class="navi"> Courses </div>
-            </a>
-            <a href="faculty.php">
-                <div class="navi"> Faculty </div>
-            </a>
-            <a href="researcher.php">
-                <div class="navi"> Researcher </div>
-            </a>
-        </div>
-    </div>
+    <?php
+        include "header.php";
+    ?>
 
     <div id="main-section">
     <?php

@@ -1,9 +1,9 @@
 .sidenav{
     display: inline-block;
-    width:25%;
-    height:100vh;
+    width:15%;
+    max-height: 100%;
+    overflow: auto;
     float:left;
-    
 }
 
 aside nav.left-nav {

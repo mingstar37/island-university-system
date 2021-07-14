@@ -3,7 +3,7 @@ session_start();
 include '../connection.php';
 
 $_SESSION["credits"] = 0;
-$userId = $_SESSION["uId"];
+$userId = $_SESSION["user_id"]];
 
 ?>
 
@@ -27,7 +27,7 @@ $userId = $_SESSION["uId"];
             <div class="search-box">
                 <!-- <input type="text" placeholder="Search"/> -->
                 <!-- <button>Search</button> -->
-            
+
                 <a href="../logout.php"><button>Logout</button></a>
             </div>
         </div>
@@ -35,10 +35,10 @@ $userId = $_SESSION["uId"];
             <a href="index.php"><div class="navi"> Home </div></a>
             <a href="attendance.php"><div class="navi"> Attendance </div></a>
             <a href="students.php"><div class="navi"> Students </div></a>
-           
+
             <a href="courses.php"><div class="navi"> Courses </div></a>
             <a href="roster.php"><div class="navi"> Roster </div></a>
-        
+
         </div> -->
     </div>
 
@@ -91,7 +91,7 @@ $userId = $_SESSION["uId"];
             </table>
         </div>
     </div>
-    
+
 </div> -->
 
         <?php
@@ -101,7 +101,7 @@ $userId = $_SESSION["uId"];
 
 <div id="login-section">
     Welcome Faculty
-   
+
 </div>
     </div>
 </div>

@@ -17,7 +17,7 @@
                         <li>
 
                             <?php
-                                $sqlHolds = "SELECT * FROM student_holds WHERE Student_ID = '". $_SESSION["uId"]."'";
+                                $sqlHolds = "SELECT * FROM student_holds WHERE Student_ID = '". $_SESSION["user_id"]]."'";
                                 $queryHolds = mysqli_query($conn, $sqlHolds);
                                 $rowHolds = mysqli_num_rows($queryHolds);
                                 if($rowHolds == 0){
@@ -26,7 +26,7 @@
                                     echo' <a onclick="alert(\'Cannot access this as you have holds\')">Add/Drop Class</a>';
                                 }
                             ?>
-                            
+
                         </li>
                         <!-- <li>
                             <a href="schedule.php">View Schedule</a>
