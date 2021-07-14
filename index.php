@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+if (!empty($_SESSION['user_id']) && !empty($_SESSION['user_email']) && !empty($_SESSION['type'])) {
+    header('location:' . strtolower($_SESSION['type']) . '/index.php');
+    exit;
+}
+
 include 'connection.php';
 
 $student_added = false;
