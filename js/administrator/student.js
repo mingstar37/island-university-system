@@ -26,6 +26,8 @@ function onSetPageNumberSelect() {
     }
 
     $('#page-select').html(html);
+
+    $('#page-select').val(pagination.currentNumber + 1);
 }
 
 function onLoadData() {
@@ -74,7 +76,9 @@ function onDeleteRow(id) {
 
 function onChangePageNumber(event) {
     let selectedNumber = parseInt($('#' + event.target.id).val());
-    onSelectPagination(selectedNumber)
+    onSelectPagination(selectedNumber);
+
+    onLoadData();
 }
 
 function onSelectPagination(selectedNumber) {
@@ -136,5 +140,7 @@ $(document).ready(function () {
 
         onSelectPagination(cur_num);
         $('#page-select').val(cur_num);
+
+        onLoadData();
     })
 });
