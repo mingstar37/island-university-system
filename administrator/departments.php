@@ -147,6 +147,16 @@ if (isset($_POST['get_row'])) {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .form-group {
+            display: flex !important;
+            align-items: center;
+            margin-bottom: 0px !important;
+        }
+        .form-group label {
+            margin-right: 20px;
+        }
+    </style>
 </head>
 
 <body>
@@ -217,9 +227,9 @@ include "header.php";
     </div>
 </div>
 <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-md" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <form method="post" id="form-add" onsubmit="return onSave(event)">
+            <form method="post" id="form-add" class="form-horizontal" onsubmit="return onSave(event)">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -232,19 +242,24 @@ include "header.php";
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
 
-                        <div class="col-sm-6 py-1">
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="name">Name</label>
                             <input type="text" class="form-control" placeholder="Name" id="name" name="name" required/>
                         </div>
-                        <div class="col-sm-6 py-1">
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="name">Dept First Name</label>
                             <input type="text" class="form-control" placeholder="Dept First Name" id="dept_first_name" name="dept_first_name" required/>
                         </div>
-                        <div class="col-sm-6 py-1">
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="name">Dept Last Name</label>
                             <input type="text" class="form-control" placeholder="Dept Last Name" id="dept_last_name" name="dept_last_name" required/>
                         </div>
-                        <div class="col-sm-6 py-1">
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="name">Building Name</label>
                             <input type="text" class="form-control" placeholder="Building Name" id="building_name" name="building_name" required/>
                         </div>
-                        <div class="col-sm-6 py-1">
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="name">Chair Room No</label>
                             <input type="text" class="form-control" placeholder="Chair Room No" id="chair_room_no" name="chair_room_no" required/>
                         </div>
                     </div>
