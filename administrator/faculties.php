@@ -33,14 +33,16 @@ if (isset($_POST['load_data'])) {
     $resultHtml = "";
     while($row = mysqli_fetch_assoc($query)){
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
-        $resultHtml .= '<td class="id">'.$row["id"].'</td>';
-        $resultHtml .= '<td class="name">'.$row["first_name"] . " " . $row["last_name"] . '</td>';
-        $resultHtml .= '<td class="dob">'.$row["dob"].'</td>';
-        $resultHtml .= '<td class="email">'.$row["email"].'</td>';
-        $resultHtml .= '<td class="password">'.$row["password"].'</td>';
-        $resultHtml .= '<td class="ssn">'.$row["ssn"].'</td>';
-        $resultHtml .= '<td class="faculty_rank">'.$row["faculty_rank"].'</td>';
-        $resultHtml .= '<td class="faculty_type">'.$row["faculty_type"].'</td>';
+        $resultHtml .= '<td>'.$row["id"].'</td>';
+        $resultHtml .= '<td>'.$row["first_name"] . " " . $row["last_name"] . '</td>';
+        $resultHtml .= '<td>'.$row["dob"].'</td>';
+        $resultHtml .= '<td>'.$row["email"].'</td>';
+        $resultHtml .= '<td>'.$row["password"].'</td>';
+        $resultHtml .= '<td>'.$row["ssn"].'</td>';
+        $resultHtml .= '<td>'.$row["faculty_rank"].'</td>';
+        $resultHtml .= '<td>'.$row["faculty_type"].'</td>';
+        $resultHtml .= '<td>'.$row["num_sec"].'</td>';
+        $resultHtml .= '<td>'.$row["section_limit"].'</td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete"><i class="fa fa-trash"></i> </button> </td>';
         $resultHtml .= '</tr>';
@@ -87,7 +89,7 @@ if (isset($_POST['save_row'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $ssn = $_POST['ssn'];
-    $type = 'Student';
+    $type = 'Faculty';
 
     $id = $_POST['id'];
     $user_id = $_POST['user_id'];
@@ -111,12 +113,11 @@ if (isset($_POST['save_row'])) {
         echo json_encode($ret);
         exit;
     }
-    $student_gpa = $_POST['student_gpa'];
-    $student_type = $_POST['student_type'];
-    $student_status = $_POST['student_status'];
-    $undergrad_type = $_POST['undergrad_type'];
-    $minimum_credit = $_POST['minimum_credit'];
-    $maximum_credit = $_POST['maximum_credit'];
+    $faculty_rank = $_POST['faculty_rank'];
+    $faculty_type = $_POST['faculty_type'];
+
+    $num_sec = $_POST['num_sec'];
+    $section_limit = $_POST['section_limit'];
 
     if(empty($id)) {
         //    add to users
@@ -125,8 +126,8 @@ if (isset($_POST['save_row'])) {
         if ($conn->query($sql)) {
             $user_id = $conn->insert_id;
 
-//        add to student table
-            $sql = "INSERT INTO student (user_id, student_gpa, student_type, student_status, undergrad_type, minimum_credit, maximum_credit) VALUES ('$user_id', '$student_gpa', '$student_type', '$student_status', '$undergrad_type', '$minimum_credit', '$maximum_credit')";
+//        add to faculty table
+            $sql = "INSERT INTO faculty (user_id, faculty_rank, faculty_type, num_sec, section_limit) VALUES ('$user_id', '$faculty_rank', '$faculty_type', '$num_sec', '$section_limit')";
 
             if ($conn->query($sql)) {
                 $ret['success'] = true;
@@ -145,7 +146,7 @@ if (isset($_POST['save_row'])) {
         $sql .= " WHERE id = $user_id";
 
         if ($conn->query($sql)) {
-            $sql = "UPDATE student SET student_gpa = '$student_gpa', student_type = '$student_type', student_status = '$student_status', undergrad_type = '$undergrad_type', minimum_credit = '$minimum_credit', maximum_credit = '$maximum_credit'";
+            $sql = "UPDATE student SET student_gpa = '$faculty_rank', student_type = '$faculty_type', student_status = '$student_status', undergrad_type = '$undergrad_type', minimum_credit = '$minimum_credit', maximum_credit = '$maximum_credit'";
             $sql .= " WHERE id = $id";
 
             if ($conn->query($sql)) {
@@ -236,6 +237,8 @@ include "header.php";
                 <th>SSN</th>
                 <th>Rank</th>
                 <th>Type</th>
+                <th>Num Sections</th>
+                <th>Section Limit</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -300,28 +303,19 @@ include "header.php";
                             <input type="text" class="form-control" placeholder="Password" id="password" name="password" required/>
                         </div>
                         <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="GPA" id="student_gpa" name="student_gpa" required/>
+                            <input type="text" class="form-control" placeholder="Faculty Rank" id="faculty_rank" name="faculty_rank" required/>
                         </div>
                         <div class="col-sm-6 py-1">
-                            <select name="student_type" class="form-control" id="student_type">
-                                <option value="undergraduate">undergraduate</option>
-                                <option value="graduate">graduate</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <select name="undergrad_type" class="form-control" id="undergrad_type">
+                            <select name="faculty_type" class="form-control" id="faculty_type">
                                 <option value="full_time">full time</option>
                                 <option value="part_time">part time</option>
                             </select>
                         </div>
                         <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="Student Status" id="student_status" name="student_status" required/>
+                            <input type="number" min="0" class="form-control" placeholder="Number sections" id="num_sec" name="num_sec" required/>
                         </div>
                         <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="Minimum Credit" id="minimum_credit" name="minimum_credit" required/>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="Maximum Credit" id="maximum_credit" name="maximum_credit" required/>
+                            <input type="number" min="0" class="form-control" placeholder="Section Limit" id="section_limit" name="section_limit" required/>
                         </div>
                     </div>
                 </div>

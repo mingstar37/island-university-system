@@ -76,10 +76,10 @@ function onAddNew() {
     $('#ssn').val('');
     $('#email').val('');
     $('#password').val('');
-    $('#student_gpa').val('');
-    $('#student_status').val('');
-    $('#minimum_credit').val('');
-    $('#maximum_credit').val('');
+    $('#faculty_rank').val('');
+
+    $('#num_sec').val(0);
+    $('#section_limit').val(0);
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
