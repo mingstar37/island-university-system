@@ -68,7 +68,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE f.*, u.* FROM faculty as f JOIN users as u ON f.user_id = u.id WHERE f.id = '".$delete_id."'";
+        $sql  = "DELETE FROM department WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -79,79 +79,36 @@ if (isset($_POST['delete_row'])) {
 }
 
 if (isset($_POST['save_row'])) {
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $dob = $_POST['dob'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $ssn = $_POST['ssn'];
-    $type = 'Faculty';
+    $name = $_POST['name'];
+    $dept_first_name = $_POST['dept_first_name'];
+    $dept_last_name = $_POST['dept_last_name'];
+
+    $building_name = $_POST['building_name'];
+    $chair_room_no = $_POST['chair_room_no'];
 
     $id = $_POST['id'];
-    $user_id = $_POST['user_id'];
-
-    $ret = [
-        'success' => false,
-        'message' => ''
-    ];
-
-    //    check
-    $sqlCheck = "SELECT * FROM users WHERE email = '$email' AND `type` = '$type'";
-
-    if (!empty($user_id)) {
-        $sqlCheck .= " AND id <> $user_id";
-    }
-    $checkQuery = mysqli_query($conn, $sqlCheck);
-
-    if (mysqli_num_rows($checkQuery) > 0){
-        $ret['message'] = "Email already exists!";
-
-        echo json_encode($ret);
-        exit;
-    }
-    $faculty_rank = $_POST['faculty_rank'];
-    $faculty_type = $_POST['faculty_type'];
-
-    $num_sec = $_POST['num_sec'];
-    $section_limit = $_POST['section_limit'];
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO users (`first_name`, `last_name`, `dob`, `email`, `password`, `ssn`, `type`) VALUES ('$first_name', '$last_name', '$dob', '$email', '$password', '$ssn', '$type')";
+        $sql = "INSERT INTO department (`name`, `dept_first_name`, `dept_last_name`, `building_name`, `chair_room_no`) VALUES ('$name', '$dept_first_name', '$dept_last_name', '$building_name', '$chair_room_no')";
 
         if ($conn->query($sql)) {
             $user_id = $conn->insert_id;
-
-//        add to faculty table
-            $sql = "INSERT INTO faculty (user_id, faculty_rank, faculty_type, num_sec, section_limit) VALUES ('$user_id', '$faculty_rank', '$faculty_type', '$num_sec', '$section_limit')";
-
-            if ($conn->query($sql)) {
-                $ret['success'] = true;
-            } else {
-                $ret['success'] = false;
-                $ret['message'] = "Error in student";
-            }
+            $ret['success'] = true;
         } else {
-            $ret['message'] = "Error in users";
+            $ret['message'] = "Error in department";
         }
     } else {
         // update
-        $user_id = $_POST['user_id'];
+        $id = $_POST['id'];
 
-        $sql = "UPDATE users SET first_name = '$first_name', last_name = '$last_name', dob = '$dob', email = '$email', password = '$password', ssn = '$ssn'";
-        $sql .= " WHERE id = $user_id";
+        $sql = "UPDATE department SET name = '$name', dept_first_name = '$dept_first_name', dept_last_name = '$dept_last_name', building_name = '$building_name', chair_room_no = '$chair_room_no'";
+        $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
-            $sql = "UPDATE faculty SET faculty_rank = '$faculty_rank', faculty_type = '$faculty_type', num_sec = '$num_sec', section_limit = '$section_limit'";
-            $sql .= " WHERE id = $id";
-
-            if ($conn->query($sql)) {
-                $ret['success'] = true;
-            } else {
-                $ret['message'] = "Error in student";
-            }
+            $ret['success'] = true;
         } else {
-            $ret['message'] = "Error in User";
+            $ret['message'] = "Error in student";
         }
     }
 
@@ -161,9 +118,9 @@ if (isset($_POST['save_row'])) {
 
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
-    $sqlFaculty = "SELECT faculty.*, users.first_name, users.last_name, users.dob, users.email, users.password, users.ssn";
-    $sqlFaculty .= " FROM `faculty` JOIN `users` ON `users`.`id` = `faculty`.`user_id`";
-    $sqlFaculty .= " WHERE faculty.id = '$edit_id' LIMIT 1";
+    $sqlFaculty = "SELECT *";
+    $sqlFaculty .= " FROM `department`";
+    $sqlFaculty .= " WHERE id = '$edit_id' LIMIT 1";
 
     $query = mysqli_query($conn, $sqlFaculty);
     $row = mysqli_fetch_assoc($query);
@@ -274,40 +231,21 @@ include "header.php";
                     </div>
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
-                        <input type="hidden" class="form-control" id="user_id" name="user_id" required/>
 
                         <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="First Name" id="first_name" name="first_name" required/>
+                            <input type="text" class="form-control" placeholder="Name" id="name" name="name" required/>
                         </div>
                         <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="Last Name" id="last_name" name="last_name" required/>
+                            <input type="text" class="form-control" placeholder="Dept First Name" id="dept_first_name" name="dept_first_name" required/>
                         </div>
                         <div class="col-sm-6 py-1">
-                            <input type="date" class="form-control" placeholder="DOB" id="dob" name="dob" required/>
+                            <input type="text" class="form-control" placeholder="Dept Last Name" id="dept_last_name" name="dept_last_name" required/>
                         </div>
                         <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="SSN" id="ssn" name="ssn" required/>
+                            <input type="text" class="form-control" placeholder="Building Name" id="building_name" name="building_name" required/>
                         </div>
                         <div class="col-sm-6 py-1">
-                            <input type="email" class="form-control" placeholder="Email" id="email" name="email" required/>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="Password" id="password" name="password" required/>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="Faculty Rank" id="faculty_rank" name="faculty_rank" required/>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <select name="faculty_type" class="form-control" id="faculty_type">
-                                <option value="full_time">full time</option>
-                                <option value="part_time">part time</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <input type="number" min="0" class="form-control" placeholder="Number sections" id="num_sec" name="num_sec" required/>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <input type="number" min="0" class="form-control" placeholder="Section Limit" id="section_limit" name="section_limit" required/>
+                            <input type="text" class="form-control" placeholder="Chair Room No" id="chair_room_no" name="chair_room_no" required/>
                         </div>
                     </div>
                 </div>

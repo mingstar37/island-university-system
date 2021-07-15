@@ -68,18 +68,11 @@ function onLoadData() {
 
 function onAddNew() {
     $('#id').val(0);
-    $('#user_id').val(0);
-
-    $('#first_name').val("");
-    $('#last_name').val("");
-    $('#dob').val("");
-    $('#ssn').val('');
-    $('#email').val('');
-    $('#password').val('');
-    $('#faculty_rank').val('');
-
-    $('#num_sec').val(0);
-    $('#section_limit').val(0);
+    $('#name').val("");
+    $('#dept_first_name').val("");
+    $('#dept_last_name').val("");
+    $('#building_name').val("");
+    $('#chair_room_no').val('');
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
