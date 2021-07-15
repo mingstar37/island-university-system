@@ -26,12 +26,12 @@ if (isset($_POST['load_data'])) {
 
     $sqlFaculty .= " LIMIT $page_size OFFSET $start_number";
 
-    $queryStudent = mysqli_query($conn, $sqlFaculty);
+    $query = mysqli_query($conn, $sqlFaculty);
 
 
     $count = 0;
     $resultHtml = "";
-    while($row = mysqli_fetch_assoc($queryStudent)){
+    while($row = mysqli_fetch_assoc($query)){
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td class="id">'.$row["id"].'</td>';
         $resultHtml .= '<td class="name">'.$row["first_name"] . " " . $row["last_name"] . '</td>';
@@ -70,7 +70,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE s.*, u.* FROM student as s LEFT JOIN users as u ON s.user_id = u.id WHERE s.id = '".$delete_id."'";
+        $sql  = "DELETE f.*, u.* FROM faculty as f LEFT JOIN users as u ON f.user_id = u.id WHERE f.id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -168,8 +168,8 @@ if (isset($_POST['get_row'])) {
     $sqlFaculty .= " FROM `student` INNER JOIN `users` ON `users`.`id` = `student`.`user_id`";
     $sqlFaculty .= " WHERE student.id = '$edit_id' LIMIT 1";
 
-    $queryStudent = mysqli_query($conn, $sqlFaculty);
-    $row = mysqli_fetch_assoc($queryStudent);
+    $query = mysqli_query($conn, $sqlFaculty);
+    $row = mysqli_fetch_assoc($query);
 
     echo json_encode($row);
     exit;
