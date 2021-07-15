@@ -67,12 +67,54 @@ function onLoadData() {
 
 
 function onAddNew() {
-    $('#add-modal').modal('show');
+    $('#id').val(0);
+    $('#user_id').val(0);
 
+    $('#first_name').val("");
+    $('#last_name').val("");
+    $('#dob').val("");
+    $('#ssn').val('');
+    $('#email').val('');
+    $('#password').val('');
+    $('#student_gpa').val('');
+    $('#student_status').val('');
+    $('#minimum_credit').val('');
+    $('#maximum_credit').val('');
+
+    $('#add-modal-title').html('Add Row');
+    $('#add-modal').modal('show');
 }
 
 function onEditRow(id) {
-    alert(id);
+    let request = {};
+    request.edit_id = id;
+    request.get_row = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res != undefined) {
+                let keys = Object.keys(res);
+
+                for (let i = 0; i < keys.length; i++) {
+                    $('#add-modal-title').html('Update Row');
+                    $('#' + keys[i]).val(res[keys[i]] == null ? "" : res[keys[i]]);
+                }
+
+                $('#add-modal').modal('show');
+            } else {
+                toastr.error('Error');
+            }
+        },
+        complete: function () {
+            $('#btn-save').removeClass('disabled');
+            $('#btn-cancel').removeClass('disabled');
+        }
+    });
+
 }
 
 function onSave(event) {
@@ -88,7 +130,7 @@ function onSave(event) {
        request[item.name] = item.value;
     });
 
-    request.add_row = true;
+    request.save_row = true;
 
     $.ajax({
         method: "POST",
@@ -97,7 +139,7 @@ function onSave(event) {
         dataType: 'json',
         success: function (res) {
             if (res !== undefined && res.success == true) {
-                toastr.success("Added Successfully!");
+                toastr.success("Saved Successfully!");
                 $('#add-modal').modal('hide');
                 onLoadData();
             } else {
