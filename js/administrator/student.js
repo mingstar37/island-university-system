@@ -17,6 +17,7 @@ function onSearchKeyup(event) {
 
 function onSearch() {
     onSelectPagination(1);
+    $('#page-select').val(1);
     onLoadData();
 }
 
@@ -67,15 +68,54 @@ function onLoadData() {
 
 function onAddNew() {
     $('#add-modal').modal('show');
+
 }
 
 function onEditRow(id) {
     alert(id);
 }
 
+function onSave(event) {
+    event.preventDefault();
+
+    $('#btn-save').addClass('disabled');
+    $('#btn-cancel').addClass('disabled');
+
+    let formData = $('#form-add').serializeArray();
+
+    let request = {};
+    formData.forEach(item => {
+       request[item.name] = item.value;
+    });
+
+    request.add_row = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res !== undefined && res.success == true) {
+                toastr.success("Added Successfully!");
+                $('#add-modal').modal('hide');
+                onLoadData();
+            } else {
+                toastr.error(res.message);
+            }
+        },
+        complete: function () {
+            $('#btn-save').removeClass('disabled');
+            $('#btn-cancel').removeClass('disabled');
+        }
+    });
+
+}
+
 function onDeleteRow(id) {
     delete_id = id;
     $('#delete-modal').modal('show');
+
 }
 
 function onDelete() {
@@ -92,7 +132,7 @@ function onDelete() {
             if (res !== undefined && res.success == true) {
                 toastr.success("Deleted Successfully!");
                 $('#delete-modal').modal('hide');
-                onSearch();
+                onLoadData();
             } else {
                 toastr.error("There are some issues!");
             }

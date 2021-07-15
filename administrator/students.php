@@ -79,6 +79,61 @@ if (isset($_POST['delete_row'])) {
     echo json_encode($ret);
     exit;
 }
+
+if (isset($_POST['add_row'])) {
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
+    $dob = $_POST['dob'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $ssn = $_POST['ssn'];
+    $type = 'Student';
+
+//    check
+    $sqlCheck = "SELECT * FROM users WHERE email = '$email' AND `type` = '$type'";
+    $checkQuery = mysqli_query($conn, $sqlCheck);
+
+    $ret = [
+            'success' => false,
+        'message' => ''
+    ];
+
+    if (mysqli_num_rows($checkQuery) > 0){
+        $ret['message'] = "Email already exists!";
+
+        echo json_encode($ret);
+        exit;
+    }
+
+    $student_gpa = $_POST['student_gpa'];
+    $student_type = $_POST['student_type'];
+    $student_status = $_POST['student_status'];
+    $undergrad_type = $_POST['undergrad_type'];
+    $minimum_credit = $_POST['minimum_credit'];
+    $maximum_credit = $_POST['maximum_credit'];
+
+//    add to users
+    $sql = "INSERT INTO users (`first_name`, `last_name`, `dob`, `email`, `password`, `ssn`, `type`) VALUES ('$first_name', '$last_name', '$dob', '$email', '$password', '$ssn', '$type')";
+
+    if ($conn->query($sql)) {
+        $user_id = $conn->insert_id;
+
+//        add to student table
+        $sql = "INSERT INTO student (user_id, student_gpa, student_type, student_status, undergrad_type, minimum_credit, maximum_credit) VALUES ('$user_id', '$student_gpa', '$student_type', '$student_status', '$undergrad_type', '$minimum_credit', '$maximum_credit')";
+
+        if ($conn->query($sql)) {
+            $ret['success'] = true;
+        } else {
+            $ret['success'] = false;
+            $ret['message'] = "Error in student";
+        }
+    } else {
+        $ret['message'] = "Error in users";
+    }
+
+    echo json_encode($ret);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -169,22 +224,69 @@ if (isset($_POST['delete_row'])) {
             </div>
         </div>
     </div>
-    <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-md" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+                <form method="post" id="form-add" onsubmit="return onSave(event)">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row py-1">
+                            <h3 class="text-center " style="margin: auto; color: red" id="add-modal-title">Add New</h3>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6 py-1">
+                                <input type="text" class="form-control" placeholder="First Name" name="first_name" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="text" class="form-control" placeholder="Last Name" name="last_name" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="date" class="form-control" placeholder="DOB" name="dob" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="text" class="form-control" placeholder="SSN" name="ssn" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="email" class="form-control" placeholder="Email" name="email" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="text" class="form-control" placeholder="Password" name="password" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="text" class="form-control" placeholder="GPA" name="student_gpa" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <select name="student_type" class="form-control">
+                                    <option value="undergraduate">undergraduate</option>
+                                    <option value="graduate">graduate</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <select name="undergrad_type" class="form-control">
+                                    <option value="full_time">full time</option>
+                                    <option value="part_time">part time</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="text" class="form-control" placeholder="Student Status" name="student_status" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="text" class="form-control" placeholder="Minimum Credit" name="minimum_credit" required/>
+                            </div>
+                            <div class="col-sm-6 py-1">
+                                <input type="text" class="form-control" placeholder="Maximum Credit" name="maximum_credit" required/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Cancel</button>
+                        <button type="submit" class="btn btn-success" id="btn-save">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
