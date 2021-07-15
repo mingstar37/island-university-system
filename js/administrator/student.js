@@ -4,6 +4,9 @@ let pagination = {
     pageSize: 12
 };
 
+let delete_id = 0;
+let editId = 0;
+
 function onSearchKeyup(event) {
     if (event.keyCode !== 13) {
         return;
@@ -71,7 +74,33 @@ function onEditRow(id) {
 }
 
 function onDeleteRow(id) {
-    alert('delete ' + id);
+    delete_id = id;
+    $('#delete-modal').modal('show');
+}
+
+function onDelete() {
+    let request = {};
+    request.delete_id = delete_id;
+    request.delete_row = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res !== undefined && res.success == true) {
+                toastr.success("Deleted Successfully!");
+                $('#delete-modal').modal('hide');
+                onSearch();
+            } else {
+                toastr.error("There are some issues!");
+            }
+        },
+        complete: function () {
+        }
+    });
+
 }
 
 function onChangePageNumber(event) {

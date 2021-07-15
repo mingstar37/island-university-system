@@ -62,7 +62,23 @@ if (isset($_POST['load_data'])) {
     exit;
 }
 
+if (isset($_POST['delete_row'])) {
+    $delete_id = $_POST['delete_id'];
 
+    $ret = [
+            'success' => false
+    ];
+
+    if (!empty($delete_id)) {
+        $sql  = "DELETE s.*, u.* FROM student as s LEFT JOIN users as u ON s.user_id = u.id WHERE s.id = '".$delete_id."'";
+        if ($conn->query($sql)) {
+            $ret['success'] = true;
+        }
+    }
+
+    echo json_encode($ret);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -77,11 +93,11 @@ if (isset($_POST['load_data'])) {
     <link rel="stylesheet" href="../plugins/css/index.css">
     <link rel="stylesheet" href="../plugins/css/navbar.css">
     <link rel="stylesheet" href="../plugins/css/admin.css">
+    <link rel="stylesheet" href="../plugins/css/toastr.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 </head>
 
 <body>
@@ -172,8 +188,26 @@ if (isset($_POST['load_data'])) {
             </div>
         </div>
     </div>
+    <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h3 style="color: red;" class="text-center">Do you want to delete?</h3>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-
+    <script src="../plugins/js/toastr.js"></script>
     <script src="../plugins/js/nav.js"></script>
     <script src="../js/administrator/student.js"></script>
 </body>
