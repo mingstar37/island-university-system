@@ -361,6 +361,6 @@ if (isset($_POST['get_row'])) {
 
     <script src="../plugins/js/toastr.js"></script>
     <script src="../plugins/js/nav.js"></script>
-    <script src="../js/administrator/student.js"></script>
+    <script src="../js/administrator/students.js"></script>
 </body>
 </html>

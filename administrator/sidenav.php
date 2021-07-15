@@ -12,10 +12,10 @@
                             <a href="./students.php">Student</a>
                         </li>
                         <li>
-                            <a href="./faculties.php">Faculty</a>
+                            <a href="./faculties.php">Faculties</a>
                         </li>
                         <li>
-                            <a href="registerResearcher.php">Researcher</a>
+                            <a href="./researchers.php">Researchers</a>
                         </li>
                     </ul>
                 </li>
