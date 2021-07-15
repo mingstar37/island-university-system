@@ -13,7 +13,7 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
     $sqlFaculty = "SELECT faculty.*, users.first_name, users.last_name, users.dob, users.email, users.password, users.ssn";
-    $sqlFaculty .= " FROM `faculty` LEFT JOIN `users` ON `users`.`id` = `faculty`.`user_id`";
+    $sqlFaculty .= " FROM `faculty` JOIN `users` ON `users`.`id` = `faculty`.`user_id`";
 
     if(!empty($search_text)) {
         $sqlFaculty .= " WHERE users.first_name LIKE '%$search_text%' OR users.email LIKE '%$search_text%'";
@@ -72,7 +72,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE f.*, u.* FROM faculty as f LEFT JOIN users as u ON f.user_id = u.id WHERE f.id = '".$delete_id."'";
+        $sql  = "DELETE f.*, u.* FROM faculty as f JOIN users as u ON f.user_id = u.id WHERE f.id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -146,7 +146,7 @@ if (isset($_POST['save_row'])) {
         $sql .= " WHERE id = $user_id";
 
         if ($conn->query($sql)) {
-            $sql = "UPDATE student SET student_gpa = '$faculty_rank', student_type = '$faculty_type', student_status = '$student_status', undergrad_type = '$undergrad_type', minimum_credit = '$minimum_credit', maximum_credit = '$maximum_credit'";
+            $sql = "UPDATE faculty SET faculty_rank = '$faculty_rank', faculty_type = '$faculty_type', num_sec = '$num_sec', section_limit = '$section_limit'";
             $sql .= " WHERE id = $id";
 
             if ($conn->query($sql)) {
@@ -165,9 +165,9 @@ if (isset($_POST['save_row'])) {
 
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
-    $sqlFaculty = "SELECT student.*, users.first_name, users.last_name, users.dob, users.email, users.password, users.ssn";
-    $sqlFaculty .= " FROM `student` INNER JOIN `users` ON `users`.`id` = `student`.`user_id`";
-    $sqlFaculty .= " WHERE student.id = '$edit_id' LIMIT 1";
+    $sqlFaculty = "SELECT faculty.*, users.first_name, users.last_name, users.dob, users.email, users.password, users.ssn";
+    $sqlFaculty .= " FROM `faculty` JOIN `users` ON `users`.`id` = `faculty`.`user_id`";
+    $sqlFaculty .= " WHERE faculty.id = '$edit_id' LIMIT 1";
 
     $query = mysqli_query($conn, $sqlFaculty);
     $row = mysqli_fetch_assoc($query);

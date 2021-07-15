@@ -74,7 +74,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE s.*, u.* FROM student as s LEFT JOIN users as u ON s.user_id = u.id WHERE s.id = '".$delete_id."'";
+        $sql  = "DELETE s.*, u.* FROM student as s JOIN users as u ON s.user_id = u.id WHERE s.id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
