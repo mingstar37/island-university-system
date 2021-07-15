@@ -76,10 +76,6 @@ function onAddNew() {
     $('#ssn').val('');
     $('#email').val('');
     $('#password').val('');
-    $('#faculty_rank').val('');
-
-    $('#num_sec').val(0);
-    $('#section_limit').val(0);
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');

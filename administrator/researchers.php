@@ -67,7 +67,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE f.*, u.* FROM faculty as f JOIN users as u ON f.user_id = u.id WHERE f.id = '".$delete_id."'";
+        $sql  = "DELETE r.*, u.* FROM researcher as r JOIN users as u ON r.user_id = u.id WHERE r.id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -84,7 +84,7 @@ if (isset($_POST['save_row'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $ssn = $_POST['ssn'];
-    $type = 'Faculty';
+    $type = 'Researcher';
 
     $id = $_POST['id'];
     $user_id = $_POST['user_id'];
@@ -108,11 +108,6 @@ if (isset($_POST['save_row'])) {
         echo json_encode($ret);
         exit;
     }
-    $faculty_rank = $_POST['faculty_rank'];
-    $faculty_type = $_POST['faculty_type'];
-
-    $num_sec = $_POST['num_sec'];
-    $section_limit = $_POST['section_limit'];
 
     if(empty($id)) {
         //    add to users
@@ -122,7 +117,7 @@ if (isset($_POST['save_row'])) {
             $user_id = $conn->insert_id;
 
 //        add to faculty table
-            $sql = "INSERT INTO faculty (user_id, faculty_rank, faculty_type, num_sec, section_limit) VALUES ('$user_id', '$faculty_rank', '$faculty_type', '$num_sec', '$section_limit')";
+            $sql = "INSERT INTO researcher (user_id) VALUES ('$user_id')";
 
             if ($conn->query($sql)) {
                 $ret['success'] = true;
@@ -141,14 +136,7 @@ if (isset($_POST['save_row'])) {
         $sql .= " WHERE id = $user_id";
 
         if ($conn->query($sql)) {
-            $sql = "UPDATE faculty SET faculty_rank = '$faculty_rank', faculty_type = '$faculty_type', num_sec = '$num_sec', section_limit = '$section_limit'";
-            $sql .= " WHERE id = $id";
-
-            if ($conn->query($sql)) {
-                $ret['success'] = true;
-            } else {
-                $ret['message'] = "Error in student";
-            }
+            $ret['success'] = true;
         } else {
             $ret['message'] = "Error in User";
         }
@@ -160,9 +148,9 @@ if (isset($_POST['save_row'])) {
 
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
-    $sqlResearcher = "SELECT faculty.*, users.first_name, users.last_name, users.dob, users.email, users.password, users.ssn";
-    $sqlResearcher .= " FROM `faculty` JOIN `users` ON `users`.`id` = `faculty`.`user_id`";
-    $sqlResearcher .= " WHERE faculty.id = '$edit_id' LIMIT 1";
+    $sqlResearcher = "SELECT researcher.*, users.first_name, users.last_name, users.dob, users.email, users.password, users.ssn";
+    $sqlResearcher .= " FROM `researcher` JOIN `users` ON `users`.`id` = `researcher`.`user_id`";
+    $sqlResearcher .= " WHERE researcher.id = '$edit_id' LIMIT 1";
 
     $query = mysqli_query($conn, $sqlResearcher);
     $row = mysqli_fetch_assoc($query);
@@ -292,21 +280,6 @@ include "header.php";
                         </div>
                         <div class="col-sm-6 py-1">
                             <input type="text" class="form-control" placeholder="Password" id="password" name="password" required/>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <input type="text" class="form-control" placeholder="Faculty Rank" id="faculty_rank" name="faculty_rank" required/>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <select name="faculty_type" class="form-control" id="faculty_type">
-                                <option value="full_time">full time</option>
-                                <option value="part_time">part time</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <input type="number" min="0" class="form-control" placeholder="Number sections" id="num_sec" name="num_sec" required/>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <input type="number" min="0" class="form-control" placeholder="Section Limit" id="section_limit" name="section_limit" required/>
                         </div>
                     </div>
                 </div>
