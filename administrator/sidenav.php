@@ -106,9 +106,7 @@
                         <li>
                             <a href="adminviewAdvisor.php">View Student Advisor</a>
                         </li>
-                        <li>
-                            <a href="adminAddAdvisor.php">Add Student Advisor</a>
-                        </li>
+
                     </ul>
                 </li>
                 <li>
@@ -132,10 +130,7 @@
                     <a href="#">Advisees</a>
                     <ul class="nolist">
                         <li>
-                            <a href="viewAdvisor.php">View Advisees</a>
-                        </li>
-                        <li>
-                            <a href="adminAddAdvisor.php">Add Advisor</a>
+                            <a href="./advisees.php">Advisees</a>
                         </li>
                     </ul>
                 </li>
