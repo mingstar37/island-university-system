@@ -14,22 +14,22 @@ if (isset($_POST['load_data'])) {
     $page_size = $_POST['page_size'];
 
     $faculty_id = $_POST['faculty_id'];
-    $sqlCourse = "SELECT df.id as id, d.name, df.department_id, df.percentage_time, d.dept_first_name, d.dept_last_name, d.building_name, d.chair_room_no";
-    $sqlCourse .= " FROM `dept_faculty` as df INNER JOIN department as d ON df.department_id = d.id";
-    $sqlCourse .= " WHERE df.faculty_id = '$faculty_id'";
+    $sqlFacultyDepartment = "SELECT df.id as id, d.name, df.department_id, df.percentage_time, d.dept_first_name, d.dept_last_name, d.building_name, d.chair_room_no";
+    $sqlFacultyDepartment .= " FROM `dept_faculty` as df INNER JOIN department as d ON df.department_id = d.id";
+    $sqlFacultyDepartment .= " WHERE df.faculty_id = '$faculty_id'";
 
     if(!empty($search_text)) {
-        $sqlCourse .= " AND (df.id LIKE '%$search_text%' OR df.faculty_id LIKE '%$search_text%'";
-        $sqlCourse .= " OR d.dept_first_name LIKE '%$search_text%' OR d.dept_last_name LIKE '%$search_text%'";
-        $sqlCourse .= " OR d.chair_room_no LIKE '%$search_text%' OR d.building_name LIKE '%$search_text%')";
+        $sqlFacultyDepartment .= " AND (df.id LIKE '%$search_text%' OR df.faculty_id LIKE '%$search_text%'";
+        $sqlFacultyDepartment .= " OR d.dept_first_name LIKE '%$search_text%' OR d.dept_last_name LIKE '%$search_text%'";
+        $sqlFacultyDepartment .= " OR d.chair_room_no LIKE '%$search_text%' OR d.building_name LIKE '%$search_text%')";
     }
 
-    $totalQuery = mysqli_query($conn, $sqlCourse);
+    $totalQuery = mysqli_query($conn, $sqlFacultyDepartment);
     $total_count = mysqli_num_rows($totalQuery);
 
-    $sqlCourse .= " LIMIT $page_size OFFSET $start_number";
+    $sqlFacultyDepartment .= " LIMIT $page_size OFFSET $start_number";
 
-    $query = mysqli_query($conn, $sqlCourse);
+    $query = mysqli_query($conn, $sqlFacultyDepartment);
 
     $count = 0;
     $resultHtml = "";
@@ -108,14 +108,19 @@ if (isset($_POST['get_depart_arr'])) {
 
     $faculty_id = $_POST['faculty_id'];
 
+
     // get department arr
     $sql = "SELECT department_id FROM dept_faculty WHERE faculty_id = '$faculty_id' GROUP BY department_id";
     $query = mysqli_query($conn, $sql);
 
     $department_arr = [];
 
+    $department_id = $_POST['department_id'];
+
     while ($row = mysqli_fetch_assoc($query)) {
-        $department_arr[] = $row["department_id"];
+        if ($row["department_id"] != $department_id) {
+            $department_arr[] = $row["department_id"];
+        }
     }
 
     $whereFilter = "";
@@ -183,7 +188,7 @@ if (isset($_POST['save_row'])) {
         // update
         $id = $_POST['id'];
 
-        $sql = "UPDATE course SET prereq_course_id = '$prereq_course_id', department_id = '$department_id', course_name = '$course_name', course_credits = '$course_credits'";
+        $sql = "UPDATE dept_faculty SET faculty_id = '$faculty_id', department_id = '$department_id', percentage_time = '$percentage_time'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
@@ -200,12 +205,11 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlCourse = "SELECT c.*, pc.course_name as prereq_course_name, d.name as department_name";
-    $sqlCourse .= " FROM `course` as c LEFT JOIN course as pc ON pc.id = c.prereq_course_id";
-    $sqlCourse .= " LEFT JOIN department as d ON d.id = c.department_id";
-    $sqlCourse .= " WHERE c.id = '$edit_id' LIMIT 1";
+    $sqlFacultyDepartment = "SELECT id, department_id, percentage_time";
+    $sqlFacultyDepartment .= " FROM dept_faculty";
+    $sqlFacultyDepartment .= " WHERE id = '$edit_id' LIMIT 1";
 
-    $query = mysqli_query($conn, $sqlCourse);
+    $query = mysqli_query($conn, $sqlFacultyDepartment);
     $row = mysqli_fetch_assoc($query);
 
     echo json_encode($row);

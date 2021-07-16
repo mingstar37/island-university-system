@@ -36,10 +36,11 @@ function onSetPageNumberSelect() {
 }
 
 
-function onLoadDepartmentSelectPicker(faculty_id) {
+function onLoadDepartmentSelectPicker(faculty_id, default_val = 0) {
 
     let request = {};
     request.faculty_id = faculty_id;
+    request.department_id = default_val;
     request.get_depart_arr = true;
 
     $.ajax({
@@ -60,7 +61,11 @@ function onLoadDepartmentSelectPicker(faculty_id) {
 
                 $('.bootstrap-select.department-').replaceWith(departmentHtml);
 
-                $('#department_id').selectpicker();
+                if (default_val != 0) {
+                    $('#department_id').selectpicker('val', default_val);
+                } else {
+                    $('#department_id').selectpicker();
+                }
             } else {
                 toastr.error('Error');
             }
@@ -207,7 +212,6 @@ function onEditRow(id) {
     request.edit_id = id;
     request.get_row = true;
 
-
     $.ajax({
         method: "POST",
         url: window.location.href,
@@ -215,7 +219,10 @@ function onEditRow(id) {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
-                onLoadSelectPickers(id, res.prereq_course_id, res.department_id);
+
+                let faculty_id = $('#faculty_id').val();
+                let department_id = res.department_id;
+                onLoadDepartmentSelectPicker(faculty_id, department_id);
 
                 let keys = Object.keys(res);
 
