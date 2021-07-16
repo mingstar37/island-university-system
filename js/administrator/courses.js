@@ -5,6 +5,7 @@ let pagination = {
 };
 
 let delete_id = 0;
+let deleteType = 'prereq';
 let editId = 0;
 
 function onSearchKeyup(event) {
@@ -148,15 +149,26 @@ function onSave(event) {
 }
 
 function onDeleteRow(id) {
+    deleteType = 'row';
     delete_id = id;
     $('#delete-modal').modal('show');
+}
 
+function onDeletePrereq(id) {
+    deleteType = 'prereq';
+    delete_id = id;
+    $('#delete-prereq-modal').modal('show');
 }
 
 function onDelete() {
     let request = {};
     request.delete_id = delete_id;
-    request.delete_row = true;
+
+    if (deleteType == 'prereq') {
+        request.delete_prereq = true;
+    } else {
+        request.delete_row = true;
+    }
 
     $.ajax({
         method: "POST",
@@ -165,8 +177,14 @@ function onDelete() {
         dataType: 'json',
         success: function (res) {
             if (res !== undefined && res.success == true) {
-                toastr.success("Deleted Successfully!");
-                $('#delete-modal').modal('hide');
+
+                if (deleteType == 'prereq') {
+                    toastr.success("Deleted Preq info Successfully!");
+                    $('#delete-prereq-modal').modal('hide');
+                } else {
+                    toastr.success("Deleted Successfully!");
+                    $('#delete-modal').modal('hide');
+                }
                 onLoadData();
             } else {
                 toastr.error("There are some issues!");

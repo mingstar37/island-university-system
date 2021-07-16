@@ -35,23 +35,22 @@ if (isset($_POST['load_data'])) {
     while($row = mysqli_fetch_assoc($query)){
 
 //        var_dump($row["prereq_course_name"]);
-
-        $prereq_cname = empty($row["prereq_course_name"]) ? '' : $row["prereq_course_name"];
+        $prereq_id = empty($row["prereq_course_id"]) ? '' : $row["prereq_course_id"];
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'.$row["prereq_course_id"] . '</td>';
+        $resultHtml .= '<td>'. $prereq_id . '</td>';
         $resultHtml .= '<td>'.$row["prereq_course_name"].'</td>';
         $resultHtml .= '<td>'.$row["department_id"].'</td>';
         $resultHtml .= '<td>'.$row["department_name"].'</td>';
         $resultHtml .= '<td>'. $row["course_name"].'</td>';
         $resultHtml .= '<td>'.$row["course_credits"].'</td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
-            <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete"><i class="fa fa-trash"></i> </button> </td>';
+            <button type="button" class="btn btn-sm btn-warning" onclick="onDeletePrereq(' . $row["id"] . ')" title="Delete Prereq"><i class="fa fa-times"></i> </button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
         $resultHtml .= '</tr>';
 
         $count ++;
     }
-
 
     if ($count < 1) {
         $resultHtml .= '<tr>
@@ -74,7 +73,25 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM department WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM course WHERE id = '".$delete_id."'";
+        if ($conn->query($sql)) {
+            $ret['success'] = true;
+        }
+    }
+
+    echo json_encode($ret);
+    exit;
+}
+
+if (isset($_POST['delete_prereq'])) {
+    $delete_id = $_POST['delete_id'];
+
+    $ret = [
+        'success' => false
+    ];
+
+    if (!empty($delete_id)) {
+        $sql  = "UPDATE course SET prereq_course_id = 0 WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -205,7 +222,7 @@ include "header.php";
                 <th>Department Name</th>
                 <th>Course Name</th>
                 <th>Course Credits</th>
-                <th>Action</th>
+                <th width="150px">Action</th>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -289,6 +306,24 @@ include "header.php";
             </div>
             <div class="modal-body">
                 <h3 style="color: red;" class="text-center">Do you want to delete?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="delete-prereq-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h3 style="color: red;" class="text-center">Do you want to delete prereq info?</h3>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
