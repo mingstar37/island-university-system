@@ -66,11 +66,9 @@ function onLoadData() {
     });
 }
 
-
-function onAddNew() {
-
+function onLoadSelectPickers(id = 0, prereg_default_val = "0", department_default_val = "0") {
     let request = {};
-    request.id = 0;
+    request.id = id;
     request.get_init_arr = true;
 
     $.ajax({
@@ -100,8 +98,8 @@ function onAddNew() {
                 $('.bootstrap-select.prereq-').replaceWith(prereqHtml);
                 $('.bootstrap-select.department-').replaceWith(departHtml);
 
-                $('.prereq-selectpicker').selectpicker();
-                $('.department-selectpicker').selectpicker();
+                $('.prereq-selectpicker').selectpicker('val', prereg_default_val);
+                $('.department-selectpicker').selectpicker('val', department_default_val);
 
             } else {
                 toastr.error('Error');
@@ -112,7 +110,11 @@ function onAddNew() {
             $('#btn-cancel').removeClass('disabled');
         }
     });
+}
 
+function onAddNew() {
+
+    onLoadSelectPickers();
 
     $('#id').val(0);
     $('#course_name').val("");
@@ -127,6 +129,7 @@ function onEditRow(id) {
     request.edit_id = id;
     request.get_row = true;
 
+
     $.ajax({
         method: "POST",
         url: window.location.href,
@@ -134,12 +137,16 @@ function onEditRow(id) {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
+                onLoadSelectPickers(id, res.prereq_course_id, res.department_id);
+
                 let keys = Object.keys(res);
 
                 for (let i = 0; i < keys.length; i++) {
                     $('#add-modal-title').html('Update Row');
                     $('#' + keys[i]).val(res[keys[i]] == null ? "" : res[keys[i]]);
                 }
+
+
 
                 $('#add-modal').modal('show');
             } else {

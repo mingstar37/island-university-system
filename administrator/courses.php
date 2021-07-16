@@ -38,11 +38,11 @@ if (isset($_POST['load_data'])) {
         $prereq_id = empty($row["prereq_course_id"]) ? '' : $row["prereq_course_id"];
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.$row["id"].'</td>';
+        $resultHtml .= '<td>'. $row["course_name"].'</td>';
         $resultHtml .= '<td>'. $prereq_id . '</td>';
         $resultHtml .= '<td>'.$row["prereq_course_name"].'</td>';
         $resultHtml .= '<td>'.$row["department_id"].'</td>';
         $resultHtml .= '<td>'.$row["department_name"].'</td>';
-        $resultHtml .= '<td>'. $row["course_name"].'</td>';
         $resultHtml .= '<td>'.$row["course_credits"].'</td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-warning" onclick="onDeletePrereq(' . $row["id"] . ')" title="Delete Prereq"><i class="fa fa-times"></i> </button>
@@ -87,7 +87,11 @@ if (isset($_POST['get_init_arr'])) {
     $id = $_POST['id'];
 
 //    get prereq course
+
     $sql = "SELECT id, course_name FROM course";
+    if (!empty($id)) {
+        $sql .= " WHERE id <> '$id'";
+    }
     $query = mysqli_query($conn, $sql);
 
     $prereq_course_arr = [];
@@ -170,9 +174,11 @@ if (isset($_POST['save_row'])) {
 
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
-    $sqlCourse = "SELECT *";
-    $sqlCourse .= " FROM `department`";
-    $sqlCourse .= " WHERE id = '$edit_id' LIMIT 1";
+
+    $sqlCourse = "SELECT c.*, pc.course_name as prereq_course_name, d.name as department_name";
+    $sqlCourse .= " FROM `course` as c LEFT JOIN course as pc ON pc.id = c.prereq_course_id";
+    $sqlCourse .= " LEFT JOIN department as d ON d.id = c.department_id";
+    $sqlCourse .= " WHERE c.id = '$edit_id' LIMIT 1";
 
     $query = mysqli_query($conn, $sqlCourse);
     $row = mysqli_fetch_assoc($query);
@@ -248,11 +254,11 @@ include "header.php";
             <thead>
             <tr>
                 <th>ID</th>
+                <th>Course Name</th>
                 <th>Prereq Course ID</th>
                 <th>Prereq Course Name</th>
                 <th>Department ID</th>
                 <th>Department Name</th>
-                <th>Course Name</th>
                 <th>Course Credits</th>
                 <th width="150px">Action</th>
             </tr>
