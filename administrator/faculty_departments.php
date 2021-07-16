@@ -163,17 +163,16 @@ if (isset($_POST['delete_prereq'])) {
 }
 
 if (isset($_POST['save_row'])) {
-    $prereq_course_id = $_POST['prereq_course_id'];
+    $faculty_id = $_POST['faculty_id'];
     $department_id = $_POST['department_id'];
 
-    $course_name = $_POST['course_name'];
-    $course_credits = $_POST['course_credits'];
+    $percentage_time = $_POST['percentage_time'];
 
     $id = $_POST['id'];
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO course (`prereq_course_id`, `department_id`, `course_name`, `course_credits`) VALUES ('$prereq_course_id', '$department_id', '$course_name', '$course_credits')";
+        $sql = "INSERT INTO dept_faculty (`faculty_id`, `department_id`, `percentage_time`) VALUES ('$faculty_id', '$department_id', '$percentage_time')";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
@@ -260,7 +259,7 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-6">
-                <h3>Prerequisites</h3>
+                <h3>Faculty - Departments</h3>
             </div>
             <div class="col-lg-2">
                 <div class="form-group px-1">

@@ -249,7 +249,7 @@ function onSave(event) {
     formData.forEach(item => {
         request[item.name] = item.value;
     });
-
+    request.faculty_id = $('#faculty_id').val();
     request.save_row = true;
 
     $.ajax({
