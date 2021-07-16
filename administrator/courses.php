@@ -169,7 +169,10 @@ if (isset($_POST['get_row'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+
+
     <style>
         .form-group {
             display: flex !important;
@@ -264,15 +267,30 @@ include "header.php";
                         <h3 class="text-center " style="margin: auto; color: red" id="add-modal-title">Add Row</h3>
                     </div>
                     <div class="row">
-                        <input type="hidden" class="form-control" id="id" name="id" required/>
 
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Name</label>
-                            <input type="text" class="form-control" placeholder="Name" id="name" name="name" required/>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="prereq_course_id">Prereq Course</label>
+                            <select class="prereq-selectpicker" data-live-search="true">
+                                <option data-tokens="ketchup mustard">Hot Dog, Fries and a Soda</option>
+                                <option data-tokens="mustard">Burger, Shake and a Smile</option>
+                                <option data-tokens="frosting">Sugar, Spice and all things nice</option>
+                            </select>
+
+                        </div>
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="department_id">Department</label>
+                            <select class="department-selectpicker" name="department_id"  id="department_id" data-live-search="true">
+                                <option data-tokens="ketchup mustard">Hot Dog, Fries and a Soda</option>
+                                <option data-tokens="mustard">Burger, Shake and a Smile</option>
+                                <option data-tokens="frosting">Sugar, Spice and all things nice</option>
+                            </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
                             <label class="col-form-label" for="name">Dept First Name</label>
-                            <input type="text" class="form-control" placeholder="Dept First Name" id="dept_first_name" name="dept_first_name" required/>
+<!--                            <input type="hidden" class="form-control" id="id" name="id" required/>-->
                         </div>
                         <div class="col-sm-6 py-1 form-group">
                             <label class="col-form-label" for="name">Dept Last Name</label>
@@ -333,8 +351,15 @@ include "header.php";
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
 <script src="../js/administrator/courses.js"></script>
+
+
 </body>
 </html>

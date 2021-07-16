@@ -234,6 +234,8 @@ function onSelectPagination(selectedNumber) {
 }
 
 $(document).ready(function () {
+    $('.prereq-selectpicker').selectpicker();
+    $('.department-selectpicker').selectpicker();
     onLoadData();
 
     $('.page-item a').click(function (event) {
