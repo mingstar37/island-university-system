@@ -69,7 +69,43 @@ function onLoadData() {
     });
 }
 
-function onLoadSelectPickers(id = 0, prereg_default_val = "0", department_default_val = "0") {
+function onLoadFilterPicker() {
+    let request = {};
+    request.get_faculty_arr = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res != undefined) {
+                let faculty_arr = res;
+
+                let facultyHtml = '<select class="faculty-selectpicker" onchange="onLoadData()" id="faculty_id" name="faculty_id" data-live-search="true">';
+                faculty_arr.forEach(item => {
+                    facultyHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
+                });
+
+                facultyHtml += "</select>"
+
+                $('.bootstrap-select.faculty-').replaceWith(facultyHtml);
+
+                $('.faculty-selectpicker').selectpicker();
+
+                onLoadData();
+            } else {
+                toastr.error('Error');
+            }
+        },
+        complete: function () {
+            $('#btn-save').removeClass('disabled');
+            $('#btn-cancel').removeClass('disabled');
+        }
+    });
+}
+
+function onLoadSelectPickers() {
     let request = {};
     request.get_init_arr = true;
 
@@ -204,21 +240,11 @@ function onDeleteRow(id) {
     $('#delete-modal').modal('show');
 }
 
-function onDeletePrereq(id) {
-    deleteType = 'prereq';
-    delete_id = id;
-    $('#delete-prereq-modal').modal('show');
-}
-
 function onDelete() {
     let request = {};
     request.delete_id = delete_id;
 
-    if (deleteType == 'prereq') {
-        request.delete_prereq = true;
-    } else {
-        request.delete_row = true;
-    }
+    request.delete_row = true;
 
     $.ajax({
         method: "POST",
@@ -286,7 +312,7 @@ function onSelectPagination(selectedNumber) {
 $(document).ready(function () {
     $('.faculty-selectpicker').selectpicker();
 
-    onLoadData();
+    onLoadFilterPicker();
 
     $('.page-item a').click(function (event) {
         let totalPageCount = Math.ceil(pagination.totalCount / pagination.pageSize);

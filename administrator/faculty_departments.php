@@ -14,7 +14,7 @@ if (isset($_POST['load_data'])) {
     $page_size = $_POST['page_size'];
 
     $faculty_id = $_POST['faculty_id'];
-    $sqlCourse = "SELECT df.id as id, d.name, df.faculty_id, d.dept_first_name, d.dept_last_name, d.building_name, d.chair_room_no";
+    $sqlCourse = "SELECT df.id as id, d.name, df.department_id, df.percentage_time, d.dept_first_name, d.dept_last_name, d.building_name, d.chair_room_no";
     $sqlCourse .= " FROM `dept_faculty` as df INNER JOIN department as d ON df.department_id = d.id";
     $sqlCourse .= " WHERE df.faculty_id = '$faculty_id'";
 
@@ -38,11 +38,13 @@ if (isset($_POST['load_data'])) {
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'. $row["faculty_id"].'</td>';
+        $resultHtml .= '<td>'. $row["department_id"].'</td>';
+        $resultHtml .= '<td>'. $row['name'] . '</td>';
         $resultHtml .= '<td>'. $row['dept_first_name'] . '</td>';
         $resultHtml .= '<td>'.$row["dept_last_name"].'</td>';
         $resultHtml .= '<td>'.$row["building_name"].'</td>';
         $resultHtml .= '<td>'.$row["chair_room_no"].'</td>';
+        $resultHtml .= '<td>'.$row["percentage_time"].'</td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
         $resultHtml .= '</tr>';
@@ -71,7 +73,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM course WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM dept_faculty WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -81,7 +83,7 @@ if (isset($_POST['delete_row'])) {
     exit;
 }
 
-if (isset($_POST['get_init_arr'])) {
+if (isset($_POST['get_faculty_arr'])) {
 
 //    get prereq course
 
@@ -245,12 +247,13 @@ include "header.php";
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Faculty ID</th>
+                <th>Department ID</th>
                 <th>Department Name</th>
                 <th>Department First Name</th>
                 <th>Department Last Name</th>
                 <th>Building Name</th>
                 <th>Chair Room No</th>
+                <th>Percentage Time</th>
                 <th>Action</th>
             </tr>
             </thead>
