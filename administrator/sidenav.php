@@ -23,6 +23,9 @@
                     <a href="#"> Department </a>
                     <ul class="nolist">
                         <li>
+                            <a href="./courses.php">Courses</a>
+                        </li>
+                        <li>
                             <a href="viewDepartments.php">View</a>
                         </li>
                         <li>
