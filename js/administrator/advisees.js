@@ -5,7 +5,6 @@ let pagination = {
 };
 
 let delete_id = 0;
-let deleteType = 'prereq';
 let editId = 0;
 
 function onSearchKeyup(event) {
@@ -137,7 +136,6 @@ function onLoadFilterPicker() {
 
                 $('.faculty-selectpicker').selectpicker();
 
-                let faculty_id = $('#faculty_id').val();
                 onLoadData();
             } else {
                 toastr.error('Error');
@@ -150,54 +148,7 @@ function onLoadFilterPicker() {
     });
 }
 
-function onLoadSelectPickers() {
-    let request = {};
-    request.get_init_arr = true;
-
-    $.ajax({
-        method: "POST",
-        url: window.location.href,
-        data: request,
-        dataType: 'json',
-        success: function (res) {
-            if (res != undefined) {
-                let prereq_course_arr = res.prereq_course_arr;
-
-                let prereqHtml = '<select class="prereq-selectpicker" name="prereq_course_id" data-live-search="true"><option value="0">Empty</option>';
-                prereq_course_arr.forEach(item => {
-                    prereqHtml += "<option value='" + item.id + "'>" + item.course_name + "</option>"
-                });
-
-                prereqHtml += "</select>"
-
-                let student_arr = res.student_arr;
-
-                let departHtml = '<select class="student-selectpicker" name="student_id" data-live-search="true"><option value="0">Empty</option>';
-                student_arr.forEach(item => {
-                    departHtml += "<option value='" + item.id + "'>" + item.name + "</option>"
-                });
-                departHtml += "</select>";
-
-                $('.bootstrap-select.prereq-').replaceWith(prereqHtml);
-                $('.bootstrap-select.student-').replaceWith(departHtml);
-
-                $('.prereq-selectpicker').selectpicker('val', prereg_default_val);
-                $('.student-selectpicker').selectpicker('val', student_default_val);
-
-            } else {
-                toastr.error('Error');
-            }
-        },
-        complete: function () {
-            $('#btn-save').removeClass('disabled');
-            $('#btn-cancel').removeClass('disabled');
-        }
-    });
-}
-
 function onAddNew() {
-
-    onLoadSelectPickers();
 
     $('#id').val(0);
     $('#time_of_advisement').val("");
@@ -281,7 +232,6 @@ function onSave(event) {
 }
 
 function onDeleteRow(id) {
-    deleteType = 'row';
     delete_id = id;
     $('#delete-modal').modal('show');
 }
@@ -299,14 +249,8 @@ function onDelete() {
         dataType: 'json',
         success: function (res) {
             if (res !== undefined && res.success == true) {
-
-                if (deleteType == 'prereq') {
-                    toastr.success("Deleted Preq info Successfully!");
-                    $('#delete-prereq-modal').modal('hide');
-                } else {
-                    toastr.success("Deleted Successfully!");
-                    $('#delete-modal').modal('hide');
-                }
+                toastr.success("Deleted Successfully!");
+                $('#delete-modal').modal('hide');
                 onLoadData();
             } else {
                 toastr.error("There are some issues!");

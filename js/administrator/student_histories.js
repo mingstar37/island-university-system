@@ -5,7 +5,6 @@ let pagination = {
 };
 
 let delete_id = 0;
-let deleteType = 'prereq';
 let editId = 0;
 
 function onSearchKeyup(event) {
@@ -36,12 +35,12 @@ function onSetPageNumberSelect() {
 }
 
 
-function onLoadDepartmentSelectPicker(faculty_id, default_val = 0) {
+function onLoadCRNSelectPicker(student_id, default_val = 0) {
 
     let request = {};
-    request.faculty_id = faculty_id;
-    request.department_id = default_val;
-    request.get_depart_arr = true;
+    request.student_id = student_id;
+    request.section_id = default_val;
+    request.get_crn_arr = true;
 
     $.ajax({
         method: "POST",
@@ -50,21 +49,21 @@ function onLoadDepartmentSelectPicker(faculty_id, default_val = 0) {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
-                let department_arr = res;
+                let crn_arr = res;
 
-                let departmentHtml = '<select class="department-selectpicker" name="department_id" id="department_id" data-live-search="true">';
-                department_arr.forEach(item => {
-                    departmentHtml += "<option value='" + item.id + "'>" + item.name + "</option>"
+                let studentHtml = '<select class="crn-selectpicker" name="section_id" id="section_id" data-live-search="true">';
+                crn_arr.forEach(item => {
+                    studentHtml += "<option value='" + item.id + "'>" + item.id + "</option>"
                 });
 
-                departmentHtml += "</select>";
+                studentHtml += "</select>";
 
-                $('.bootstrap-select.department-').replaceWith(departmentHtml);
+                $('.bootstrap-select.crn-').replaceWith(studentHtml);
 
                 if (default_val != 0) {
-                    $('#department_id').selectpicker('val', default_val);
+                    $('#section_id').selectpicker('val', default_val);
                 } else {
-                    $('#department_id').selectpicker();
+                    $('#section_id').selectpicker();
                 }
             } else {
                 toastr.error('Error');
@@ -83,10 +82,11 @@ function onLoadData() {
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
 
-    request.faculty_id = $('.faculty-selectpicker').val();
+    request.student_id = $('#student_id').val();
+    request.year = $('#year').val();
     request.load_data = true;
 
-    onLoadDepartmentSelectPicker(request.faculty_id);
+    onLoadCRNSelectPicker(request.student_id);
 
     $.ajax({
         method: "POST",
@@ -115,7 +115,7 @@ function onLoadData() {
 
 function onLoadFilterPicker() {
     let request = {};
-    request.get_faculty_arr = true;
+    request.get_student_arr = true;
 
     $.ajax({
         method: "POST",
@@ -124,20 +124,19 @@ function onLoadFilterPicker() {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
-                let faculty_arr = res;
+                let student_arr = res;
 
-                let facultyHtml = '<select id="faculty_id" class="faculty-selectpicker" onchange="onLoadData()" data-live-search="true">';
-                faculty_arr.forEach(item => {
-                    facultyHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
+                let studentHtml = '<select id="student_id" class="student-selectpicker" onchange="onLoadData()" data-live-search="true">';
+                student_arr.forEach(item => {
+                    studentHtml += "<option value='" + item.id + "'>" + item.student_name + "</option>"
                 });
 
-                facultyHtml += "</select>";
+                studentHtml += "</select>";
 
-                $('.bootstrap-select.faculty-').replaceWith(facultyHtml);
+                $('.bootstrap-select.student-').replaceWith(studentHtml);
 
-                $('.faculty-selectpicker').selectpicker();
+                $('.student-selectpicker').selectpicker();
 
-                let faculty_id = $('#faculty_id').val();
                 onLoadData();
             } else {
                 toastr.error('Error');
@@ -153,7 +152,7 @@ function onLoadFilterPicker() {
 function onAddNew() {
 
     $('#id').val(0);
-    $('#percentage_time').val("");
+    $('#time_of_advisement').val("");
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
@@ -172,9 +171,9 @@ function onEditRow(id) {
         success: function (res) {
             if (res != undefined) {
 
-                let faculty_id = $('#faculty_id').val();
-                let department_id = res.department_id;
-                onLoadDepartmentSelectPicker(faculty_id, department_id);
+                let student_id = $('#student_id').val();
+                let section_id = res.section_id;
+                onLoadCRNSelectPicker(student_id, section_id);
 
                 let keys = Object.keys(res);
 
@@ -208,7 +207,8 @@ function onSave(event) {
     formData.forEach(item => {
         request[item.name] = item.value;
     });
-    request.faculty_id = $('#faculty_id').val();
+    request.student_id = $('#student_id').val();
+    request.year = $('#year').val();
     request.save_row = true;
 
     $.ajax({
@@ -234,7 +234,6 @@ function onSave(event) {
 }
 
 function onDeleteRow(id) {
-    deleteType = 'row';
     delete_id = id;
     $('#delete-modal').modal('show');
 }
@@ -253,13 +252,8 @@ function onDelete() {
         success: function (res) {
             if (res !== undefined && res.success == true) {
 
-                if (deleteType == 'prereq') {
-                    toastr.success("Deleted Preq info Successfully!");
-                    $('#delete-prereq-modal').modal('hide');
-                } else {
-                    toastr.success("Deleted Successfully!");
-                    $('#delete-modal').modal('hide');
-                }
+                toastr.success("Deleted Successfully!");
+                $('#delete-modal').modal('hide');
                 onLoadData();
             } else {
                 toastr.error("There are some issues!");
@@ -309,9 +303,10 @@ function onSelectPagination(selectedNumber) {
 }
 
 $(document).ready(function () {
-    $('.faculty-selectpicker').selectpicker();
-    $('#faculty_id').selectpicker();
-    $('#department_id').selectpicker();
+    $('#student_id').selectpicker();
+    $('#year').selectpicker();
+
+    $('#section_id').selectpicker();
 
     onLoadFilterPicker();
 

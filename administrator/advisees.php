@@ -126,24 +126,6 @@ if (isset($_POST['get_student_arr'])) {
     exit;
 }
 
-if (isset($_POST['delete_prereq'])) {
-    $delete_id = $_POST['delete_id'];
-
-    $ret = [
-        'success' => false
-    ];
-
-    if (!empty($delete_id)) {
-        $sql  = "UPDATE course SET prereq_course_id = 0 WHERE id = '".$delete_id."'";
-        if ($conn->query($sql)) {
-            $ret['success'] = true;
-        }
-    }
-
-    echo json_encode($ret);
-    exit;
-}
-
 if (isset($_POST['save_row'])) {
     $faculty_id = $_POST['faculty_id'];
     $student_id = $_POST['student_id'];

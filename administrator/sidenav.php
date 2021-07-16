@@ -138,7 +138,7 @@
                     <a href="#">Student History</a>
                     <ul class="nolist">
                         <li>
-                            <a href="viewStudentHistories.php">All Histories</a>
+                            <a href="./student_histories.php">All Histories</a>
                         </li>
                     </ul>
                 </li>

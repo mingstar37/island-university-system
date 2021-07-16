@@ -13,23 +13,30 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $faculty_id = $_POST['faculty_id'];
-    $sqlFacultyDepartment = "SELECT df.id as id, d.name, df.department_id, df.percentage_time, d.dept_first_name, d.dept_last_name, d.building_name, d.chair_room_no";
-    $sqlFacultyDepartment .= " FROM `dept_faculty` as df INNER JOIN department as d ON df.department_id = d.id";
-    $sqlFacultyDepartment .= " WHERE df.faculty_id = '$faculty_id'";
+    $student_id = $_POST['student_id'];
+    $year = $_POST['year'];
+
+    $sqlHistory = "SELECT sh.*, concat(u.first_name, ' ', u.last_name) as student_name, c.course_name";
+    $sqlHistory .= " FROM `student_history` as sh";
+    $sqlHistory .= " INNER JOIN `student` as s ON s.id = sh.student_id";
+    $sqlHistory .= " INNER JOIN `users` as u ON u.id = s.user_id";
+    $sqlHistory .= " INNER JOIN `section` as sc ON sc.id = sh.section_id";
+    $sqlHistory .= " INNER JOIN `course` as c ON c.id = sc.course_id";
+
+    $sqlHistory .= " WHERE sh.student_id = '$student_id' AND sh.year = '$year'";
 
     if(!empty($search_text)) {
-        $sqlFacultyDepartment .= " AND (df.id LIKE '%$search_text%' OR df.faculty_id LIKE '%$search_text%'";
-        $sqlFacultyDepartment .= " OR d.dept_first_name LIKE '%$search_text%' OR d.dept_last_name LIKE '%$search_text%'";
-        $sqlFacultyDepartment .= " OR d.chair_room_no LIKE '%$search_text%' OR d.building_name LIKE '%$search_text%')";
+        $sqlHistory .= " AND (sh.id LIKE '%$search_text%' OR sh.student_id LIKE '%$search_text%'";
+        $sqlHistory .= " OR sh.section_id LIKE '%$search_text%' OR c.course_name LIKE '%$search_text%'";
+        $sqlHistory .= " OR sh.grade LIKE '%$search_text%' OR sh.year LIKE '%$search_text%')";
     }
 
-    $totalQuery = mysqli_query($conn, $sqlFacultyDepartment);
+    $totalQuery = mysqli_query($conn, $sqlHistory);
     $total_count = mysqli_num_rows($totalQuery);
 
-    $sqlFacultyDepartment .= " LIMIT $page_size OFFSET $start_number";
+    $sqlHistory .= " LIMIT $page_size OFFSET $start_number";
 
-    $query = mysqli_query($conn, $sqlFacultyDepartment);
+    $query = mysqli_query($conn, $sqlHistory);
 
     $count = 0;
     $resultHtml = "";
@@ -38,13 +45,12 @@ if (isset($_POST['load_data'])) {
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'. $row["department_id"].'</td>';
-        $resultHtml .= '<td>'. $row['name'] . '</td>';
-        $resultHtml .= '<td>'. $row['dept_first_name'] . '</td>';
-        $resultHtml .= '<td>'.$row["dept_last_name"].'</td>';
-        $resultHtml .= '<td>'.$row["building_name"].'</td>';
-        $resultHtml .= '<td>'.$row["chair_room_no"].'</td>';
-        $resultHtml .= '<td>'.$row["percentage_time"].'</td>';
+        $resultHtml .= '<td>'. $row["student_id"].'</td>';
+        $resultHtml .= '<td>'. $row['student_name'] . '</td>';
+        $resultHtml .= '<td>'. $row['section_id'] . '</td>';
+        $resultHtml .= '<td>'.$row["course_name"].'</td>';
+        $resultHtml .= '<td>'.$row["grade"].'</td>';
+        $resultHtml .= '<td>'.$row["year"].'</td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
         $resultHtml .= '</tr>';
@@ -73,7 +79,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM dept_faculty WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM student_history WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -83,94 +89,70 @@ if (isset($_POST['delete_row'])) {
     exit;
 }
 
-if (isset($_POST['get_faculty_arr'])) {
+if (isset($_POST['get_student_arr'])) {
 
 //    get prereq course
 
-    $sql = "SELECT f.id, u.first_name, u.last_name";
-    $sql .= " FROM faculty as f INNER JOIN users as u ON u.id = f.user_id";
+    $sql = "SELECT s.id, concat(u.first_name, ' ', u.last_name) as student_name";
+    $sql .= " FROM student as s INNER JOIN users as u ON u.id = s.user_id";
 
     $query = mysqli_query($conn, $sql);
 
-    $faculty_arr = [];
+    $student_arr = [];
 
     while ($row = mysqli_fetch_assoc($query)) {
-        $faculty_arr[] = $row;
+        $student_arr[] = $row;
     }
 
-    echo json_encode($faculty_arr);
+    echo json_encode($student_arr);
     exit;
 }
 
-if (isset($_POST['get_depart_arr'])) {
+if (isset($_POST['get_crn_arr'])) {
 
 //    get prereq course
 
-    $faculty_id = $_POST['faculty_id'];
-
-
-    // get department arr
-    $sql = "SELECT department_id FROM dept_faculty WHERE faculty_id = '$faculty_id' GROUP BY department_id";
-    $query = mysqli_query($conn, $sql);
-
-    $department_arr = [];
-
-    $department_id = $_POST['department_id'];
-
-    while ($row = mysqli_fetch_assoc($query)) {
-        if ($row["department_id"] != $department_id) {
-            $department_arr[] = $row["department_id"];
-        }
-    }
-
-    $whereFilter = "";
-    if (!empty($department_arr)) {
-        $whereFilter = implode(",", $department_arr);
-    }
-
-    $sql = "SELECT d.id, d.name";
-    $sql .= " FROM department as d LEFT JOIN dept_faculty as df ON df.department_id = d.id";
-
-    if (!empty($whereFilter)) {
-        $sql .= " WHERE d.id NOT IN ($whereFilter)";
-    }
-
-    $sql .= " GROUP BY d.id";
+    $sql = "SELECT s.id";
+    $sql .= " FROM section as s";
+    $sql .= " INNER JOIN course as c ON c.id = s.course_id";
 
     $query = mysqli_query($conn, $sql);
 
-    $faculty_arr = [];
+    $student_arr = [];
 
     while ($row = mysqli_fetch_assoc($query)) {
-        $faculty_arr[] = $row;
+        $student_arr[] = $row;
     }
 
-    echo json_encode($faculty_arr);
+    echo json_encode($student_arr);
     exit;
 }
+
 
 if (isset($_POST['save_row'])) {
-    $faculty_id = $_POST['faculty_id'];
-    $department_id = $_POST['department_id'];
+    $student_id = $_POST['student_id'];
+    $year = $_POST['year'];
 
-    $percentage_time = $_POST['percentage_time'];
+    $section_id = $_POST['section_id'];
+    $grade = $_POST['grade'];
+    $year = $_POST['year'];
 
     $id = $_POST['id'];
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO dept_faculty (`faculty_id`, `department_id`, `percentage_time`) VALUES ('$faculty_id', '$department_id', '$percentage_time')";
+        $sql = "INSERT INTO student_history (`student_id`, `section_id`, `grade`, `year`) VALUES ('$student_id', '$section_id', '$grade', '$year')";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
         } else {
-            $ret['message'] = "Error in department";
+            $ret['message'] = "Error in student";
         }
     } else {
         // update
         $id = $_POST['id'];
 
-        $sql = "UPDATE dept_faculty SET faculty_id = '$faculty_id', department_id = '$department_id', percentage_time = '$percentage_time'";
+        $sql = "UPDATE student_history SET student_id = '$student_id', section_id = '$section_id', grade = '$grade', year = '$year'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
@@ -187,11 +169,11 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlFacultyDepartment = "SELECT id, department_id, percentage_time";
-    $sqlFacultyDepartment .= " FROM dept_faculty";
-    $sqlFacultyDepartment .= " WHERE id = '$edit_id' LIMIT 1";
+    $sqlHistory = "SELECT id, section_id, grade";
+    $sqlHistory .= " FROM student_history";
+    $sqlHistory .= " WHERE id = '$edit_id' LIMIT 1";
 
-    $query = mysqli_query($conn, $sqlFacultyDepartment);
+    $query = mysqli_query($conn, $sqlHistory);
     $row = mysqli_fetch_assoc($query);
 
     echo json_encode($row);
@@ -244,14 +226,23 @@ include "header.php";
     ?>
     <div class="main-page">
         <div class="row table-toolbar">
-            <div class="col-lg-6">
-                <h3>Faculty - Departments</h3>
+            <div class="col-lg-4">
+                <h3>All Student Histories</h3>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-4">
                 <div class="form-group px-1">
-                    <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
+                    <select id="year" class="year-selectpicker" onchange="onLoadData()" data-live-search="true">
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                    </select>
+                    &nbsp;&nbsp;
+                    <select class="student-selectpicker" id="student_id" data-live-search="true">
                         <option value="800100002">Temp</option>
                     </select>
+
                 </div>
             </div>
 
@@ -274,13 +265,12 @@ include "header.php";
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Department ID</th>
-                <th>Department Name</th>
-                <th>Department First Name</th>
-                <th>Department Last Name</th>
-                <th>Building Name</th>
-                <th>Chair Room No</th>
-                <th>Percentage Time</th>
+                <th>student ID</th>
+                <th>student Name</th>
+                <th>CRN Number</th>
+                <th>Course Name</th>
+                <th>Grade</th>
+                <th>Year</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -322,20 +312,17 @@ include "header.php";
                     <div class="row py-1">
                         <h3 class="text-center " style="margin: auto; color: red" id="add-modal-title">Add Row</h3>
                     </div>
-                    <div class="row">
-
-                    </div>
 
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="department_id">Department</label>
-                            <select id="department_id" class="department-selectpicker" name="department_id"  data-live-search="true">
+                            <label class="col-form-label" for="section_id">CRN Number</label>
+                            <select id="section_id" class="crn-selectpicker" name="section_id"  data-live-search="true">
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Percentage Time</label>
-                            <input type="text" class="form-control" value="100%" id="percentage_time" name="percentage_time" required/>
+                            <label class="col-form-label" for="name">Grade</label>
+                            <input type="text" class="form-control" id="grade" name="grade" required/>
                         </div>
                     </div>
                 </div>
@@ -391,7 +378,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/faculty_departments.js"></script>
+<script src="../js/administrator/student_histories.js"></script>
 
 
 </body>
