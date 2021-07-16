@@ -151,6 +151,8 @@ function onLoadFilterPicker() {
 
 function onAddNew() {
 
+    onLoadCRNSelectPicker($('#student_id').val());
+
     $('#id').val(0);
     $('#time_of_advisement').val("");
 

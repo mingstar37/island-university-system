@@ -86,7 +86,6 @@ function onLoadData() {
     request.faculty_id = $('.faculty-selectpicker').val();
     request.load_data = true;
 
-    onLoadDepartmentSelectPicker(request.faculty_id);
 
     $.ajax({
         method: "POST",
@@ -151,6 +150,8 @@ function onLoadFilterPicker() {
 }
 
 function onAddNew() {
+
+    onLoadDepartmentSelectPicker($('#faculty_id').val());
 
     $('#id').val(0);
     $('#percentage_time').val("");

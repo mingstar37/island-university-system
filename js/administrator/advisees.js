@@ -85,7 +85,6 @@ function onLoadData() {
     request.faculty_id = $('.faculty-selectpicker').val();
     request.load_data = true;
 
-    onLoadStudentSelectPicker(request.faculty_id);
 
     $.ajax({
         method: "POST",
@@ -149,6 +148,8 @@ function onLoadFilterPicker() {
 }
 
 function onAddNew() {
+
+    onLoadStudentSelectPicker($('#faculty_id').val());
 
     $('#id').val(0);
     $('#time_of_advisement').val("");
