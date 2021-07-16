@@ -68,12 +68,55 @@ function onLoadData() {
 
 
 function onAddNew() {
+
+    let request = {};
+    request.id = 0;
+    request.get_init_arr = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res != undefined) {
+                let prereq_course_arr = res.prereq_course_arr;
+
+                let prereqHtml = '<select class="prereq-selectpicker" name="prereq_course_id" data-live-search="true"><option value="0">Empty</option>';
+                prereq_course_arr.forEach(item => {
+                    prereqHtml += "<option value='" + item.id + "'>" + item.course_name + "</option>"
+                });
+
+                prereqHtml += "</select>"
+
+                let department_arr = res.department_arr;
+
+                let departHtml = '<select class="department-selectpicker" name="department_id" data-live-search="true"><option value="0">Empty</option>';
+                department_arr.forEach(item => {
+                    departHtml += "<option value='" + item.id + "'>" + item.name + "</option>"
+                });
+                departHtml += "</select>";
+
+                $('.bootstrap-select.prereq-').replaceWith(prereqHtml);
+                $('.bootstrap-select.department-').replaceWith(departHtml);
+
+                $('.prereq-selectpicker').selectpicker();
+                $('.department-selectpicker').selectpicker();
+
+            } else {
+                toastr.error('Error');
+            }
+        },
+        complete: function () {
+            $('#btn-save').removeClass('disabled');
+            $('#btn-cancel').removeClass('disabled');
+        }
+    });
+
+
     $('#id').val(0);
-    $('#name').val("");
-    $('#dept_first_name').val("");
-    $('#dept_last_name').val("");
-    $('#building_name').val("");
-    $('#chair_room_no').val('');
+    $('#course_name').val("");
+    $('#course_credits').val("");
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
@@ -236,6 +279,7 @@ function onSelectPagination(selectedNumber) {
 $(document).ready(function () {
     $('.prereq-selectpicker').selectpicker();
     $('.department-selectpicker').selectpicker();
+
     onLoadData();
 
     $('.page-item a').click(function (event) {

@@ -83,6 +83,37 @@ if (isset($_POST['delete_row'])) {
     exit;
 }
 
+if (isset($_POST['get_init_arr'])) {
+    $id = $_POST['id'];
+
+//    get prereq course
+    $sql = "SELECT id, course_name FROM course";
+    $query = mysqli_query($conn, $sql);
+
+    $prereq_course_arr = [];
+
+    while ($row = mysqli_fetch_assoc($query)) {
+        $prereq_course_arr[] = $row;
+    }
+
+    $department_arr = [];
+//    get department arr
+    $sql = "SELECT id, name FROM department";
+    $query = mysqli_query($conn, $sql);
+
+    while ($row = mysqli_fetch_assoc($query)) {
+        $department_arr[] = $row;
+    }
+
+    $ret = [
+            'prereq_course_arr' => $prereq_course_arr,
+        'department_arr' => $department_arr
+    ];
+
+    echo json_encode($ret);
+    exit;
+}
+
 if (isset($_POST['delete_prereq'])) {
     $delete_id = $_POST['delete_id'];
 
@@ -102,21 +133,19 @@ if (isset($_POST['delete_prereq'])) {
 }
 
 if (isset($_POST['save_row'])) {
-    $name = $_POST['name'];
-    $dept_first_name = $_POST['dept_first_name'];
-    $dept_last_name = $_POST['dept_last_name'];
+    $prereq_course_id = $_POST['prereq_course_id'];
+    $department_id = $_POST['department_id'];
 
-    $building_name = $_POST['building_name'];
-    $chair_room_no = $_POST['chair_room_no'];
+    $course_name = $_POST['course_name'];
+    $course_credits = $_POST['course_credits'];
 
     $id = $_POST['id'];
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO department (`name`, `dept_first_name`, `dept_last_name`, `building_name`, `chair_room_no`) VALUES ('$name', '$dept_first_name', '$dept_last_name', '$building_name', '$chair_room_no')";
+        $sql = "INSERT INTO course (`prereq_course_id`, `department_id`, `course_name`, `course_credits`) VALUES ('$prereq_course_id', '$department_id', '$course_name', '$course_credits')";
 
         if ($conn->query($sql)) {
-            $user_id = $conn->insert_id;
             $ret['success'] = true;
         } else {
             $ret['message'] = "Error in department";
@@ -125,7 +154,7 @@ if (isset($_POST['save_row'])) {
         // update
         $id = $_POST['id'];
 
-        $sql = "UPDATE department SET name = '$name', dept_first_name = '$dept_first_name', dept_last_name = '$dept_last_name', building_name = '$building_name', chair_room_no = '$chair_room_no'";
+        $sql = "UPDATE course SET prereq_course_id = '$prereq_course_id', department_id = '$department_id', course_name = '$course_name', course_credits = '$course_credits'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
@@ -270,39 +299,25 @@ include "header.php";
 
                     </div>
                     <div class="row">
-
+                        <input type="hidden" class="form-control" id="id" name="id" required/>
                         <div class="col-sm-6 py-1">
                             <label class="col-form-label" for="prereq_course_id">Prereq Course</label>
-                            <select class="prereq-selectpicker" data-live-search="true">
-                                <option data-tokens="ketchup mustard">Hot Dog, Fries and a Soda</option>
-                                <option data-tokens="mustard">Burger, Shake and a Smile</option>
-                                <option data-tokens="frosting">Sugar, Spice and all things nice</option>
+                            <select class="prereq-selectpicker" name="prereq_course_id" data-live-search="true">
                             </select>
 
                         </div>
                         <div class="col-sm-6 py-1">
                             <label class="col-form-label" for="department_id">Department</label>
-                            <select class="department-selectpicker" name="department_id"  id="department_id" data-live-search="true">
-                                <option data-tokens="ketchup mustard">Hot Dog, Fries and a Soda</option>
-                                <option data-tokens="mustard">Burger, Shake and a Smile</option>
-                                <option data-tokens="frosting">Sugar, Spice and all things nice</option>
+                            <select class="department-selectpicker" name="department_id"  data-live-search="true">
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Dept First Name</label>
-<!--                            <input type="hidden" class="form-control" id="id" name="id" required/>-->
+                            <label class="col-form-label" for="name">Course Name</label>
+                            <input type="text" class="form-control" placeholder="Course Name" id="course_name" name="course_name" required/>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Dept Last Name</label>
-                            <input type="text" class="form-control" placeholder="Dept Last Name" id="dept_last_name" name="dept_last_name" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Building Name</label>
-                            <input type="text" class="form-control" placeholder="Building Name" id="building_name" name="building_name" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Chair Room No</label>
-                            <input type="text" class="form-control" placeholder="Chair Room No" id="chair_room_no" name="chair_room_no" required/>
+                            <label class="col-form-label" for="name">Course Credits</label>
+                            <input type="text" class="form-control" placeholder="Course Credits" id="course_credits" name="course_credits" required/>
                         </div>
                     </div>
                 </div>
