@@ -40,7 +40,10 @@ function onLoadData() {
     request.search_text = $('#search-text').val();
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
+
+    request.faculty_id = $('#faculty_id').val();
     request.load_data = true;
+
 
     $.ajax({
         method: "POST",
@@ -68,7 +71,6 @@ function onLoadData() {
 
 function onLoadSelectPickers(id = 0, prereg_default_val = "0", department_default_val = "0") {
     let request = {};
-    request.id = id;
     request.get_init_arr = true;
 
     $.ajax({
@@ -282,8 +284,7 @@ function onSelectPagination(selectedNumber) {
 }
 
 $(document).ready(function () {
-    $('.prereq-selectpicker').selectpicker();
-    $('.department-selectpicker').selectpicker();
+    $('.faculty-selectpicker').selectpicker();
 
     onLoadData();
 

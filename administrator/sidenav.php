@@ -64,6 +64,9 @@
                     <a href="#"> Prerequisite </a>
                     <ul class="nolist">
                         <li>
+                            <a href="./prerequisites.php">Prerequisite</a>
+                        </li>
+                        <li>
                             <a href="adminViewPrerequisite.php">View Prerequisite</a>
                         </li>
                         <li>
@@ -142,6 +145,9 @@
                     <a href="#">Faculty</a>
                     <ul class="nolist">
                         <li>
+                            <a href="./faculty_departments.php">Faculty - Departments</a>
+                        </li>
+                        <li>
                             <a href="adminViewFaculty.php">View Faculty</a>
                         </li>
                         <li>
@@ -153,9 +159,6 @@
                         <!-- <li>
                             <a href="adminFacultyStudentHistory.php">View Student History</a>
                         </li> -->
-                        <li>
-                            <a href="adminFacultyresetPassword.php">Reset Password</a>
-                        </li>
                     </ul>
                 </li>
                 <li>
