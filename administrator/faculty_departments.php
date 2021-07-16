@@ -102,6 +102,48 @@ if (isset($_POST['get_faculty_arr'])) {
     exit;
 }
 
+if (isset($_POST['get_depart_arr'])) {
+
+//    get prereq course
+
+    $faculty_id = $_POST['faculty_id'];
+
+    // get department arr
+    $sql = "SELECT department_id FROM dept_faculty WHERE faculty_id = '$faculty_id' GROUP BY department_id";
+    $query = mysqli_query($conn, $sql);
+
+    $department_arr = [];
+
+    while ($row = mysqli_fetch_assoc($query)) {
+        $department_arr[] = $row["department_id"];
+    }
+
+    $whereFilter = "";
+    if (!empty($department_arr)) {
+        $whereFilter = implode(",", $department_arr);
+    }
+
+    $sql = "SELECT d.id, d.name";
+    $sql .= " FROM department as d LEFT JOIN dept_faculty as df ON df.department_id = d.id";
+
+    if (!empty($whereFilter)) {
+        $sql .= " WHERE d.id NOT IN ($whereFilter)";
+    }
+
+    $sql .= " GROUP BY d.id";
+
+    $query = mysqli_query($conn, $sql);
+
+    $faculty_arr = [];
+
+    while ($row = mysqli_fetch_assoc($query)) {
+        $faculty_arr[] = $row;
+    }
+
+    echo json_encode($faculty_arr);
+    exit;
+}
+
 if (isset($_POST['delete_prereq'])) {
     $delete_id = $_POST['delete_id'];
 
@@ -222,7 +264,7 @@ include "header.php";
             </div>
             <div class="col-lg-2">
                 <div class="form-group px-1">
-                    <select class="faculty-selectpicker" id="faculty_id" name="faculty_id" data-live-search="true">
+                    <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
                         <option value="800100002">Temp</option>
                     </select>
                 </div>
@@ -298,26 +340,17 @@ include "header.php";
                     <div class="row">
 
                     </div>
+
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="prereq_course_id">Prereq Course</label>
-                            <select class="prereq-selectpicker" name="prereq_course_id" data-live-search="true">
-                            </select>
-
-                        </div>
-                        <div class="col-sm-6 py-1">
                             <label class="col-form-label" for="department_id">Department</label>
-                            <select class="department-selectpicker" name="department_id"  data-live-search="true">
+                            <select id="department_id" class="department-selectpicker" name="department_id"  data-live-search="true">
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Course Name</label>
-                            <input type="text" class="form-control" placeholder="Course Name" id="course_name" name="course_name" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Course Credits</label>
-                            <input type="text" class="form-control" placeholder="Course Credits" id="course_credits" name="course_credits" required/>
+                            <label class="col-form-label" for="name">Percentage Time</label>
+                            <input type="text" class="form-control" value="100%" id="percentage_time" name="percentage_time" required/>
                         </div>
                     </div>
                 </div>

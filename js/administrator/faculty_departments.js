@@ -35,15 +35,53 @@ function onSetPageNumberSelect() {
     $('#page-select').val(pagination.currentNumber + 1);
 }
 
+
+function onLoadDepartmentSelectPicker(faculty_id) {
+
+    let request = {};
+    request.faculty_id = faculty_id;
+    request.get_depart_arr = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res != undefined) {
+                let department_arr = res;
+
+                let departmentHtml = '<select class="department-selectpicker" name="department_id" id="department_id" data-live-search="true">';
+                department_arr.forEach(item => {
+                    departmentHtml += "<option value='" + item.id + "'>" + item.name + "</option>"
+                });
+
+                departmentHtml += "</select>";
+
+                $('.bootstrap-select.department-').replaceWith(departmentHtml);
+
+                $('#department_id').selectpicker();
+            } else {
+                toastr.error('Error');
+            }
+        },
+        complete: function () {
+            $('#btn-save').removeClass('disabled');
+            $('#btn-cancel').removeClass('disabled');
+        }
+    });
+}
+
 function onLoadData() {
     let request = {};
     request.search_text = $('#search-text').val();
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
 
-    request.faculty_id = $('#faculty_id').val();
+    request.faculty_id = $('.faculty-selectpicker').val();
     request.load_data = true;
 
+    onLoadDepartmentSelectPicker(request.faculty_id);
 
     $.ajax({
         method: "POST",
@@ -69,6 +107,7 @@ function onLoadData() {
     });
 }
 
+
 function onLoadFilterPicker() {
     let request = {};
     request.get_faculty_arr = true;
@@ -82,17 +121,18 @@ function onLoadFilterPicker() {
             if (res != undefined) {
                 let faculty_arr = res;
 
-                let facultyHtml = '<select class="faculty-selectpicker" onchange="onLoadData()" id="faculty_id" name="faculty_id" data-live-search="true">';
+                let facultyHtml = '<select id="faculty_id" class="faculty-selectpicker" onchange="onLoadData()" data-live-search="true">';
                 faculty_arr.forEach(item => {
                     facultyHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
                 });
 
-                facultyHtml += "</select>"
+                facultyHtml += "</select>";
 
                 $('.bootstrap-select.faculty-').replaceWith(facultyHtml);
 
                 $('.faculty-selectpicker').selectpicker();
 
+                let faculty_id = $('#faculty_id').val();
                 onLoadData();
             } else {
                 toastr.error('Error');
@@ -311,6 +351,8 @@ function onSelectPagination(selectedNumber) {
 
 $(document).ready(function () {
     $('.faculty-selectpicker').selectpicker();
+    $('#faculty_id').selectpicker();
+    $('#department_id').selectpicker();
 
     onLoadFilterPicker();
 
