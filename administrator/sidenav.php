@@ -22,20 +22,9 @@
                 <li>
                     <a href="#"> Department </a>
                     <ul class="nolist">
-
                         <li>
-                            <a href="viewDepartments.php">View</a>
+                            <a href="./departments.php">Departments</a>
                         </li>
-                        <li>
-                            <a href="addDepartment.php">Add</a>
-                        </li>
-                        <li>
-                            <a href="editDepartment.php">Edit</a>
-                        </li>
-                        <li>
-                            <a href="departments.php">Delete</a>
-                        </li>
-
                     </ul>
                 </li>
                 <li>
@@ -45,18 +34,8 @@
                             <a href="./courses.php">Courses</a>
                         </li>
                         <li>
-                            <a href="addCourse.php">Add</a>
-                        </li>
-                        <li>
                             <a href="scheduleCourse.php">Create Section</a>
                         </li>
-                        <li>
-                            <a href="editCourse.php">Edit</a>
-                        </li>
-                        <li>
-                            <a href="courses.php">Delete</a>
-                        </li>
-
                     </ul>
                 </li>
 
@@ -147,18 +126,6 @@
                         <li>
                             <a href="./faculty_departments.php">Faculty - Departments</a>
                         </li>
-                        <li>
-                            <a href="adminViewFaculty.php">View Faculty</a>
-                        </li>
-                        <li>
-                            <a href="adminViewFacultyDepartment.php">View Faculty Departments</a>
-                        </li>
-                        <li>
-                            <a href="adminAddFacultyDepartment.php">Add Faculty Departments</a>
-                        </li>
-                        <!-- <li>
-                            <a href="adminFacultyStudentHistory.php">View Student History</a>
-                        </li> -->
                     </ul>
                 </li>
                 <li>
