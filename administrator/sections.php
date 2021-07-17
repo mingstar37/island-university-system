@@ -107,7 +107,10 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM course WHERE id = '".$delete_id."'";
+        $sql  = "DELETE s.*, tsd.* FROM section as s";
+        $sql .= " LEFT JOIN time_slot_day as tsd ON tsd.section_id = s.id";
+        $sql .= " WHERE s.id = '".$delete_id."'";
+
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
