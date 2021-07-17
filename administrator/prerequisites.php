@@ -201,10 +201,17 @@ include "header.php";
     ?>
     <div class="main-page">
         <div class="row table-toolbar">
-            <div class="col-lg-6">
-                <h3>Prerequisites</h3>
+            <div class="col-lg-5">
+                <h3>Sections</h3>
             </div>
-            <div class="col-lg-6 text-right" style="display: flex; justify-content: flex-end">
+            <div class="col-lg-3">
+                <div class="form-group px-1">
+                    Course: &nbsp;
+                    <select class="course-selectpicker" id="course_id" data-live-search="true">
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-4 text-right" style="display: flex; justify-content: flex-end">
                 <div class="input-group search-input" style="max-width: 300px; margin-right: 20px">
                     <input type="text" id="search-text" class="form-control" placeholder="search" onkeyup="onSearchKeyup(event)">
                     <div class="input-group-btn">
@@ -213,6 +220,7 @@ include "header.php";
                         </button>
                     </div>
                 </div>
+
                 <button type="button" class="btn btn-sm btn-success" onclick="onAddNew()">
                     <i class="fa fa-plus"></i> &nbsp;Add New
                 </button>
