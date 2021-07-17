@@ -13,14 +13,18 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $faculty_id = $_POST['faculty_id'];
     $sqlAdvisees = "SELECT a.*, concat(u1.first_name, ' ', u1.last_name) as faculty_name, concat(u2.first_name, ' ', u2.last_name) as student_name";
     $sqlAdvisees .= " FROM `advisor` as a";
     $sqlAdvisees .= " INNER JOIN `faculty` as f ON f.id = a.faculty_id";
     $sqlAdvisees .= " INNER JOIN `users` as u1 ON u1.id = f.user_id";
     $sqlAdvisees .= " INNER JOIN student as s ON s.id = a.student_id";
     $sqlAdvisees .= " INNER JOIN `users` as u2 ON u2.id = s.user_id";
-    $sqlAdvisees .= " WHERE a.faculty_id = '$faculty_id'";
+    $sqlAdvisees .= " WHERE a.id > 0";
+
+    $faculty_id = $_POST['faculty_id'];
+    if (!empty($faculty_id)) {
+        $sqlAdvisees .= " AND a.faculty_id = '$faculty_id'";
+    }
 
     if(!empty($search_text)) {
         $sqlAdvisees .= " AND (a.id LIKE '%$search_text%' OR a.faculty_id LIKE '%$search_text%'";
@@ -86,7 +90,7 @@ if (isset($_POST['delete_row'])) {
     exit;
 }
 
-if (isset($_POST['get_faculty_arr'])) {
+if (isset($_POST['get_init_arr'])) {
 
 //    get prereq course
 
@@ -228,7 +232,6 @@ include "header.php";
                 <div class="form-group px-1">
                     Faculty: &nbsp;
                     <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
-                        <option value="800100002">Temp</option>
                     </select>
                 </div>
             </div>
@@ -301,6 +304,12 @@ include "header.php";
 
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
+
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="faculty_id">Faculty</label>
+                            <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
+                            </select>
+                        </div>
                         <div class="col-sm-6 py-1">
                             <label class="col-form-label" for="student_id">Student</label>
                             <select id="student_id" class="student-selectpicker" name="student_id"  data-live-search="true">

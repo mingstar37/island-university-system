@@ -110,10 +110,20 @@ function onLoadData() {
     });
 }
 
+function onSelectPicker(event) {
+    event.preventDefault();
 
-function onLoadFilterPicker() {
+    let value = event.target.value;
+    $('.faculty-selectpicker').selectpicker('val', value);
+
+    onLoadStudentSelectPicker(value);
+
+    onLoadData();
+}
+
+function onLoadInitSelector() {
     let request = {};
-    request.get_faculty_arr = true;
+    request.get_init_arr = true;
 
     $.ajax({
         method: "POST",
@@ -124,7 +134,7 @@ function onLoadFilterPicker() {
             if (res != undefined) {
                 let faculty_arr = res;
 
-                let facultyHtml = '<select id="faculty_id" class="faculty-selectpicker" onchange="onLoadData()" data-live-search="true">';
+                let facultyHtml = '<select id="faculty_id" class="faculty-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
                 faculty_arr.forEach(item => {
                     facultyHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
                 });
@@ -149,8 +159,6 @@ function onLoadFilterPicker() {
 
 function onAddNew() {
 
-    onLoadStudentSelectPicker($('#faculty_id').val());
-
     $('#id').val(0);
     $('#time_of_advisement').val("");
 
@@ -171,7 +179,7 @@ function onEditRow(id) {
         success: function (res) {
             if (res != undefined) {
 
-                let faculty_id = $('#faculty_id').val();
+                let faculty_id = res.faculty_id;
                 let student_id = res.student_id;
                 onLoadStudentSelectPicker(faculty_id, student_id);
 
@@ -302,10 +310,9 @@ function onSelectPagination(selectedNumber) {
 
 $(document).ready(function () {
     $('.faculty-selectpicker').selectpicker();
-    $('#faculty_id').selectpicker();
     $('#student_id').selectpicker();
 
-    onLoadFilterPicker();
+    onLoadInitSelector();
 
     $('.page-item a').click(function (event) {
         let totalPageCount = Math.ceil(pagination.totalCount / pagination.pageSize);
