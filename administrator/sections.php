@@ -75,10 +75,10 @@ if (isset($_POST['load_data'])) {
         $resultHtml .= '<td>'.$row["room_num"].'</td>';
         $resultHtml .= '<td>'.$row["building_name"].'</td>';
         $resultHtml .= '<td>'.$row["available_seat"].'</td>';
-        $resultHtml .= '<td>' . $str_time_slot_days . '</td>';
-        $resultHtml .= '<td>'.$row['term'] . ' ' . $row['year'] .'</td>';
         $resultHtml .= '<td>'.$row["section"].'</td>';
-
+        $resultHtml .= '<td>'.$row['term'] . ' ' . $row['year'] .'</td>';
+        $resultHtml .= '<td>' . $str_time_slot_days . '</td>';
+        $resultHtml .= '<td>' . $row['period_time'] . '</td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
         $resultHtml .= '</tr>';
@@ -199,10 +199,49 @@ if (isset($_POST['save_row'])) {
             'message' => '',
     ];
 
+    // check
+    $sql = "SELECT * FROM section WHERE course_id = '$course_id' AND faculty_id = '$faculty_id' AND term = '$term' AND year = '$year'";
+    $sql .= " AND period_id = '$period_id' AND section = '$section'";
+
+    if (!empty($id)) {
+        $sql .= " AND id != '$id'";
+    }
+
+    $query = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($query) > 0) {
+
+        $bExit = false;
+        while ($row = mysqli_fetch_assoc($query)) {
+            $test_id = $row['id'];
+
+            $sql = "SELECT * FROM time_slot_day WHERE section_id = '$test_id'";
+
+            $test_query = mysqli_query($conn, $sql);
+
+            while ($test_row = mysqli_fetch_assoc($test_query)) {
+                if (in_array($test_row['week_day'], $week_days)) {
+                    $bExit = true;
+                    break;
+                }
+            }
+
+            if ($bExit == true) {
+                break;
+            }
+        }
+
+        if ($bExit == true) {
+            $ret['success'] = false;
+            $ret['message'] = "Current data already exist! Please select another!";
+
+            echo json_encode($ret);
+            exit;
+        }
+    }
+
 
     if(empty($id)) {
-
-        // insert
 
         //    add to users
         $sql = "INSERT INTO section (`course_id`, `faculty_id`, `room_num`, `building_name`, `available_seat`, `year`, `term`, `section`, `period_id`)";
@@ -363,9 +402,10 @@ include "header.php";
                 <th>Room Num</th>
                 <th>Building Name</th>
                 <th>Available Seat</th>
+                <th>Section</th>
                 <th>Sem Term Year</th>
                 <th>Time Slot Day</th>
-                <th>Section</th>
+                <th>Period Time</th>
 
                 <th width="150px">Action</th>
             </tr>
@@ -396,7 +436,7 @@ include "header.php";
     </div>
 </div>
 <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" style="margin-left: 350px !important;" role="document">
         <div class="modal-content">
             <form method="post" id="form-add" class="form-horizontal" onsubmit="return onSave(event)">
                 <div class="modal-header">
