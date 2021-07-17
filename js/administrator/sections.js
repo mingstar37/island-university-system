@@ -34,48 +34,6 @@ function onSetPageNumberSelect() {
     $('#page-select').val(pagination.currentNumber + 1);
 }
 
-
-function onLoadCRNSelectPicker(student_id, default_val = 0) {
-
-    let request = {};
-    request.student_id = student_id;
-    request.section_id = default_val;
-    request.get_crn_arr = true;
-
-    $.ajax({
-        method: "POST",
-        url: window.location.href,
-        data: request,
-        dataType: 'json',
-        success: function (res) {
-            if (res != undefined) {
-                let crn_arr = res;
-
-                let studentHtml = '<select class="crn-selectpicker" name="section_id" id="section_id" data-live-search="true">';
-                crn_arr.forEach(item => {
-                    studentHtml += "<option value='" + item.id + "'>" + item.id + "</option>"
-                });
-
-                studentHtml += "</select>";
-
-                $('.bootstrap-select.crn-').replaceWith(studentHtml);
-
-                if (default_val != 0) {
-                    $('#section_id').selectpicker('val', default_val);
-                } else {
-                    $('#section_id').selectpicker();
-                }
-            } else {
-                toastr.error('Error');
-            }
-        },
-        complete: function () {
-            $('#btn-save').removeClass('disabled');
-            $('#btn-cancel').removeClass('disabled');
-        }
-    });
-}
-
 function onLoadData() {
     let request = {};
     request.search_text = $('#search-text').val();
@@ -203,17 +161,25 @@ function onEditRow(id) {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
+                let section_info = res.section;
+                let time_slot_days = res.time_slot_days;
 
-                let student_id = $('#student_id').val();
-                let section_id = res.section_id;
-                onLoadCRNSelectPicker(student_id, section_id);
-
-                let keys = Object.keys(res);
+                let keys = Object.keys(section_info);
 
                 for (let i = 0; i < keys.length; i++) {
                     $('#add-modal-title').html('Update Row');
-                    $('#' + keys[i]).val(res[keys[i]] == null ? "" : res[keys[i]]);
+                    $('#' + keys[i]).val(section_info[keys[i]] == null ? "" : section_info[keys[i]]);
                 }
+
+                time_slot_days.forEach(item => {
+                    $('#' + item).prop('checked', true);
+                });
+                $('.course-selectpicker').selectpicker('val', section_info.course_id);
+                $('#faculty_id').selectpicker('val', section_info.faculty_id);
+                $('#period_id').selectpicker('val', section_info.period_id);
+
+                $('#term').selectpicker('val', section_info.term);
+                $('#year').selectpicker('val', section_info.year);
 
                 $('#add-modal').modal('show');
             } else {

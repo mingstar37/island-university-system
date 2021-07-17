@@ -178,24 +178,6 @@ if (isset($_POST['get_faculty_arr'])) {
     exit;
 }
 
-if (isset($_POST['delete_prereq'])) {
-    $delete_id = $_POST['delete_id'];
-
-    $ret = [
-        'success' => false
-    ];
-
-    if (!empty($delete_id)) {
-        $sql  = "UPDATE course SET prereq_course_id = 0 WHERE id = '".$delete_id."'";
-        if ($conn->query($sql)) {
-            $ret['success'] = true;
-        }
-    }
-
-    echo json_encode($ret);
-    exit;
-}
-
 if (isset($_POST['save_row'])) {
     $course_id = $_POST['course_id'];
     $faculty_id = $_POST['faculty_id'];
@@ -244,16 +226,27 @@ if (isset($_POST['save_row'])) {
         }
     } else {
         // update
-//        $id = $_POST['id'];
-//
-//        $sql = "UPDATE course SET prereq_course_id = '$prereq_course_id', department_id = '$department_id', course_name = '$course_name', course_credits = '$course_credits'";
-//        $sql .= " WHERE id = $id";
-//
-//        if ($conn->query($sql)) {
-//            $ret['success'] = true;
-//        } else {
-//            $ret['message'] = "Error in student";
-//        }
+        $sql = "UPDATE section SET course_id = '$course_id', faculty_id = '$faculty_id', room_num = '$room_num', building_name = '$building_name',";
+        $sql .= " available_seat = '$available_seat', year = '$year', term = '$term', section = '$section', period_id = '$period_id'";
+        $sql .= " WHERE id = $id";
+
+        if ($conn->query($sql)) {
+
+            $sql = "DELETE FROM time_slot_day WHERE section_id = '$id'";
+            $conn->query($sql);
+
+            foreach ($week_days as $week_day) {
+                $sql = "INSERT INTO time_slot_day (`section_id`, `week_day`) VALUES ('$id', '$week_day')";
+                if (!$conn->query($sql)) {
+                    $ret['success'] = false;
+                    break;
+                }
+            }
+
+            $ret['success'] = true;
+        } else {
+            $ret['message'] = "Error in student";
+        }
     }
 
     echo json_encode($ret);
@@ -263,15 +256,28 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlSection = "SELECT c.*, pc.course_name as prereq_course_name, d.name as department_name";
-    $sqlSection .= " FROM `course` as c LEFT JOIN course as pc ON pc.id = c.prereq_course_id";
-    $sqlSection .= " LEFT JOIN department as d ON d.id = c.department_id";
-    $sqlSection .= " WHERE c.id = '$edit_id' LIMIT 1";
+    $sqlSection = "SELECT *";
+    $sqlSection .= " FROM `section`";
+    $sqlSection .= " WHERE id = '$edit_id' LIMIT 1";
 
     $query = mysqli_query($conn, $sqlSection);
-    $row = mysqli_fetch_assoc($query);
+    $section = mysqli_fetch_assoc($query);
 
-    echo json_encode($row);
+//    get slot days
+    $sql = "SELECT * FROM time_slot_day WHERE section_id = '$edit_id'";
+    $query = mysqli_query($conn, $sql);
+
+    $time_slot_days = [];
+    while ($row = mysqli_fetch_assoc($query)) {
+        $time_slot_days[] = $row['week_day'];
+    }
+
+    $ret = [
+            'section' => $section,
+        'time_slot_days' => $time_slot_days
+    ];
+
+    echo json_encode($ret);
     exit;
 }
 ?>
@@ -403,9 +409,9 @@ include "header.php";
                         <h3 class="text-center " style="margin: auto; color: red" id="add-modal-title">Add Row</h3>
                     </div>
                     <div class="row">
-                        <input type="hidden" class="form-control" id="id" name="id" required/>
+                        <input type="hidden" class="form-control" id="id" name="id"/>
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="prereq_course_id">Prereq Course</label>
+                            <label class="col-form-label" for="course_id">Course</label>
                             <select class="course-selectpicker" id="course_id" data-live-search="true">
                             </select>
 
@@ -456,25 +462,25 @@ include "header.php";
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="checkbox">
-                                        <label><input type="checkbox" name="week_day[]" value="Monday">&nbsp;Monday</label>
+                                        <label><input type="checkbox" id="Monday" name="week_day[]" value="Monday">&nbsp;Monday</label>
                                     </div>
                                     <div class="checkbox">
-                                        <label><input type="checkbox" name="week_day[]" value="Tuesday">&nbsp;Tuesday</label>
+                                        <label><input type="checkbox" id="Tuesday" name="week_day[]" value="Tuesday">&nbsp;Tuesday</label>
                                     </div>
                                     <div class="checkbox">
-                                        <label><input type="checkbox" name="week_day[]" value="Wednesday">&nbsp;Wednesday</label>
+                                        <label><input type="checkbox" id="Wednesday" name="week_day[]" value="Wednesday">&nbsp;Wednesday</label>
                                     </div>
                                     <div class="checkbox">
-                                        <label><input type="checkbox" name="week_day[]" value="Thursday">&nbsp;Thursday</label>
+                                        <label><input type="checkbox" id="Thursday" name="week_day[]" value="Thursday">&nbsp;Thursday</label>
                                     </div>
                                     <div class="checkbox">
-                                        <label><input type="checkbox" name="week_day[]" value="Friday">&nbsp;Friday</label>
+                                        <label><input type="checkbox" id="Friday" name="week_day[]" value="Friday">&nbsp;Friday</label>
                                     </div>
                                     <div class="checkbox">
-                                        <label><input type="checkbox" name="week_day[]" value="Saturday">&nbsp;Saturday</label>
+                                        <label><input type="checkbox" id="Saturday" name="week_day[]" value="Saturday">&nbsp;Saturday</label>
                                     </div>
                                     <div class="checkbox">
-                                        <label><input type="checkbox" name="week_day[]" value="Sunday">&nbsp;Sunday</label>
+                                        <label><input type="checkbox" id="Sunday" name="week_day[]" value="Sunday">&nbsp;Sunday</label>
                                     </div>
                                 </div>
                             </div>
@@ -504,24 +510,6 @@ include "header.php";
             </div>
             <div class="modal-body">
                 <h3 style="color: red;" class="text-center">Do you want to delete?</h3>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="delete-prereq-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <h3 style="color: red;" class="text-center">Do you want to delete prereq info?</h3>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
