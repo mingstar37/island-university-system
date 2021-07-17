@@ -13,11 +13,13 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $sqlSection = "SELECT sc.*, c.course_name, concat(u.first_name, ' ', u.last_name) as faculty_name";
+    $sqlSection = "SELECT sc.*, c.course_name, concat(u.first_name, ' ', u.last_name) as faculty_name, concat(p.start_time, ' ~ ', P.end_time) as period_time";
     $sqlSection .= " FROM `section` as sc";
     $sqlSection .= " INNER JOIN course as c ON c.id = sc.course_id";
     $sqlSection .= " INNER JOIN faculty as f ON f.id = sc.faculty_id";
     $sqlSection .= " INNER JOIN users as u ON u.id = f.user_id";
+    $sqlSection .= " INNER JOIN period as p ON p.id = sc.period_id";
+
     $sqlSection .= " WHERE sc.id > 0";
 
     $course_id = $_POST['course_id'];
@@ -30,7 +32,9 @@ if (isset($_POST['load_data'])) {
         $sqlSection .= " AND (sc.id LIKE '%$search_text%' OR sc.course_id LIKE '%$search_text%'";
         $sqlSection .= " OR sc.faculty_id LIKE '%$search_text%' OR sc.room_num LIKE '%$search_text%'";
         $sqlSection .= " OR sc.building_name LIKE '%$search_text%' OR sc.available_seat LIKE '%$search_text%'";
-        $sqlSection .= " OR sc.sem_term_year LIKE '%$search_text%' OR sc.section LIKE '%$search_text%')";
+        $sqlSection .= " OR sc.year LIKE '%$search_text%' OR sc.section LIKE '%$search_text%')";
+        $sqlSection .= " OR sc.term LIKE '%$search_text%'";
+        $sqlSection .= " OR p.start_time LIKE '%$search_text%' OR p.end_time LIKE '%$search_text%')";
     }
 
     $totalQuery = mysqli_query($conn, $sqlSection);
@@ -48,30 +52,17 @@ if (isset($_POST['load_data'])) {
 
 //        get days info
         $sqlDays = "SELECT * FROM time_slot_day WHERE section_id = '$section_id'";
+
         $queryDays = mysqli_query($conn, $sqlDays);
 
         $time_slot_days = [];
         while ($rowDays = mysqli_fetch_assoc($queryDays)) {
-            $time_slot_days[] = $row['week_day'];
+            $time_slot_days[] = $rowDays['week_day'];
         }
 
-        $str_time_slot_day = "";
+        $str_time_slot_days = "";
         if (!empty($time_slot_days)) {
-            $str_time_slot_day = implode(", ");
-        }
-
-        //        get period info
-        $sqlPeriods = "SELECT * FROM time_slot_period as tsp LEFT JOIN period as p ON p.id = tsp.period_id WHERE tsp.section_id = '$section_id";
-        $queryPeriods = mysqli_query($conn, $sqlPeriods);
-
-        $time_slot_periods = [];
-        while ($rowDays = mysqli_fetch_assoc($queryPeriods)) {
-            $time_slot_periods[] = $row['week_day'];
-        }
-
-        $str_time_slot_period = "";
-        if (!empty($time_slot_periods)) {
-            $str_time_slot_period = implode(", ");
+            $str_time_slot_days = implode(", ", $time_slot_days);
         }
 
 //        var_dump($row["prereq_course_name"]);
@@ -84,9 +75,8 @@ if (isset($_POST['load_data'])) {
         $resultHtml .= '<td>'.$row["room_num"].'</td>';
         $resultHtml .= '<td>'.$row["building_name"].'</td>';
         $resultHtml .= '<td>'.$row["available_seat"].'</td>';
-        $resultHtml .= '<td>'.$row["sem_term_year"].'</td>';
-        $resultHtml .= '<td>' . $str_time_slot_day . '</td>';
-        $resultHtml .= '<td>' . $str_time_slot_period . '</td>';
+        $resultHtml .= '<td>' . $str_time_slot_days . '</td>';
+        $resultHtml .= '<td>'.$row['term'] . ' ' . $row['year'] .'</td>';
         $resultHtml .= '<td>'.$row["section"].'</td>';
 
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
@@ -204,35 +194,63 @@ if (isset($_POST['delete_prereq'])) {
 }
 
 if (isset($_POST['save_row'])) {
-    $prereq_course_id = $_POST['prereq_course_id'];
-    $department_id = $_POST['department_id'];
+    $course_id = $_POST['course_id'];
+    $faculty_id = $_POST['faculty_id'];
 
-    $course_name = $_POST['course_name'];
-    $course_credits = $_POST['course_credits'];
+    $room_num = $_POST['room_num'];
+    $building_name = $_POST['building_name'];
+    $available_seat = $_POST['available_seat'];
+    $year = $_POST['year'];
+    $term = $_POST['term'];
+    $section = $_POST['section'];
+    $period_id = $_POST['period_id'];
+
+    $week_days = $_POST['week_days'];
 
     $id = $_POST['id'];
 
+    $ret = [
+            'success' => false,
+            'message' => '',
+    ];
+
+
     if(empty($id)) {
+
+        // insert
+
         //    add to users
-        $sql = "INSERT INTO course (`prereq_course_id`, `department_id`, `course_name`, `course_credits`) VALUES ('$prereq_course_id', '$department_id', '$course_name', '$course_credits')";
+        $sql = "INSERT INTO section (`course_id`, `faculty_id`, `room_num`, `building_name`, `available_seat`, `year`, `term`, `section`, `period_id`)";
+        $sql .= " VALUES ('$course_id', '$faculty_id', '$room_num', '$building_name', '$available_seat', '$year', '$term', '$section', '$period_id')";
 
         if ($conn->query($sql)) {
+
+            $section_id = $conn->insert_id;
             $ret['success'] = true;
+            // insert into
+            foreach ($week_days as $week_day) {
+                $sql = "INSERT INTO time_slot_day (`section_id`, `week_day`) VALUES ('$section_id', '$week_day')";
+                if (!$conn->query($sql)) {
+                    $ret['success'] = false;
+                    break;
+                }
+            }
+
         } else {
-            $ret['message'] = "Error in department";
+            $ret['message'] = "Error in Adding";
         }
     } else {
         // update
-        $id = $_POST['id'];
-
-        $sql = "UPDATE course SET prereq_course_id = '$prereq_course_id', department_id = '$department_id', course_name = '$course_name', course_credits = '$course_credits'";
-        $sql .= " WHERE id = $id";
-
-        if ($conn->query($sql)) {
-            $ret['success'] = true;
-        } else {
-            $ret['message'] = "Error in student";
-        }
+//        $id = $_POST['id'];
+//
+//        $sql = "UPDATE course SET prereq_course_id = '$prereq_course_id', department_id = '$department_id', course_name = '$course_name', course_credits = '$course_credits'";
+//        $sql .= " WHERE id = $id";
+//
+//        if ($conn->query($sql)) {
+//            $ret['success'] = true;
+//        } else {
+//            $ret['message'] = "Error in student";
+//        }
     }
 
     echo json_encode($ret);
@@ -338,7 +356,7 @@ include "header.php";
                 <th>Available Seat</th>
                 <th>Sem Term Year</th>
                 <th>Time Slot Day</th>
-                <th>Time Slot Period</th>
+                <th>Section</th>
 
                 <th width="150px">Action</th>
             </tr>
@@ -409,6 +427,24 @@ include "header.php";
                         <div class="col-sm-6 py-1 form-group">
                             <label class="col-form-label" for="available_seat">Section</label>
                             <input type="text" class="form-control" id="section" name="section" required/>
+                        </div>
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="available_seat">Term</label>
+                            <select class="term-selectpicker" name="term" id="term" data-live-search="true">
+                                <option value="Spring">Spring</option>
+                                <option value="Fall">Fall</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="available_seat">Year</label>
+                            <select class="year-selectpicker" name="year" id="year" data-live-search="true">
+                                <option value="2020">2020</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                            </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
                             <div class="row" style="width: 100%">

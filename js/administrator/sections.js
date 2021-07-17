@@ -85,8 +85,6 @@ function onLoadData() {
     request.course_id = $('#course_id').val();
     request.load_data = true;
 
-    // onLoadCRNSelectPicker(request.student_id);
-
     $.ajax({
         method: "POST",
         url: window.location.href,
@@ -116,6 +114,8 @@ function onSelectPicker(event) {
 
     let value = event.target.value;
     $('.course-selectpicker').selectpicker('val', value);
+
+    onLoadData();
 }
 
 
@@ -132,7 +132,7 @@ function onLoadInitSelecter() {
             if (res != undefined) {
                 let course_arr = res.course_arr;
 
-                let courseHtml = '<select id="course_id" class="course-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
+                let courseHtml = '<select id="course_id" name="course_id" class="course-selectpicker" onchange="onSelectPicker(event)" data-live-search="true" required><option value="0">All</option>';
                 course_arr.forEach(item => {
                     courseHtml += "<option value='" + item.id + "'>" + item.course_name + "</option>"
                 });
@@ -141,7 +141,7 @@ function onLoadInitSelecter() {
 
                 let faculty_arr = res.faculty_arr;
 
-                let facultyHtml = '<select id="faculty_id" class="faculty-selectpicker" data-live-search="true">';
+                let facultyHtml = '<select id="faculty_id" name="faculty_id" class="faculty-selectpicker" data-live-search="true">';
                 faculty_arr.forEach(item => {
                     facultyHtml += "<option value='" + item.id + "'>" + item.faculty_name + "</option>"
                 });
@@ -150,7 +150,7 @@ function onLoadInitSelecter() {
 
                 let period_arr = res.period_arr;
 
-                let periodHtml = '<select id="faculty_id" class="faculty-selectpicker" data-live-search="true">';
+                let periodHtml = '<select id="period_id" name="period_id" class="faculty-selectpicker" data-live-search="true">';
                 period_arr.forEach(item => {
                     periodHtml += "<option value='" + item.id + "'>" + item.time + "</option>"
                 });
@@ -180,10 +180,12 @@ function onLoadInitSelecter() {
 
 function onAddNew() {
 
-    onLoadCRNSelectPicker($('#student_id').val());
-
     $('#id').val(0);
-    $('#time_of_advisement').val("");
+    $('#room_num').val("");
+    $('#building_name').val("");
+    $('#available_seat').val("");
+    $('#sem_term_year').val("");
+    $('#section').val("");
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
@@ -229,17 +231,26 @@ function onEditRow(id) {
 function onSave(event) {
     event.preventDefault();
 
+    if ($('#course_id').val() == 0) {
+        alert('Please select course!');
+        return;
+    }
+
     $('#btn-save').addClass('disabled');
     $('#btn-cancel').addClass('disabled');
 
     let formData = $('#form-add').serializeArray();
 
     let request = {};
+    request.week_days = [];
     formData.forEach(item => {
-        request[item.name] = item.value;
+        if (item.name == 'week_day[]') {
+            request.week_days.push(item.value);
+        } else {
+            request[item.name] = item.value;
+        }
     });
-    request.student_id = $('#student_id').val();
-    request.year = $('#year').val();
+
     request.save_row = true;
 
     $.ajax({
@@ -337,6 +348,8 @@ $(document).ready(function () {
     $('.course-selectpicker').selectpicker();
     $('.faculty-selectpicker').selectpicker();
     $('.period-selectpicker').selectpicker();
+    $('.year-selectpicker').selectpicker();
+    $('.term-selectpicker').selectpicker();
 
     onLoadInitSelecter();
 
