@@ -89,7 +89,7 @@ function onLoadSelectPickers(id = 0, prereg_default_val = "0", department_defaul
 
                 let department_arr = res.department_arr;
 
-                let departHtml = '<select class="department-selectpicker" name="department_id" data-live-search="true"><option value="0">Empty</option>';
+                let departHtml = '<select class="department-selectpicker" name="department_id" data-live-search="true">';
                 department_arr.forEach(item => {
                     departHtml += "<option value='" + item.id + "'>" + item.name + "</option>"
                 });
@@ -99,7 +99,12 @@ function onLoadSelectPickers(id = 0, prereg_default_val = "0", department_defaul
                 $('.bootstrap-select.department-').replaceWith(departHtml);
 
                 $('.prereq-selectpicker').selectpicker('val', prereg_default_val);
-                $('.department-selectpicker').selectpicker('val', department_default_val);
+
+                if (department_default_val == "0") {
+                    $('.department-selectpicker').selectpicker();
+                } else {
+                    $('.department-selectpicker').selectpicker('val', department_default_val);
+                }
 
             } else {
                 toastr.error('Error');
