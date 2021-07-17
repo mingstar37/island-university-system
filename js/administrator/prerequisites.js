@@ -5,7 +5,6 @@ let pagination = {
 };
 
 let delete_id = 0;
-let deleteType = 'prereq';
 let editId = 0;
 
 function onSearchKeyup(event) {
@@ -66,7 +65,7 @@ function onLoadData() {
     });
 }
 
-function onLoadSelectPickers(id = 0, prereg_default_val = "0", department_default_val = "0") {
+function onLoadSelectPickers(id = 0, course_default_val = "0", prereg_default_val = "0") {
     let request = {};
     request.id = id;
     request.get_init_arr = true;
@@ -78,29 +77,29 @@ function onLoadSelectPickers(id = 0, prereg_default_val = "0", department_defaul
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
-                let prereq_course_arr = res.prereq_course_arr;
 
-                let prereqHtml = '<select class="prereq-selectpicker" name="prereq_course_id" data-live-search="true"><option value="0">Empty</option>';
+                let course_arr = res.course_arr;
+
+                let courseHtml = '<select class="course-selectpicker" id="course_id" name="course_id" data-live-search="true"><option value="0">Empty</option>';
+                course_arr.forEach(item => {
+                    courseHtml += "<option value='" + item.id + "'>" + item.course_name + "</option>"
+                });
+                courseHtml += "</select>";
+
+                let prereq_course_arr = res.course_arr;
+
+                let prereqHtml = '<select class="prereq-selectpicker" id="prereq_course_id" name="prereq_course_id" data-live-search="true"><option value="0">Empty</option>';
                 prereq_course_arr.forEach(item => {
                     prereqHtml += "<option value='" + item.id + "'>" + item.course_name + "</option>"
                 });
 
-                prereqHtml += "</select>"
+                prereqHtml += "</select>";
 
-                let department_arr = res.department_arr;
-
-                let departHtml = '<select class="department-selectpicker" name="department_id" data-live-search="true"><option value="0">Empty</option>';
-                department_arr.forEach(item => {
-                    departHtml += "<option value='" + item.id + "'>" + item.name + "</option>"
-                });
-                departHtml += "</select>";
-
+                $('.bootstrap-select.course-').replaceWith(courseHtml);
                 $('.bootstrap-select.prereq-').replaceWith(prereqHtml);
-                $('.bootstrap-select.department-').replaceWith(departHtml);
 
-                $('.prereq-selectpicker').selectpicker('val', prereg_default_val);
-                $('.department-selectpicker').selectpicker('val', department_default_val);
-
+                $('#course_id').selectpicker('val', course_default_val);
+                $('#prereq_course_id').selectpicker('val', prereg_default_val);
             } else {
                 toastr.error('Error');
             }
@@ -117,8 +116,7 @@ function onAddNew() {
     onLoadSelectPickers();
 
     $('#id').val(0);
-    $('#course_name').val("");
-    $('#course_credits').val("");
+    $('#grade_required').val("");
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
@@ -129,7 +127,6 @@ function onEditRow(id) {
     request.edit_id = id;
     request.get_row = true;
 
-
     $.ajax({
         method: "POST",
         url: window.location.href,
@@ -137,7 +134,7 @@ function onEditRow(id) {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
-                onLoadSelectPickers(id, res.prereq_course_id, res.department_id);
+                onLoadSelectPickers(id, res.course_id, res.prereq_course_id);
 
                 let keys = Object.keys(res);
 
@@ -197,13 +194,11 @@ function onSave(event) {
 }
 
 function onDeleteRow(id) {
-    deleteType = 'row';
     delete_id = id;
     $('#delete-modal').modal('show');
 }
 
 function onDeletePrereq(id) {
-    deleteType = 'prereq';
     delete_id = id;
     $('#delete-prereq-modal').modal('show');
 }
@@ -212,11 +207,7 @@ function onDelete() {
     let request = {};
     request.delete_id = delete_id;
 
-    if (deleteType == 'prereq') {
-        request.delete_prereq = true;
-    } else {
-        request.delete_row = true;
-    }
+    request.delete_row = true;
 
     $.ajax({
         method: "POST",
@@ -226,13 +217,8 @@ function onDelete() {
         success: function (res) {
             if (res !== undefined && res.success == true) {
 
-                if (deleteType == 'prereq') {
-                    toastr.success("Deleted Preq info Successfully!");
-                    $('#delete-prereq-modal').modal('hide');
-                } else {
-                    toastr.success("Deleted Successfully!");
-                    $('#delete-modal').modal('hide');
-                }
+                toastr.success("Deleted Successfully!");
+                $('#delete-modal').modal('hide');
                 onLoadData();
             } else {
                 toastr.error("There are some issues!");
@@ -282,8 +268,8 @@ function onSelectPagination(selectedNumber) {
 }
 
 $(document).ready(function () {
-    $('.prereq-selectpicker').selectpicker();
-    $('.department-selectpicker').selectpicker();
+    $('#course_id').selectpicker();
+    $('#prereq_course_id').selectpicker();
 
     onLoadData();
 

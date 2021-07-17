@@ -40,21 +40,11 @@
                 </li>
 
                 <li>
-                    <a href="#"> Prerequisite </a>
+                    <a href="#"> Prerequisites </a>
                     <ul class="nolist">
                         <li>
                             <a href="./prerequisites.php">Prerequisite</a>
                         </li>
-                        <li>
-                            <a href="adminViewPrerequisite.php">View Prerequisite</a>
-                        </li>
-                        <li>
-                            <a href="addPrerequisite.php">Add</a>
-                        </li>
-                        <li>
-                            <a href="removePrerequisite.php">Remove</a>
-                        </li>
-
                     </ul>
                 </li>
 

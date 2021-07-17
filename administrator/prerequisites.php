@@ -12,23 +12,23 @@ if (isset($_POST['load_data'])) {
     $search_text = $_POST['search_text'];
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
-    $sqlCourse = "SELECT p.*, c1.course_name as course_name, c2.course_name as prereq_course_name";
-    $sqlCourse .= " FROM `prerequisite` as p";
-    $sqlCourse .= " INNER JOIN `course` as c1 ON c1.id = p.course_id";
-    $sqlCourse .= " INNER JOIN `course` as c2 ON c2.id = p.prereq_course_id";
+    $sqlPrerequisites = "SELECT p.*, c1.course_name as course_name, c2.course_name as prereq_course_name";
+    $sqlPrerequisites .= " FROM `prerequisite` as p";
+    $sqlPrerequisites .= " INNER JOIN `course` as c1 ON c1.id = p.course_id";
+    $sqlPrerequisites .= " INNER JOIN `course` as c2 ON c2.id = p.prereq_course_id";
 
     if(!empty($search_text)) {
-        $sqlCourse .= " WHERE p.id LIKE '%$search_text%' OR p.course_id LIKE '%$search_text%'";
-        $sqlCourse .= " OR p.prereq_course_id LIKE '%$search_text%' OR c1.course_name LIKE '%$search_text%'";
-        $sqlCourse .= " OR c2.course_name LIKE '%$search_text%'";
+        $sqlPrerequisites .= " WHERE p.id LIKE '%$search_text%' OR p.course_id LIKE '%$search_text%'";
+        $sqlPrerequisites .= " OR p.prereq_course_id LIKE '%$search_text%' OR c1.course_name LIKE '%$search_text%'";
+        $sqlPrerequisites .= " OR c2.course_name LIKE '%$search_text%'";
     }
 
-    $totalQuery = mysqli_query($conn, $sqlCourse);
+    $totalQuery = mysqli_query($conn, $sqlPrerequisites);
     $total_count = mysqli_num_rows($totalQuery);
 
-    $sqlCourse .= " LIMIT $page_size OFFSET $start_number";
+    $sqlPrerequisites .= " LIMIT $page_size OFFSET $start_number";
 
-    $query = mysqli_query($conn, $sqlCourse);
+    $query = mysqli_query($conn, $sqlPrerequisites);
 
     $count = 0;
     $resultHtml = "";
@@ -37,6 +37,7 @@ if (isset($_POST['load_data'])) {
 //        var_dump($row["prereq_course_name"]);
         $prereq_id = empty($row["prereq_course_id"]) ? '' : $row["prereq_course_id"];
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
+        $resultHtml .= '<td>'.$row["id"].'</td>';
         $resultHtml .= '<td>'.$row["course_id"].'</td>';
         $resultHtml .= '<td>'. $row["course_name"].'</td>';
         $resultHtml .= '<td>'.$row["prereq_course_id"].'</td>';
@@ -70,7 +71,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM course WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM prerequisite WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -91,77 +92,48 @@ if (isset($_POST['get_init_arr'])) {
     }
     $query = mysqli_query($conn, $sql);
 
-    $prereq_course_arr = [];
+    $course_arr = [];
 
     while ($row = mysqli_fetch_assoc($query)) {
-        $prereq_course_arr[] = $row;
-    }
-
-    $department_arr = [];
-//    get department arr
-    $sql = "SELECT id, name FROM department";
-    $query = mysqli_query($conn, $sql);
-
-    while ($row = mysqli_fetch_assoc($query)) {
-        $department_arr[] = $row;
+        $course_arr[] = $row;
     }
 
     $ret = [
-            'prereq_course_arr' => $prereq_course_arr,
-        'department_arr' => $department_arr
+        'course_arr' => $course_arr,
     ];
-
-    echo json_encode($ret);
-    exit;
-}
-
-if (isset($_POST['delete_prereq'])) {
-    $delete_id = $_POST['delete_id'];
-
-    $ret = [
-        'success' => false
-    ];
-
-    if (!empty($delete_id)) {
-        $sql  = "UPDATE course SET prereq_course_id = 0 WHERE id = '".$delete_id."'";
-        if ($conn->query($sql)) {
-            $ret['success'] = true;
-        }
-    }
 
     echo json_encode($ret);
     exit;
 }
 
 if (isset($_POST['save_row'])) {
-    $prereq_course_id = $_POST['prereq_course_id'];
-    $department_id = $_POST['department_id'];
 
-    $course_name = $_POST['course_name'];
-    $course_credits = $_POST['course_credits'];
+    $course_id = $_POST['course_id'];
+    $prereq_course_id = $_POST['prereq_course_id'];
+
+    $grade_required = $_POST['grade_required'];
 
     $id = $_POST['id'];
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO course (`prereq_course_id`, `department_id`, `course_name`, `course_credits`) VALUES ('$prereq_course_id', '$department_id', '$course_name', '$course_credits')";
+        $sql = "INSERT INTO prerequisite (`course_id`, `prereq_course_id`, `grade_required`) VALUES ('$course_id', '$prereq_course_id', '$grade_required')";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
         } else {
-            $ret['message'] = "Error in department";
+            $ret['message'] = "Error in Insert";
         }
     } else {
         // update
-        $id = $_POST['id'];
 
-        $sql = "UPDATE course SET prereq_course_id = '$prereq_course_id', department_id = '$department_id', course_name = '$course_name', course_credits = '$course_credits'";
+        $sql = "UPDATE prerequisite SET course_id = '$course_id', prereq_course_id = '$prereq_course_id', grade_required = '$grade_required'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
         } else {
-            $ret['message'] = "Error in student";
+            $ret['message'] = "Error in Update";
         }
     }
 
@@ -172,12 +144,11 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlCourse = "SELECT c.*, pc.course_name as prereq_course_name, d.name as department_name";
-    $sqlCourse .= " FROM `course` as c LEFT JOIN course as pc ON pc.id = c.prereq_course_id";
-    $sqlCourse .= " LEFT JOIN department as d ON d.id = c.department_id";
-    $sqlCourse .= " WHERE c.id = '$edit_id' LIMIT 1";
+    $sqlPrerequisites = "SELECT *";
+    $sqlPrerequisites .= " FROM `prerequisite`";
+    $sqlPrerequisites .= " WHERE id = '$edit_id' LIMIT 1";
 
-    $query = mysqli_query($conn, $sqlCourse);
+    $query = mysqli_query($conn, $sqlPrerequisites);
     $row = mysqli_fetch_assoc($query);
 
     echo json_encode($row);
@@ -302,24 +273,21 @@ include "header.php";
                     </div>
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
+
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="prereq_course_id">Prereq Course</label>
-                            <select class="prereq-selectpicker" name="prereq_course_id" data-live-search="true">
+                            <label class="col-form-label" for="course_id">Course</label>
+                            <select class="course-selectpicker" id="course_id" name="course_id" data-live-search="true">
                             </select>
 
                         </div>
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="department_id">Department</label>
-                            <select class="department-selectpicker" name="department_id"  data-live-search="true">
+                            <label class="col-form-label" for="prereq_course_id">Prereq Course</label>
+                            <select class="prereq-selectpicker" id="prereq_course_id" name="prereq_course_id" data-live-search="true">
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Course Name</label>
-                            <input type="text" class="form-control" placeholder="Course Name" id="course_name" name="course_name" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Course Credits</label>
-                            <input type="text" class="form-control" placeholder="Course Credits" id="course_credits" name="course_credits" required/>
+                            <label class="col-form-label" for="grade_required">Grade Required</label>
+                            <input type="text" class="form-control" placeholder="Grade required" id="grade_required" name="grade_required" required/>
                         </div>
                     </div>
                 </div>
