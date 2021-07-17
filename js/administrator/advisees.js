@@ -180,6 +180,8 @@ function onEditRow(id) {
             if (res != undefined) {
 
                 let faculty_id = res.faculty_id;
+                $('.faculty-selectpicker').selectpicker('val', faculty_id);
+
                 let student_id = res.student_id;
                 onLoadStudentSelectPicker(faculty_id, student_id);
 

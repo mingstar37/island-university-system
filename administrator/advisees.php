@@ -168,7 +168,7 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlAdvisees = "SELECT id, student_id, time_of_advisement";
+    $sqlAdvisees = "SELECT *";
     $sqlAdvisees .= " FROM advisor";
     $sqlAdvisees .= " WHERE id = '$edit_id' LIMIT 1";
 
