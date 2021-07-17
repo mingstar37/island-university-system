@@ -32,7 +32,7 @@ if (isset($_POST['load_data'])) {
         $sqlSection .= " AND (sc.id LIKE '%$search_text%' OR sc.course_id LIKE '%$search_text%'";
         $sqlSection .= " OR sc.faculty_id LIKE '%$search_text%' OR sc.room_num LIKE '%$search_text%'";
         $sqlSection .= " OR sc.building_name LIKE '%$search_text%' OR sc.available_seat LIKE '%$search_text%'";
-        $sqlSection .= " OR sc.year LIKE '%$search_text%' OR sc.section LIKE '%$search_text%')";
+        $sqlSection .= " OR sc.year LIKE '%$search_text%' OR sc.section LIKE '%$search_text%'";
         $sqlSection .= " OR sc.term LIKE '%$search_text%'";
         $sqlSection .= " OR p.start_time LIKE '%$search_text%' OR p.end_time LIKE '%$search_text%')";
     }
