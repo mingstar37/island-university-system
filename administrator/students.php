@@ -243,7 +243,7 @@ if (isset($_POST['get_row'])) {
                     <th>Type</th>
                     <th>Minimum Credit</th>
                     <th>Maximum Credit</th>
-                    <th>Action</th>
+                    <th width="150px">Action</th>
                 </tr>
                 </thead>
                 <tbody id="table-body">

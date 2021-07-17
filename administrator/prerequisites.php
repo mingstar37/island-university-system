@@ -12,45 +12,36 @@ if (isset($_POST['load_data'])) {
     $search_text = $_POST['search_text'];
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
-
-    $student_id = $_POST['student_id'];
-    $year = $_POST['year'];
-
-    $sqlHistory = "SELECT sh.*, concat(u.first_name, ' ', u.last_name) as student_name, c.course_name";
-    $sqlHistory .= " FROM `student_history` as sh";
-    $sqlHistory .= " INNER JOIN `student` as s ON s.id = sh.student_id";
-    $sqlHistory .= " INNER JOIN `users` as u ON u.id = s.user_id";
-    $sqlHistory .= " INNER JOIN `section` as sc ON sc.id = sh.section_id";
-    $sqlHistory .= " INNER JOIN `course` as c ON c.id = sc.course_id";
-
-    $sqlHistory .= " WHERE sh.student_id = '$student_id' AND sh.year = '$year'";
+    $sqlCourse = "SELECT p.*, c1.course_name as course_name, c2.course_name as prereq_course_name";
+    $sqlCourse .= " FROM `prerequisite` as p";
+    $sqlCourse .= " INNER JOIN `course` as c1 ON c1.id = p.course_id";
+    $sqlCourse .= " INNER JOIN `course` as c2 ON c2.id = p.prereq_course_id";
 
     if(!empty($search_text)) {
-        $sqlHistory .= " AND (sh.id LIKE '%$search_text%' OR sh.student_id LIKE '%$search_text%'";
-        $sqlHistory .= " OR sh.section_id LIKE '%$search_text%' OR c.course_name LIKE '%$search_text%'";
-        $sqlHistory .= " OR sh.grade LIKE '%$search_text%' OR sh.year LIKE '%$search_text%')";
+        $sqlCourse .= " WHERE p.id LIKE '%$search_text%' OR p.course_id LIKE '%$search_text%'";
+        $sqlCourse .= " OR p.prereq_course_id LIKE '%$search_text%' OR c1.course_name LIKE '%$search_text%'";
+        $sqlCourse .= " OR c2.course_name LIKE '%$search_text%'";
     }
 
-    $totalQuery = mysqli_query($conn, $sqlHistory);
+    $totalQuery = mysqli_query($conn, $sqlCourse);
     $total_count = mysqli_num_rows($totalQuery);
 
-    $sqlHistory .= " LIMIT $page_size OFFSET $start_number";
+    $sqlCourse .= " LIMIT $page_size OFFSET $start_number";
 
-    $query = mysqli_query($conn, $sqlHistory);
+    $query = mysqli_query($conn, $sqlCourse);
 
     $count = 0;
     $resultHtml = "";
     while($row = mysqli_fetch_assoc($query)){
 
 //        var_dump($row["prereq_course_name"]);
+        $prereq_id = empty($row["prereq_course_id"]) ? '' : $row["prereq_course_id"];
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
-        $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'. $row["student_id"].'</td>';
-        $resultHtml .= '<td>'. $row['student_name'] . '</td>';
-        $resultHtml .= '<td>'. $row['section_id'] . '</td>';
-        $resultHtml .= '<td>'.$row["course_name"].'</td>';
-        $resultHtml .= '<td>'.$row["grade"].'</td>';
-        $resultHtml .= '<td>'.$row["year"].'</td>';
+        $resultHtml .= '<td>'.$row["course_id"].'</td>';
+        $resultHtml .= '<td>'. $row["course_name"].'</td>';
+        $resultHtml .= '<td>'.$row["prereq_course_id"].'</td>';
+        $resultHtml .= '<td>'.$row["prereq_course_name"].'</td>';
+        $resultHtml .= '<td>'.$row["grade_required"].'</td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
         $resultHtml .= '</tr>';
@@ -79,7 +70,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM student_history WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM course WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -89,70 +80,82 @@ if (isset($_POST['delete_row'])) {
     exit;
 }
 
-if (isset($_POST['get_student_arr'])) {
+if (isset($_POST['get_init_arr'])) {
+    $id = $_POST['id'];
 
 //    get prereq course
 
-    $sql = "SELECT s.id, concat(u.first_name, ' ', u.last_name) as student_name";
-    $sql .= " FROM student as s INNER JOIN users as u ON u.id = s.user_id";
-
+    $sql = "SELECT id, course_name FROM course";
+    if (!empty($id)) {
+        $sql .= " WHERE id <> '$id'";
+    }
     $query = mysqli_query($conn, $sql);
 
-    $student_arr = [];
+    $prereq_course_arr = [];
 
     while ($row = mysqli_fetch_assoc($query)) {
-        $student_arr[] = $row;
+        $prereq_course_arr[] = $row;
     }
 
-    echo json_encode($student_arr);
+    $department_arr = [];
+//    get department arr
+    $sql = "SELECT id, name FROM department";
+    $query = mysqli_query($conn, $sql);
+
+    while ($row = mysqli_fetch_assoc($query)) {
+        $department_arr[] = $row;
+    }
+
+    $ret = [
+            'prereq_course_arr' => $prereq_course_arr,
+        'department_arr' => $department_arr
+    ];
+
+    echo json_encode($ret);
     exit;
 }
 
-if (isset($_POST['get_crn_arr'])) {
+if (isset($_POST['delete_prereq'])) {
+    $delete_id = $_POST['delete_id'];
 
-//    get prereq course
+    $ret = [
+        'success' => false
+    ];
 
-    $sql = "SELECT s.id";
-    $sql .= " FROM section as s";
-    $sql .= " INNER JOIN course as c ON c.id = s.course_id";
-
-    $query = mysqli_query($conn, $sql);
-
-    $student_arr = [];
-
-    while ($row = mysqli_fetch_assoc($query)) {
-        $student_arr[] = $row;
+    if (!empty($delete_id)) {
+        $sql  = "UPDATE course SET prereq_course_id = 0 WHERE id = '".$delete_id."'";
+        if ($conn->query($sql)) {
+            $ret['success'] = true;
+        }
     }
 
-    echo json_encode($student_arr);
+    echo json_encode($ret);
     exit;
 }
-
 
 if (isset($_POST['save_row'])) {
-    $student_id = $_POST['student_id'];
-    $year = $_POST['year'];
+    $prereq_course_id = $_POST['prereq_course_id'];
+    $department_id = $_POST['department_id'];
 
-    $section_id = $_POST['section_id'];
-    $grade = $_POST['grade'];
-    $year = $_POST['year'];
+    $course_name = $_POST['course_name'];
+    $course_credits = $_POST['course_credits'];
 
     $id = $_POST['id'];
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO student_history (`student_id`, `section_id`, `grade`, `year`) VALUES ('$student_id', '$section_id', '$grade', '$year')";
+        $sql = "INSERT INTO course (`prereq_course_id`, `department_id`, `course_name`, `course_credits`) VALUES ('$prereq_course_id', '$department_id', '$course_name', '$course_credits')";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
         } else {
-            $ret['message'] = "Error in student";
+            $ret['message'] = "Error in department";
         }
     } else {
         // update
         $id = $_POST['id'];
 
-        $sql = "UPDATE student_history SET student_id = '$student_id', section_id = '$section_id', grade = '$grade', year = '$year'";
+        $sql = "UPDATE course SET prereq_course_id = '$prereq_course_id', department_id = '$department_id', course_name = '$course_name', course_credits = '$course_credits'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
@@ -169,11 +172,12 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlHistory = "SELECT id, section_id, grade";
-    $sqlHistory .= " FROM student_history";
-    $sqlHistory .= " WHERE id = '$edit_id' LIMIT 1";
+    $sqlCourse = "SELECT c.*, pc.course_name as prereq_course_name, d.name as department_name";
+    $sqlCourse .= " FROM `course` as c LEFT JOIN course as pc ON pc.id = c.prereq_course_id";
+    $sqlCourse .= " LEFT JOIN department as d ON d.id = c.department_id";
+    $sqlCourse .= " WHERE c.id = '$edit_id' LIMIT 1";
 
-    $query = mysqli_query($conn, $sqlHistory);
+    $query = mysqli_query($conn, $sqlCourse);
     $row = mysqli_fetch_assoc($query);
 
     echo json_encode($row);
@@ -226,27 +230,10 @@ include "header.php";
     ?>
     <div class="main-page">
         <div class="row table-toolbar">
-            <div class="col-lg-4">
-                <h3>All Student Histories</h3>
+            <div class="col-lg-6">
+                <h3>Prerequisites</h3>
             </div>
-            <div class="col-lg-4">
-                <div class="form-group px-1">
-                    <select id="year" class="year-selectpicker" onchange="onLoadData()" data-live-search="true">
-                        <option value="2017">2017</option>
-                        <option value="2018">2018</option>
-                        <option value="2019">2019</option>
-                        <option value="2020">2020</option>
-                        <option value="2021">2021</option>
-                    </select>
-                    &nbsp;&nbsp;
-                    <select class="student-selectpicker" id="student_id" data-live-search="true">
-                        <option value="800100002">Temp</option>
-                    </select>
-
-                </div>
-            </div>
-
-            <div class="col-lg-4 text-right" style="display: flex; justify-content: flex-end">
+            <div class="col-lg-6 text-right" style="display: flex; justify-content: flex-end">
                 <div class="input-group search-input" style="max-width: 300px; margin-right: 20px">
                     <input type="text" id="search-text" class="form-control" placeholder="search" onkeyup="onSearchKeyup(event)">
                     <div class="input-group-btn">
@@ -255,7 +242,6 @@ include "header.php";
                         </button>
                     </div>
                 </div>
-
                 <button type="button" class="btn btn-sm btn-success" onclick="onAddNew()">
                     <i class="fa fa-plus"></i> &nbsp;Add New
                 </button>
@@ -265,12 +251,11 @@ include "header.php";
             <thead>
             <tr>
                 <th>ID</th>
-                <th>student ID</th>
-                <th>student Name</th>
-                <th>CRN Number</th>
+                <th>Course ID</th>
                 <th>Course Name</th>
-                <th>Grade</th>
-                <th>Year</th>
+                <th>Prereq Course ID</th>
+                <th>Prereq Course Name</th>
+                <th>Grade Required</th>
                 <th width="150px">Action</th>
             </tr>
             </thead>
@@ -312,17 +297,29 @@ include "header.php";
                     <div class="row py-1">
                         <h3 class="text-center " style="margin: auto; color: red" id="add-modal-title">Add Row</h3>
                     </div>
+                    <div class="row">
 
+                    </div>
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="section_id">CRN Number</label>
-                            <select id="section_id" class="crn-selectpicker" name="section_id"  data-live-search="true">
+                            <label class="col-form-label" for="prereq_course_id">Prereq Course</label>
+                            <select class="prereq-selectpicker" name="prereq_course_id" data-live-search="true">
+                            </select>
+
+                        </div>
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="department_id">Department</label>
+                            <select class="department-selectpicker" name="department_id"  data-live-search="true">
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Grade</label>
-                            <input type="text" class="form-control" id="grade" name="grade" required/>
+                            <label class="col-form-label" for="name">Course Name</label>
+                            <input type="text" class="form-control" placeholder="Course Name" id="course_name" name="course_name" required/>
+                        </div>
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="name">Course Credits</label>
+                            <input type="text" class="form-control" placeholder="Course Credits" id="course_credits" name="course_credits" required/>
                         </div>
                     </div>
                 </div>
@@ -378,7 +375,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/student_histories.js"></script>
+<script src="../js/administrator/prerequisites.js"></script>
 
 
 </body>

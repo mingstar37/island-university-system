@@ -256,7 +256,7 @@ include "header.php";
                 <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Time Of Advisement</th>
-                <th>Action</th>
+                <th width="150px">Action</th>
             </tr>
             </thead>
             <tbody id="table-body">

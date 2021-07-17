@@ -198,7 +198,7 @@ include "header.php";
                 <th>Department Chair Last Name</th>
                 <th>Building Name</th>
                 <th>Chair Room No</th>
-                <th>Action</th>
+                <th width="150px">Action</th>
             </tr>
             </thead>
             <tbody id="table-body">

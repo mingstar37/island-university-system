@@ -218,7 +218,7 @@ include "header.php";
                 <th>Email</th>
                 <th>Password</th>
                 <th>SSN</th>
-                <th>Action</th>
+                <th width="150px">Action</th>
             </tr>
             </thead>
             <tbody id="table-body">

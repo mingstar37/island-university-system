@@ -239,7 +239,7 @@ include "header.php";
                 <th>Type</th>
                 <th>Num Sections</th>
                 <th>Section Limit</th>
-                <th>Action</th>
+                <th width="150px">Action</th>
             </tr>
             </thead>
             <tbody id="table-body">
