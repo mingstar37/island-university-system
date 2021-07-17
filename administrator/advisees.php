@@ -221,11 +221,12 @@ include "header.php";
     ?>
     <div class="main-page">
         <div class="row table-toolbar">
-            <div class="col-lg-6">
+            <div class="col-lg-5">
                 <h3>Advisees</h3>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <div class="form-group px-1">
+                    Faculty: &nbsp;
                     <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
                         <option value="800100002">Temp</option>
                     </select>

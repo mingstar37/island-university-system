@@ -13,38 +13,82 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $faculty_id = $_POST['faculty_id'];
-    $sqlFacultyDepartment = "SELECT df.id as id, d.name, df.department_id, df.percentage_time, d.dept_first_name, d.dept_last_name, d.building_name, d.chair_room_no";
-    $sqlFacultyDepartment .= " FROM `dept_faculty` as df INNER JOIN department as d ON df.department_id = d.id";
-    $sqlFacultyDepartment .= " WHERE df.faculty_id = '$faculty_id'";
+    $sqlSection = "SELECT sc.*, c.course_name, concat(u.first_name, ' ', u.last_name) as faculty_name";
+    $sqlSection .= " FROM `section` as sc";
+    $sqlSection .= " INNER JOIN course as c ON c.id = sc.course_id";
+    $sqlSection .= " INNER JOIN faculty as f ON f.id = sc.faculty_id";
+    $sqlSection .= " INNER JOIN users as u ON u.id = f.user_id";
+    $sqlSection .= " WHERE sc.id > 0";
 
-    if(!empty($search_text)) {
-        $sqlFacultyDepartment .= " AND (df.id LIKE '%$search_text%' OR df.faculty_id LIKE '%$search_text%'";
-        $sqlFacultyDepartment .= " OR d.dept_first_name LIKE '%$search_text%' OR d.dept_last_name LIKE '%$search_text%'";
-        $sqlFacultyDepartment .= " OR d.chair_room_no LIKE '%$search_text%' OR d.building_name LIKE '%$search_text%')";
+    $course_id = $_POST['course_id'];
+
+    if (!empty($course_id)) {
+        $sqlSection .= " AND (sc.course_id = '$course_id')";
     }
 
-    $totalQuery = mysqli_query($conn, $sqlFacultyDepartment);
+    if(!empty($search_text)) {
+        $sqlSection .= " AND (sc.id LIKE '%$search_text%' OR sc.course_id LIKE '%$search_text%'";
+        $sqlSection .= " OR sc.faculty_id LIKE '%$search_text%' OR sc.room_num LIKE '%$search_text%'";
+        $sqlSection .= " OR sc.building_name LIKE '%$search_text%' OR sc.available_seat LIKE '%$search_text%'";
+        $sqlSection .= " OR sc.sem_term_year LIKE '%$search_text%' OR sc.section LIKE '%$search_text%')";
+    }
+
+    $totalQuery = mysqli_query($conn, $sqlSection);
     $total_count = mysqli_num_rows($totalQuery);
 
-    $sqlFacultyDepartment .= " LIMIT $page_size OFFSET $start_number";
+    $sqlSection .= " LIMIT $page_size OFFSET $start_number";
 
-    $query = mysqli_query($conn, $sqlFacultyDepartment);
+    $query = mysqli_query($conn, $sqlSection);
 
     $count = 0;
     $resultHtml = "";
     while($row = mysqli_fetch_assoc($query)){
 
+        $section_id = $row['id'];
+
+//        get days info
+        $sqlDays = "SELECT * FROM time_slot_day WHERE section_id = '$section_id'";
+        $queryDays = mysqli_query($conn, $sqlDays);
+
+        $time_slot_days = [];
+        while ($rowDays = mysqli_fetch_assoc($queryDays)) {
+            $time_slot_days[] = $row['week_day'];
+        }
+
+        $str_time_slot_day = "";
+        if (!empty($time_slot_days)) {
+            $str_time_slot_day = implode(", ");
+        }
+
+        //        get period info
+        $sqlPeriods = "SELECT * FROM time_slot_period as tsp LEFT JOIN period as p ON p.id = tsp.period_id WHERE tsp.section_id = '$section_id";
+        $queryPeriods = mysqli_query($conn, $sqlPeriods);
+
+        $time_slot_periods = [];
+        while ($rowDays = mysqli_fetch_assoc($queryPeriods)) {
+            $time_slot_periods[] = $row['week_day'];
+        }
+
+        $str_time_slot_period = "";
+        if (!empty($time_slot_periods)) {
+            $str_time_slot_period = implode(", ");
+        }
+
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'. $row["department_id"].'</td>';
-        $resultHtml .= '<td>'. $row['name'] . '</td>';
-        $resultHtml .= '<td>'. $row['dept_first_name'] . '</td>';
-        $resultHtml .= '<td>'.$row["dept_last_name"].'</td>';
+        $resultHtml .= '<td>'. $row["course_id"].'</td>';
+        $resultHtml .= '<td>'. $row["course_name"].'</td>';
+        $resultHtml .= '<td>'.$row["faculty_id"].'</td>';
+        $resultHtml .= '<td>'.$row["faculty_name"].'</td>';
+        $resultHtml .= '<td>'.$row["room_num"].'</td>';
         $resultHtml .= '<td>'.$row["building_name"].'</td>';
-        $resultHtml .= '<td>'.$row["chair_room_no"].'</td>';
-        $resultHtml .= '<td>'.$row["percentage_time"].'</td>';
+        $resultHtml .= '<td>'.$row["available_seat"].'</td>';
+        $resultHtml .= '<td>'.$row["sem_term_year"].'</td>';
+        $resultHtml .= '<td>' . $str_time_slot_day . '</td>';
+        $resultHtml .= '<td>' . $str_time_slot_period . '</td>';
+        $resultHtml .= '<td>'.$row["section"].'</td>';
+
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
         $resultHtml .= '</tr>';
@@ -73,7 +117,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM dept_faculty WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM course WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -83,83 +127,94 @@ if (isset($_POST['delete_row'])) {
     exit;
 }
 
-if (isset($_POST['get_faculty_arr'])) {
+if (isset($_POST['get_init_arr'])) {
 
-//    get prereq course
+    // get course arr
 
-    $sql = "SELECT f.id, u.first_name, u.last_name";
-    $sql .= " FROM faculty as f INNER JOIN users as u ON u.id = f.user_id";
+    $sql = "SELECT id, course_name FROM course";
 
     $query = mysqli_query($conn, $sql);
+    $course_arr = [];
 
+    while ($row = mysqli_fetch_assoc($query)) {
+        $course_arr[] = $row;
+    }
+
+    // get period arry
+    $sql = "SELECT id, concat(start_time, ' ~ ', end_time) as time FROM period";
+    $query = mysqli_query($conn, $sql);
+    $period_arr = [];
+
+    while ($row = mysqli_fetch_assoc($query)) {
+        $period_arr[] = $row;
+    }
+
+    // get faculty arr
+    $sql = "SELECT f.id, concat(u.first_name, ' ', u.last_name) as faculty_name";
+    $sql .= " FROM faculty as f";
+    $sql .= " INNER JOIN users as u ON u.id = f.user_id";
+    $query = mysqli_query($conn, $sql);
     $faculty_arr = [];
 
     while ($row = mysqli_fetch_assoc($query)) {
         $faculty_arr[] = $row;
     }
 
-    echo json_encode($faculty_arr);
+    $ret = [
+            'course_arr' => $course_arr,
+        'period_arr' => $period_arr,
+        'faculty_arr' => $faculty_arr
+    ];
+    echo json_encode($ret);
     exit;
 }
 
-if (isset($_POST['get_depart_arr'])) {
-
+if (isset($_POST['get_faculty_arr'])) {
 //    get prereq course
 
-    $faculty_id = $_POST['faculty_id'];
+    $sql = "SELECT id, course_name FROM course";
 
-
-    // get department arr
-    $sql = "SELECT department_id FROM dept_faculty WHERE faculty_id = '$faculty_id' GROUP BY department_id";
     $query = mysqli_query($conn, $sql);
-
-    $department_arr = [];
-
-    $department_id = $_POST['department_id'];
+    $course_arr = [];
 
     while ($row = mysqli_fetch_assoc($query)) {
-        if ($row["department_id"] != $department_id) {
-            $department_arr[] = $row["department_id"];
+        $course_arr[] = $row;
+    }
+
+    echo json_encode($course_arr);
+    exit;
+}
+
+if (isset($_POST['delete_prereq'])) {
+    $delete_id = $_POST['delete_id'];
+
+    $ret = [
+        'success' => false
+    ];
+
+    if (!empty($delete_id)) {
+        $sql  = "UPDATE course SET prereq_course_id = 0 WHERE id = '".$delete_id."'";
+        if ($conn->query($sql)) {
+            $ret['success'] = true;
         }
     }
 
-    $whereFilter = "";
-    if (!empty($department_arr)) {
-        $whereFilter = implode(",", $department_arr);
-    }
-
-    $sql = "SELECT d.id, d.name";
-    $sql .= " FROM department as d LEFT JOIN dept_faculty as df ON df.department_id = d.id";
-
-    if (!empty($whereFilter)) {
-        $sql .= " WHERE d.id NOT IN ($whereFilter)";
-    }
-
-    $sql .= " GROUP BY d.id";
-
-    $query = mysqli_query($conn, $sql);
-
-    $faculty_arr = [];
-
-    while ($row = mysqli_fetch_assoc($query)) {
-        $faculty_arr[] = $row;
-    }
-
-    echo json_encode($faculty_arr);
+    echo json_encode($ret);
     exit;
 }
 
 if (isset($_POST['save_row'])) {
-    $faculty_id = $_POST['faculty_id'];
+    $prereq_course_id = $_POST['prereq_course_id'];
     $department_id = $_POST['department_id'];
 
-    $percentage_time = $_POST['percentage_time'];
+    $course_name = $_POST['course_name'];
+    $course_credits = $_POST['course_credits'];
 
     $id = $_POST['id'];
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO dept_faculty (`faculty_id`, `department_id`, `percentage_time`) VALUES ('$faculty_id', '$department_id', '$percentage_time')";
+        $sql = "INSERT INTO course (`prereq_course_id`, `department_id`, `course_name`, `course_credits`) VALUES ('$prereq_course_id', '$department_id', '$course_name', '$course_credits')";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
@@ -170,7 +225,7 @@ if (isset($_POST['save_row'])) {
         // update
         $id = $_POST['id'];
 
-        $sql = "UPDATE dept_faculty SET faculty_id = '$faculty_id', department_id = '$department_id', percentage_time = '$percentage_time'";
+        $sql = "UPDATE course SET prereq_course_id = '$prereq_course_id', department_id = '$department_id', course_name = '$course_name', course_credits = '$course_credits'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
@@ -187,11 +242,12 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlFacultyDepartment = "SELECT id, department_id, percentage_time";
-    $sqlFacultyDepartment .= " FROM dept_faculty";
-    $sqlFacultyDepartment .= " WHERE id = '$edit_id' LIMIT 1";
+    $sqlSection = "SELECT c.*, pc.course_name as prereq_course_name, d.name as department_name";
+    $sqlSection .= " FROM `course` as c LEFT JOIN course as pc ON pc.id = c.prereq_course_id";
+    $sqlSection .= " LEFT JOIN department as d ON d.id = c.department_id";
+    $sqlSection .= " WHERE c.id = '$edit_id' LIMIT 1";
 
-    $query = mysqli_query($conn, $sqlFacultyDepartment);
+    $query = mysqli_query($conn, $sqlSection);
     $row = mysqli_fetch_assoc($query);
 
     echo json_encode($row);
@@ -245,16 +301,15 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-5">
-                <h3>Faculty - Departments</h3>
+                <h3>Sections</h3>
             </div>
             <div class="col-lg-3">
                 <div class="form-group px-1">
-                    Faculty: &nbsp;
-                    <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
+                    Course: &nbsp;
+                    <select class="course-selectpicker" id="course_id" data-live-search="true">
                     </select>
                 </div>
             </div>
-
             <div class="col-lg-4 text-right" style="display: flex; justify-content: flex-end">
                 <div class="input-group search-input" style="max-width: 300px; margin-right: 20px">
                     <input type="text" id="search-text" class="form-control" placeholder="search" onkeyup="onSearchKeyup(event)">
@@ -274,14 +329,18 @@ include "header.php";
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Department ID</th>
-                <th>Department Name</th>
-                <th>Department First Name</th>
-                <th>Department Last Name</th>
+                <th>Course ID</th>
+                <th>Course Name</th>
+                <th>Faculty ID</th>
+                <th>Faculty Name</th>
+                <th>Room Num</th>
                 <th>Building Name</th>
-                <th>Chair Room No</th>
-                <th>Percentage Time</th>
-                <th>Action</th>
+                <th>Available Seat</th>
+                <th>Sem Term Year</th>
+                <th>Time Slot Day</th>
+                <th>Time Slot Period</th>
+
+                <th width="150px">Action</th>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -323,19 +382,68 @@ include "header.php";
                         <h3 class="text-center " style="margin: auto; color: red" id="add-modal-title">Add Row</h3>
                     </div>
                     <div class="row">
-
-                    </div>
-
-                    <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="department_id">Department</label>
-                            <select id="department_id" class="department-selectpicker" name="department_id"  data-live-search="true">
+                            <label class="col-form-label" for="prereq_course_id">Prereq Course</label>
+                            <select class="course-selectpicker" id="course_id" data-live-search="true">
+                            </select>
+
+                        </div>
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="department_id">Faculty</label>
+                            <select class="faculty-selectpicker" name="faculty_id" id="faculty_id" data-live-search="true">
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Percentage Time</label>
-                            <input type="text" class="form-control" value="100%" id="percentage_time" name="percentage_time" required/>
+                            <label class="col-form-label" for="room_num">Room Number</label>
+                            <input type="text" class="form-control" id="room_num" name="room_num" required/>
+                        </div>
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="building_name">Building Name</label>
+                            <input type="text" class="form-control" id="building_name" name="building_name" required/>
+                        </div>
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="available_seat">Available Seat</label>
+                            <input type="text" class="form-control" id="available_seat" name="available_seat" required/>
+                        </div>
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="available_seat">Section</label>
+                            <input type="text" class="form-control" id="section" name="section" required/>
+                        </div>
+                        <div class="col-sm-6 py-1 form-group">
+                            <div class="row" style="width: 100%">
+                                <div class="col-sm-6">
+                                    <label class="col-form-label" for="available_seat">Select Days: </label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="week_day[]" value="Monday">&nbsp;Monday</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="week_day[]" value="Tuesday">&nbsp;Tuesday</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="week_day[]" value="Wednesday">&nbsp;Wednesday</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="week_day[]" value="Thursday">&nbsp;Thursday</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="week_day[]" value="Friday">&nbsp;Friday</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="week_day[]" value="Saturday">&nbsp;Saturday</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="week_day[]" value="Sunday">&nbsp;Sunday</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="period_id">Period</label>
+                            <select class="period-selectpicker" name="period_id" id="period_id"  data-live-search="true">
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -391,7 +499,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/faculty_departments.js"></script>
+<script src="../js/administrator/sections.js"></script>
 
 
 </body>

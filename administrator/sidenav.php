@@ -34,6 +34,9 @@
                             <a href="./courses.php">Courses</a>
                         </li>
                         <li>
+                            <a href="./sections.php">Sections</a>
+                        </li>
+                        <li>
                             <a href="scheduleCourse.php">Create Section</a>
                         </li>
                     </ul>
