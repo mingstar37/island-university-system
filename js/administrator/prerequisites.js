@@ -39,6 +39,8 @@ function onLoadData() {
     request.search_text = $('#search-text').val();
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
+
+    request.course_id = $('#course_id').val();
     request.load_data = true;
 
     $.ajax({
@@ -65,9 +67,17 @@ function onLoadData() {
     });
 }
 
-function onLoadSelectPickers(id = 0, course_default_val = "0", prereg_default_val = "0") {
+function onSelectPicker(event) {
+    event.preventDefault();
+
+    let value = event.target.value;
+    $('.course-selectpicker').selectpicker('val', value);
+
+    onLoadData();
+}
+
+function onLoadInitPickers() {
     let request = {};
-    request.id = id;
     request.get_init_arr = true;
 
     $.ajax({
@@ -80,7 +90,7 @@ function onLoadSelectPickers(id = 0, course_default_val = "0", prereg_default_va
 
                 let course_arr = res.course_arr;
 
-                let courseHtml = '<select class="course-selectpicker" id="course_id" name="course_id" data-live-search="true"><option value="0">Empty</option>';
+                let courseHtml = '<select class="course-selectpicker" id="course_id" name="course_id" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
                 course_arr.forEach(item => {
                     courseHtml += "<option value='" + item.id + "'>" + item.course_name + "</option>"
                 });
@@ -88,7 +98,7 @@ function onLoadSelectPickers(id = 0, course_default_val = "0", prereg_default_va
 
                 let prereq_course_arr = res.course_arr;
 
-                let prereqHtml = '<select class="prereq-selectpicker" id="prereq_course_id" name="prereq_course_id" data-live-search="true"><option value="0">Empty</option>';
+                let prereqHtml = '<select class="prereq-selectpicker" id="prereq_course_id" name="prereq_course_id" data-live-search="true">';
                 prereq_course_arr.forEach(item => {
                     prereqHtml += "<option value='" + item.id + "'>" + item.course_name + "</option>"
                 });
@@ -98,8 +108,10 @@ function onLoadSelectPickers(id = 0, course_default_val = "0", prereg_default_va
                 $('.bootstrap-select.course-').replaceWith(courseHtml);
                 $('.bootstrap-select.prereq-').replaceWith(prereqHtml);
 
-                $('#course_id').selectpicker('val', course_default_val);
-                $('#prereq_course_id').selectpicker('val', prereg_default_val);
+                $('.course-selectpicker').selectpicker();
+                $('.prereq-selectpicker').selectpicker();
+
+                onLoadData();
             } else {
                 toastr.error('Error');
             }
@@ -112,8 +124,6 @@ function onLoadSelectPickers(id = 0, course_default_val = "0", prereg_default_va
 }
 
 function onAddNew() {
-
-    onLoadSelectPickers();
 
     $('#id').val(0);
     $('#grade_required').val("");
@@ -134,7 +144,9 @@ function onEditRow(id) {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
-                onLoadSelectPickers(id, res.course_id, res.prereq_course_id);
+
+                $('.course-selectpicker').selectpicker('val', res.course_id);
+                $('.prereq-selectpicker').selectpicker('val', res.prereq_course_id);
 
                 let keys = Object.keys(res);
 
@@ -268,10 +280,10 @@ function onSelectPagination(selectedNumber) {
 }
 
 $(document).ready(function () {
-    $('#course_id').selectpicker();
+    $('.course-selectpicker').selectpicker();
     $('#prereq_course_id').selectpicker();
 
-    onLoadData();
+    onLoadInitPickers();
 
     $('.page-item a').click(function (event) {
         let totalPageCount = Math.ceil(pagination.totalCount / pagination.pageSize);

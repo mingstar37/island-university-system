@@ -17,10 +17,18 @@ if (isset($_POST['load_data'])) {
     $sqlPrerequisites .= " INNER JOIN `course` as c1 ON c1.id = p.course_id";
     $sqlPrerequisites .= " INNER JOIN `course` as c2 ON c2.id = p.prereq_course_id";
 
+    $sqlPrerequisites .= " WHERE p.id > 0";
+
+    $course_id = $_POST['course_id'];
+
+    if (!empty($course_id)) {
+        $sqlPrerequisites .= " AND p.course_id = '$course_id'";
+    }
+
     if(!empty($search_text)) {
-        $sqlPrerequisites .= " WHERE p.id LIKE '%$search_text%' OR p.course_id LIKE '%$search_text%'";
+        $sqlPrerequisites .= " AND (p.id LIKE '%$search_text%' OR p.course_id LIKE '%$search_text%'";
         $sqlPrerequisites .= " OR p.prereq_course_id LIKE '%$search_text%' OR c1.course_name LIKE '%$search_text%'";
-        $sqlPrerequisites .= " OR c2.course_name LIKE '%$search_text%'";
+        $sqlPrerequisites .= " OR c2.course_name LIKE '%$search_text%')";
     }
 
     $totalQuery = mysqli_query($conn, $sqlPrerequisites);
@@ -82,7 +90,6 @@ if (isset($_POST['delete_row'])) {
 }
 
 if (isset($_POST['get_init_arr'])) {
-    $id = $_POST['id'];
 
 //    get prereq course
 
