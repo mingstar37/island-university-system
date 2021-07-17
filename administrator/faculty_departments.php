@@ -13,13 +13,23 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
+    $sqlFacultyDepartment = "SELECT df.*, concat(u.first_name, ' ', u.last_name) as faculty_name, d.name, df.department_id, df.percentage_time, d.dept_first_name, d.dept_last_name, d.building_name, d.chair_room_no";
+    $sqlFacultyDepartment .= " FROM `dept_faculty` as df";
+    $sqlFacultyDepartment .= " INNER JOIN faculty as f ON f.id = df.faculty_id";
+    $sqlFacultyDepartment .= " INNER JOIN users as u ON u.id = f.user_id";
+    $sqlFacultyDepartment .= " INNER JOIN department as d ON df.department_id = d.id";
+
+    $sqlFacultyDepartment .= " WHERE df.id > 0";
+
     $faculty_id = $_POST['faculty_id'];
-    $sqlFacultyDepartment = "SELECT df.id as id, d.name, df.department_id, df.percentage_time, d.dept_first_name, d.dept_last_name, d.building_name, d.chair_room_no";
-    $sqlFacultyDepartment .= " FROM `dept_faculty` as df INNER JOIN department as d ON df.department_id = d.id";
-    $sqlFacultyDepartment .= " WHERE df.faculty_id = '$faculty_id'";
+    if (!empty($faculty_id)) {
+        $sqlFacultyDepartment .= " AND df.faculty_id = '$faculty_id'";
+    }
+
 
     if(!empty($search_text)) {
         $sqlFacultyDepartment .= " AND (df.id LIKE '%$search_text%' OR df.faculty_id LIKE '%$search_text%'";
+        $sqlFacultyDepartment .= " OR u.first_name LIKE '%$search_text%' OR u.last_name LIKE '%$search_text%'";
         $sqlFacultyDepartment .= " OR d.dept_first_name LIKE '%$search_text%' OR d.dept_last_name LIKE '%$search_text%'";
         $sqlFacultyDepartment .= " OR d.chair_room_no LIKE '%$search_text%' OR d.building_name LIKE '%$search_text%')";
     }
@@ -38,6 +48,8 @@ if (isset($_POST['load_data'])) {
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.$row["id"].'</td>';
+        $resultHtml .= '<td>'.$row["faculty_id"].'</td>';
+        $resultHtml .= '<td>'.$row["faculty_name"].'</td>';
         $resultHtml .= '<td>'. $row["department_id"].'</td>';
         $resultHtml .= '<td>'. $row['name'] . '</td>';
         $resultHtml .= '<td>'. $row['dept_first_name'] . '</td>';
@@ -83,7 +95,7 @@ if (isset($_POST['delete_row'])) {
     exit;
 }
 
-if (isset($_POST['get_faculty_arr'])) {
+if (isset($_POST['get_init_arr'])) {
 
 //    get prereq course
 
@@ -187,7 +199,7 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlFacultyDepartment = "SELECT id, department_id, percentage_time";
+    $sqlFacultyDepartment = "SELECT *";
     $sqlFacultyDepartment .= " FROM dept_faculty";
     $sqlFacultyDepartment .= " WHERE id = '$edit_id' LIMIT 1";
 
@@ -250,7 +262,7 @@ include "header.php";
             <div class="col-lg-3">
                 <div class="form-group px-1">
                     Faculty: &nbsp;
-                    <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
+                    <select class="faculty-selectpicker" name="faculty_id" id="faculty_id" data-live-search="true">
                     </select>
                 </div>
             </div>
@@ -274,6 +286,8 @@ include "header.php";
             <thead>
             <tr>
                 <th>ID</th>
+                <th>Faculty ID</th>
+                <th>Faculty Name</th>
                 <th>Department ID</th>
                 <th>Department Name</th>
                 <th>Department First Name</th>
@@ -281,7 +295,7 @@ include "header.php";
                 <th>Building Name</th>
                 <th>Chair Room No</th>
                 <th>Percentage Time</th>
-                <th>Action</th>
+                <th width="150px">Action</th>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -328,6 +342,11 @@ include "header.php";
 
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="faculty_id">Faculty</label>
+                            <select id="faculty_id_id" class="faculty-selectpicker" name="faculty_id"  data-live-search="true">
+                            </select>
+                        </div>
                         <div class="col-sm-6 py-1">
                             <label class="col-form-label" for="department_id">Department</label>
                             <select id="department_id" class="department-selectpicker" name="department_id"  data-live-search="true">

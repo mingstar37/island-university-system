@@ -111,10 +111,20 @@ function onLoadData() {
     });
 }
 
+function onSelectPicker(event) {
+    event.preventDefault();
 
-function onLoadFilterPicker() {
+    let value = event.target.value;
+    onLoadDepartmentSelectPicker(value);
+
+    $('.faculty-selectpicker').selectpicker('val', value);
+
+    onLoadData();
+}
+
+function onLoadInitSelectors() {
     let request = {};
-    request.get_faculty_arr = true;
+    request.get_init_arr = true;
 
     $.ajax({
         method: "POST",
@@ -125,7 +135,7 @@ function onLoadFilterPicker() {
             if (res != undefined) {
                 let faculty_arr = res;
 
-                let facultyHtml = '<select id="faculty_id" class="faculty-selectpicker" onchange="onLoadData()" data-live-search="true">';
+                let facultyHtml = '<select id="faculty_id" class="faculty-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
                 faculty_arr.forEach(item => {
                     facultyHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
                 });
@@ -136,7 +146,6 @@ function onLoadFilterPicker() {
 
                 $('.faculty-selectpicker').selectpicker();
 
-                let faculty_id = $('#faculty_id').val();
                 onLoadData();
             } else {
                 toastr.error('Error');
@@ -151,7 +160,6 @@ function onLoadFilterPicker() {
 
 function onAddNew() {
 
-    onLoadDepartmentSelectPicker($('#faculty_id').val());
 
     $('#id').val(0);
     $('#percentage_time').val("");
@@ -173,7 +181,9 @@ function onEditRow(id) {
         success: function (res) {
             if (res != undefined) {
 
-                let faculty_id = $('#faculty_id').val();
+                let faculty_id = res.faculty_id;
+                $('.faculty-selectpicker').selectpicker('val', faculty_id);
+
                 let department_id = res.department_id;
                 onLoadDepartmentSelectPicker(faculty_id, department_id);
 
@@ -311,10 +321,9 @@ function onSelectPagination(selectedNumber) {
 
 $(document).ready(function () {
     $('.faculty-selectpicker').selectpicker();
-    $('#faculty_id').selectpicker();
     $('#department_id').selectpicker();
 
-    onLoadFilterPicker();
+    onLoadInitSelectors();
 
     $('.page-item a').click(function (event) {
         let totalPageCount = Math.ceil(pagination.totalCount / pagination.pageSize);
