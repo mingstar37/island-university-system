@@ -52,6 +52,9 @@
                     <a href="#">Student</a>
                     <ul class="nolist">
                         <li>
+                            <a href="./student-courses.php">Student - Courses</a>
+                        </li>
+                        <li>
                             <a href="adminViewStudent.php">View Student</a>
                         </li>
                         <li>
