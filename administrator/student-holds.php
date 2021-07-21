@@ -15,8 +15,8 @@ if (isset($_POST['load_data'])) {
 
     $sqlStudentHolds = "SELECT sh.*, concat(u.first_name, ' ', u.last_name) as student_name";
     $sqlStudentHolds .= " FROM `student_holds` as sh";
-    $sqlStudentHolds .= " LEFT JOIN `student` as s ON s.id = sh.student_id";
-    $sqlStudentHolds .= " LEFT JOIN `users` as u ON u.id = s.user_id";
+    $sqlStudentHolds .= " JOIN `student` as s ON s.id = sh.student_id";
+    $sqlStudentHolds .= " JOIN `users` as u ON u.id = s.user_id";
     $sqlStudentHolds .= " WHERE sh.id > 0";
 
     $student_id = $_POST['student_id'];
@@ -76,7 +76,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM advisor WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM student_holds WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -127,16 +127,15 @@ if (isset($_POST['get_student_arr'])) {
 }
 
 if (isset($_POST['save_row'])) {
-    $faculty_id = $_POST['faculty_id'];
     $student_id = $_POST['student_id'];
-
-    $time_of_advisement = $_POST['time_of_advisement'];
+    $hold_date = $_POST['hold_date'];
+    $hold_type = $_POST['hold_type'];
 
     $id = $_POST['id'];
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO advisor (`faculty_id`, `student_id`, `time_of_advisement`) VALUES ('$faculty_id', '$student_id', '$time_of_advisement')";
+        $sql = "INSERT INTO student_holds (`student_id`, `hold_date`, `hold_type`) VALUES ('$student_id', '$hold_date', '$hold_type')";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
@@ -147,7 +146,7 @@ if (isset($_POST['save_row'])) {
         // update
         $id = $_POST['id'];
 
-        $sql = "UPDATE advisor SET faculty_id = '$faculty_id', student_id = '$student_id', time_of_advisement = '$time_of_advisement'";
+        $sql = "UPDATE student_holds SET student_id = '$student_id', hold_date = '$hold_date', hold_type = '$hold_type'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
@@ -165,7 +164,7 @@ if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
     $sqlStudentHolds = "SELECT *";
-    $sqlStudentHolds .= " FROM advisor";
+    $sqlStudentHolds .= " FROM student_holds";
     $sqlStudentHolds .= " WHERE id = '$edit_id' LIMIT 1";
 
     $query = mysqli_query($conn, $sqlStudentHolds);
@@ -306,8 +305,12 @@ include "header.php";
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Time Of Advisement</label>
-                            <input type="text" class="form-control" id="time_of_advisement" name="time_of_advisement" required/>
+                            <label class="col-form-label" for="hold_type">Hold Type</label>
+                            <input type="text" class="form-control" id="hold_type" name="hold_type" required/>
+                        </div>
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="hold_date">Hold Date</label>
+                            <input type="date" class="form-control" id="hold_date" name="hold_date" required/>
                         </div>
                     </div>
                 </div>

@@ -40,7 +40,7 @@ function onLoadData() {
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
 
-    request.student_id = $('.student-selectpicker').val();
+    request.student_id = $('#student_id').val();
     request.load_data = true;
 
 
@@ -74,8 +74,6 @@ function onSelectPicker(event) {
     let value = event.target.value;
     $('.student-selectpicker').selectpicker('val', value);
 
-    onLoadStudentSelectPicker(value);
-
     onLoadData();
 }
 
@@ -92,7 +90,7 @@ function onLoadInitSelector() {
             if (res != undefined) {
                 let student_arr = res;
 
-                let studentHtml = '<select id="student_id " class="student-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
+                let studentHtml = '<select id="student_id" name="student_id" class="student-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
                 student_arr.forEach(item => {
                     studentHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
                 });
@@ -118,7 +116,8 @@ function onLoadInitSelector() {
 function onAddNew() {
 
     $('#id').val(0);
-    $('#time_of_advisement').val("");
+    $('#hold_date').val("");
+    $('#hold_type').val("");
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
@@ -165,6 +164,11 @@ function onEditRow(id) {
 
 function onSave(event) {
     event.preventDefault();
+
+    if ($('#student_id').val() == 0) {
+        alert("Select Student!");
+        return;
+    }
 
     $('#btn-save').addClass('disabled');
     $('#btn-cancel').addClass('disabled');
