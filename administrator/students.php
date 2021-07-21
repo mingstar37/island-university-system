@@ -272,7 +272,7 @@ if (isset($_POST['get_row'])) {
         </div>
     </div>
     <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
-        <div class="modal-dialog modal-md" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <form method="post" id="form-add" onsubmit="return onSave(event)">
                     <div class="modal-header">
@@ -289,45 +289,57 @@ if (isset($_POST['get_row'])) {
                             <input type="hidden" class="form-control" id="user_id" name="user_id" required/>
 
                             <div class="col-sm-6 py-1">
-                                <input type="text" class="form-control" placeholder="First Name" id="first_name" name="first_name" required/>
+                                <label class="col-form-label" for="first_name">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required/>
                             </div>
                             <div class="col-sm-6 py-1">
-                                <input type="text" class="form-control" placeholder="Last Name" id="last_name" name="last_name" required/>
+                                <label class="col-form-label" for="last_name">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required/>
                             </div>
                             <div class="col-sm-6 py-1">
-                                <input type="date" class="form-control" placeholder="DOB" id="dob" name="dob" required/>
+                                <label class="col-form-label" for="dob">DOB</label>
+                                <input type="date" class="form-control" id="dob" name="dob" required/>
                             </div>
                             <div class="col-sm-6 py-1">
-                                <input type="text" class="form-control" placeholder="SSN" id="ssn" name="ssn" required/>
+                                <label class="col-form-label" for="ssn">SSN</label>
+                                <input type="text" class="form-control" id="ssn" name="ssn" required/>
                             </div>
                             <div class="col-sm-6 py-1">
-                                <input type="email" class="form-control" placeholder="Email" id="email" name="email" required/>
+                                <label class="col-form-label" for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required/>
                             </div>
                             <div class="col-sm-6 py-1">
-                                <input type="text" class="form-control" placeholder="Password" id="password" name="password" required/>
+                                <label class="col-form-label" for="password">Password</label>
+                                <input type="text" class="form-control" id="password" name="password" required/>
                             </div>
                             <div class="col-sm-6 py-1">
-                                <input type="text" class="form-control" placeholder="GPA" id="student_gpa" name="student_gpa" required/>
+                                <label class="col-form-label" for="student_gpa">GPA</label>
+                                <input type="text" class="form-control" id="student_gpa" name="student_gpa" required/>
                             </div>
                             <div class="col-sm-6 py-1">
+                                <label class="col-form-label" for="student_type">Student Type</label>
                                 <select name="student_type" class="form-control" id="student_type">
                                     <option value="undergraduate">undergraduate</option>
                                     <option value="graduate">graduate</option>
                                 </select>
                             </div>
                             <div class="col-sm-6 py-1">
+                                <label class="col-form-label" for="undergrad_type">Undergrad Type</label>
                                 <select name="undergrad_type" class="form-control" id="undergrad_type">
                                     <option value="full_time">full time</option>
                                     <option value="part_time">part time</option>
                                 </select>
                             </div>
                             <div class="col-sm-6 py-1">
-                                <input type="text" class="form-control" placeholder="Student Status" id="student_status" name="student_status" required/>
+                                <label class="col-form-label" for="student_status">Student Status</label>
+                                <input type="text" class="form-control" placeholder="" id="student_status" name="student_status" required/>
                             </div>
                             <div class="col-sm-6 py-1">
-                                <input type="text" class="form-control" placeholder="Minimum Credit" id="minimum_credit" name="minimum_credit" required/>
+                                <label class="col-form-label" for="minimum_credit">Minimum Credit</label>
+                                <input type="text" class="form-control" placeholder="" id="minimum_credit" name="minimum_credit" required/>
                             </div>
                             <div class="col-sm-6 py-1">
+                                <label class="col-form-label" for="maximum_credit">Maximum Credit</label>
                                 <input type="text" class="form-control" placeholder="Maximum Credit" id="maximum_credit" name="maximum_credit" required/>
                             </div>
                         </div>
