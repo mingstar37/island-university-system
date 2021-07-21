@@ -7,10 +7,8 @@ $student_fetched = false;
 if(isset($_POST["submit"])){
     $sId = $_POST["studentId"];
 
-
     $sqlStudent = "SELECT * FROM enrollment WHERE Student_ID='".$sId."'";
     $queryStudent = mysqli_query($conn,$sqlStudent);
-
 
     $student_fetched = true;
 }

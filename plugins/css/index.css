@@ -173,3 +173,7 @@ table thead {
     padding-bottom: 4px;
 }
 
+table th, table td {
+    vertical-align: center;
+}
+

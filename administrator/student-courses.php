@@ -9,6 +9,7 @@ include '../connection.php';
 
 if (isset($_POST['load_data'])) {
 
+//    get enrolled data
     $search_text = $_POST['search_text'];
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
@@ -38,35 +39,103 @@ if (isset($_POST['load_data'])) {
     $query = mysqli_query($conn, $sqlStudentCourses);
 
     $count = 0;
-    $resultHtml = "";
+    $enrollmentHtml = "";
     while($row = mysqli_fetch_assoc($query)){
 
 //        var_dump($row["prereq_course_name"]);
-        $resultHtml .= '<tr id="row_' . $row["id"] . '">';
-        $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'. $row["student_id"].'</td>';
-        $resultHtml .= '<td>'. $row['student_name'] . '</td>';
-        $resultHtml .= '<td>'. $row['section_id'] . '</td>';
-        $resultHtml .= '<td>'.$row["date_enrolled"].'</td>';
-        $resultHtml .= '<td>'.$row["letter_grade"].'</td>';
-        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
+        $enrollmentHtml .= '<tr id="row_' . $row["id"] . '">';
+        $enrollmentHtml .= '<td>'.$row["id"].'</td>';
+        $enrollmentHtml .= '<td>'. $row["student_id"].'</td>';
+        $enrollmentHtml .= '<td>'. $row['student_name'] . '</td>';
+        $enrollmentHtml .= '<td>'. $row['section_id'] . '</td>';
+        $enrollmentHtml .= '<td>'.$row["date_enrolled"].'</td>';
+        $enrollmentHtml .= '<td>'.$row["letter_grade"].'</td>';
+        $enrollmentHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
-        $resultHtml .= '</tr>';
+        $enrollmentHtml .= '</tr>';
 
         $count ++;
     }
 
     if ($count < 1) {
-        $resultHtml .= '<tr>
+        $enrollmentHtml .= '<tr>
                             <td colspan="10">There is no data</td></tr>';
     }
+
+    $courseHtml = "";
+//    get available courses
+    if (!empty($student_id)) {
+        $term = $_POST['term'];
+        $year = $_POST['year'];
+
+//        get course ids
+        $sql = "SELECT course_id FROM enrollment";
+        $sql .= " WHERE student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
+        $sql .= " GROUP BY s.course_id";
+
+
+        $query = mysqli_query($conn, $sql);
+
+        $courseIds = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            $courseIds[] = $row["course_id"];
+        }
+
+        $strCourseIds = implode(",", $courseIds);
+
+        $sql = "SELECT sc.id as section_id, c.*, cp.course_name as prereq_course_name, d.name as department_name";
+        $sql .= " FROM section as sc";
+        $sql .= " LEFT JOIN course as c";
+        $sql .= " LEFT JOIN course as cp ON cp.prereq_course_id = c.id";
+        $sql .= " LEFT JOIN department as d ON d.id = c.department_id";
+        $sql .= " LEFT JOIN enrollment as e ON e.id = s.section_id";
+        $sql .= " WHERE e.student_id != '$student_id'";
+        $sql .= " AND e.student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'"
+
+        if (!empty($strCourseIds)) {
+            $sql .= " WHERE c.id NOT IN ($strCourseIds)";
+        }
+
+        $sql .= " GROUP BY c.id";
+        $query = mysqli_query($conn, $sql);
+
+        $count = 0;
+        while ($row = mysqli_fetch_assoc($query)) {
+            //        var_dump($row["prereq_course_name"]);
+            $courseHtml .= '<tr id="row_' . $row["id"] . '">';
+            $courseHtml .= '<td>'.$row["id"].'</td>';
+            $courseHtml .= '<td>'.$row["course_name"].'</td>';
+            $courseHtml .= '<td>'. $row['department_id'] . '</td>';
+            $courseHtml .= '<td>'.$row["department_name"].'</td>';
+            $courseHtml .= '<td>'. $row["prereq_course_id"].'</td>';
+            $courseHtml .= '<td>'. $row['prereq_course_name'] . '</td>';
+            $courseHtml .= '<td>'.$row["course_credits"].'</td>';
+            $courseHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onAddToEnrollment(' . $row["id"] . ')" title="Edit"><i class="fa fa-plus"></i> Add</button> </td>';
+            $courseHtml .= '</tr>';
+
+            $count ++;
+        }
+
+        if ($count < 1) {
+            $courseHtml .= '<tr>
+                 <td colspan="10">There is no data</td></tr>';
+        }
+    }
+
     $ret = [
-        'html' => $resultHtml,
-        'total_count' => $total_count
+        'enrollmentHtml' => $enrollmentHtml,
+        'total_count' => $total_count,
+        'courseHtml' => $courseHtml
     ];
 
     echo json_encode($ret);
     exit;
+}
+
+if (isset($_POST['add_to_enrollment'])) {
+    $student_id = $_POST['student_id'];
+    $term = $_POST["term"];
+    $year =
 }
 
 if (isset($_POST['delete_row'])) {
@@ -93,27 +162,6 @@ if (isset($_POST['get_init_arr'])) {
 
     $sql = "SELECT s.id, u.first_name, u.last_name";
     $sql .= " FROM student as s INNER JOIN users as u ON u.id = s.user_id";
-
-    $query = mysqli_query($conn, $sql);
-
-    $student_arr = [];
-
-    while ($row = mysqli_fetch_assoc($query)) {
-        $student_arr[] = $row;
-    }
-
-    echo json_encode($student_arr);
-    exit;
-}
-
-if (isset($_POST['get_student_arr'])) {
-
-//    get prereq course
-
-    $sql = "SELECT s.id, concat(u.first_name, ' ', u.last_name) as student_name";
-    $sql .= " FROM student as s";
-    $sql .= " INNER JOIN users as u ON u.id = s.user_id";
-    $sql .= " GROUP BY s.id";
 
     $query = mysqli_query($conn, $sql);
 
@@ -260,7 +308,7 @@ include "header.php";
                 <th width="150px">Action</th>
             </tr>
             </thead>
-            <tbody id="table-body">
+            <tbody id="enrollment-table-body">
 
             </tbody>
             <tfoot>
@@ -286,7 +334,7 @@ include "header.php";
     </div>
 </div>
 <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <form method="post" id="form-add" class="form-horizontal" onsubmit="return onSave(event)">
                 <div class="modal-header">
@@ -301,26 +349,49 @@ include "header.php";
 
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
-
-                        <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="faculty_id">Faculty</label>
-                            <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1">
+                        <div class="col-sm-4 py-1">
                             <label class="col-form-label" for="student_id">Student</label>
                             <select id="student_id" class="student-selectpicker" name="student_id"  data-live-search="true">
                             </select>
                         </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Time Of Advisement</label>
-                            <input type="text" class="form-control" id="time_of_advisement" name="time_of_advisement" required/>
+                        <div class="col-sm-4 py-1 form-group">
+                            <label class="col-form-label" for="available_seat">Term</label>
+                            <select class="term-selectpicker" name="term" id="term" data-live-search="true">
+                                <option value="Spring">Spring</option>
+                                <option value="Fall">Fall</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4 py-1 form-group">
+                            <label class="col-form-label" for="available_seat">Year</label>
+                            <select class="year-selectpicker" name="year" id="year" data-live-search="true">
+                                <option value="2020">2020</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                            </select>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-success" id="btn-save">Save</button>
+                    <div class="row" style="padding: 20px;max-height: 600px; overflow: auto">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Course Name</th>
+                                <th>Department ID</th>
+                                <th>Department Name</th>
+                                <th>Prereq Course ID</th>
+                                <th>Prereq Course Name</th>
+                                <th>Course Credits</th>
+                                <th width="150px">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody id="course-table-body">
+
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </form>
         </div>

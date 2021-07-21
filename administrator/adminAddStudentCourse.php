@@ -57,9 +57,6 @@ if(isset($_POST["termSubmit"])){
         $query2 = mysqli_query($conn,$sql2);
         $row2 = mysqli_fetch_assoc($query2);
         array_push($courses, $row2);
-
-
-
     }
 
 

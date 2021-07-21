@@ -314,7 +314,7 @@ $(document).ready(function () {
     $('.course-selectpicker').selectpicker();
     $('.faculty-selectpicker').selectpicker();
     $('.period-selectpicker').selectpicker();
-    $('.year-selectpicker').selectpicker();
+    $('.year-selectpicker').selectpicker('val', '2021');
     $('.term-selectpicker').selectpicker();
 
     onLoadInitSelecter();

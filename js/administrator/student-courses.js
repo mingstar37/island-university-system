@@ -41,6 +41,8 @@ function onLoadData() {
     request.page_size = pagination.pageSize;
 
     request.student_id = $('.student-selectpicker').val();
+    request.term = $('#term').val();
+    request.year = $('#year').val();
     request.load_data = true;
 
 
@@ -60,7 +62,37 @@ function onLoadData() {
                     onSelectPagination(pagination.currentNumber + 1);
                 }
                 onSetPageNumberSelect();
-                $('#table-body').html(res.html);
+                $('#enrollment-table-body').html(res.enrollmentHtml);
+                $('#course-table-body').html(res.courseHtml);
+            }
+        },
+        complete: function () {
+        }
+    });
+}
+
+function onAddToEnrollment(add_id) {
+    let student_id = $('#student_id').val();
+    let term = $('#term').val();
+    let year = $('#year').val();
+
+    let request = {
+        student_id,
+        term,
+        year,
+        add_to_enrollment: true
+    };
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res != undefined) {
+                onLoadData();
+            } else {
+                toastr.error('Error');
             }
         },
         complete: function () {
@@ -268,7 +300,8 @@ function onSelectPagination(selectedNumber) {
 
 $(document).ready(function () {
     $('.student-selectpicker').selectpicker();
-    $('#student_id').selectpicker();
+    $('.term-selectpicker').selectpicker();
+    $('.year-selectpicker').selectpicker('val', '2021');
 
     onLoadInitSelector();
 
