@@ -1,9 +1,14 @@
 <?php
 session_start();
+if (empty($_SESSION['user_id']) || empty($_SESSION['user_email']) || empty($_SESSION['type'])) {
+    header('location: ../index.php');
+    exit;
+}
+
 include '../connection.php';
 
 $_SESSION["credits"] = 0;
-$userId = $_SESSION["user_id"]];
+$userId = $_SESSION["user_id"];
 
 ?>
 
@@ -21,78 +26,12 @@ $userId = $_SESSION["user_id"]];
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 </head>
 <body>
-<div id="header">
-        <div id="upper-header">
-            <!-- <div class="user-name">Hello Faculty</div> -->
-            <div class="search-box">
-                <!-- <input type="text" placeholder="Search"/> -->
-                <!-- <button>Search</button> -->
-
-                <a href="../logout.php"><button>Logout</button></a>
-            </div>
-        </div>
-        <!-- <div id="lower-header">
-            <a href="index.php"><div class="navi"> Home </div></a>
-            <a href="attendance.php"><div class="navi"> Attendance </div></a>
-            <a href="students.php"><div class="navi"> Students </div></a>
-
-            <a href="courses.php"><div class="navi"> Courses </div></a>
-            <a href="roster.php"><div class="navi"> Roster </div></a>
-
-        </div> -->
-    </div>
+<?php
+include "./header.php";
+?>
 
     <div id="main-section">
     <h1 id="banner"> Island University - Faculty </h1>
-
-<!-- <div id="calender-section">
-    <div class="calender-heading">Academic Calender</div>
-    <div class="calender-body">
-        <div class="calender-section">
-            <span class="calender-term">Spring</span>
-            <table class="calender-table">
-                <tr>
-                    <th>Date</th>
-                    <th>Academic Event</th>
-                </tr>
-                <tr>
-                    <td>Jan 27 (All day) to <br>Feb 3 2021 (All day)</td>
-                    <td>Add/Drop (no fee) Late Registration <br>($50 fee) on www.islanduniversity.edu</td>
-                </tr>
-                <tr>
-                    <td>Feb 8 2021 </td>
-                    <td>In-Person Course Sessions Begin</td>
-                </tr>
-                <tr>
-                    <td>Feb 15 2021 </td>
-                    <td>Presidents Day – no classes</td>
-                </tr>
-            </table>
-        </div>
-        <div class="calender-section">
-        <span class="calender-term">Fall</span>
-            <table class="calender-table">
-                <tr>
-                    <th>Date</th>
-                    <th>Academic Event</th>
-                </tr>
-                <tr>
-                    <td>Sept 3 2021 (All day)</td>
-                    <td>Add/Drop (no fee) Late Registration ($50 fee) on<br> www.islanduniversity.edu</td>
-                </tr>
-                <tr>
-                    <td>Sept 6 2021 (All day) </td>
-                    <td>Labor Day – Classes Canceled</td>
-                </tr>
-                <tr>
-                    <td>Sept 7 2021</td>
-                    <td>In-Person Course Sessions Begin</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-</div> -->
 
         <?php
             include 'sidebar.php';
