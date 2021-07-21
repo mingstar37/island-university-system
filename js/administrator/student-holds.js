@@ -34,55 +34,13 @@ function onSetPageNumberSelect() {
     $('#page-select').val(pagination.currentNumber + 1);
 }
 
-
-function onLoadStudentSelectPicker(faculty_id, default_val = 0) {
-
-    let request = {};
-    request.faculty_id = faculty_id;
-    request.student_id = default_val;
-    request.get_student_arr = true;
-
-    $.ajax({
-        method: "POST",
-        url: window.location.href,
-        data: request,
-        dataType: 'json',
-        success: function (res) {
-            if (res != undefined) {
-                let student_arr = res;
-
-                let studentHtml = '<select class="student-selectpicker" name="student_id" id="student_id" data-live-search="true">';
-                student_arr.forEach(item => {
-                    studentHtml += "<option value='" + item.id + "'>" + item.student_name + "</option>"
-                });
-
-                studentHtml += "</select>";
-
-                $('.bootstrap-select.student-').replaceWith(studentHtml);
-
-                if (default_val != 0) {
-                    $('#student_id').selectpicker('val', default_val);
-                } else {
-                    $('#student_id').selectpicker();
-                }
-            } else {
-                toastr.error('Error');
-            }
-        },
-        complete: function () {
-            $('#btn-save').removeClass('disabled');
-            $('#btn-cancel').removeClass('disabled');
-        }
-    });
-}
-
 function onLoadData() {
     let request = {};
     request.search_text = $('#search-text').val();
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
 
-    request.faculty_id = $('.faculty-selectpicker').val();
+    request.student_id = $('.student-selectpicker').val();
     request.load_data = true;
 
 
@@ -114,7 +72,7 @@ function onSelectPicker(event) {
     event.preventDefault();
 
     let value = event.target.value;
-    $('.faculty-selectpicker').selectpicker('val', value);
+    $('.student-selectpicker').selectpicker('val', value);
 
     onLoadStudentSelectPicker(value);
 
@@ -132,18 +90,18 @@ function onLoadInitSelector() {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
-                let faculty_arr = res;
+                let student_arr = res;
 
-                let facultyHtml = '<select id="faculty_id" class="faculty-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
-                faculty_arr.forEach(item => {
-                    facultyHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
+                let studentHtml = '<select id="student_id " class="student-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
+                student_arr.forEach(item => {
+                    studentHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
                 });
 
-                facultyHtml += "</select>";
+                studentHtml += "</select>";
 
-                $('.bootstrap-select.faculty-').replaceWith(facultyHtml);
+                $('.bootstrap-select.student-').replaceWith(studentHtml);
 
-                $('.faculty-selectpicker').selectpicker();
+                $('.student-selectpicker').selectpicker();
 
                 onLoadData();
             } else {
@@ -179,11 +137,11 @@ function onEditRow(id) {
         success: function (res) {
             if (res != undefined) {
 
-                let faculty_id = res.faculty_id;
-                $('.faculty-selectpicker').selectpicker('val', faculty_id);
+                let student_id  = res.student_id ;
+                $('.student-selectpicker').selectpicker('val', student_id );
 
-                let student_id = res.student_id;
-                onLoadStudentSelectPicker(faculty_id, student_id);
+                // let student_id = res.student_id;
+                // onLoadStudentSelectPicker(student_id, student_id);
 
                 let keys = Object.keys(res);
 
@@ -217,7 +175,7 @@ function onSave(event) {
     formData.forEach(item => {
         request[item.name] = item.value;
     });
-    request.faculty_id = $('#faculty_id').val();
+    request.student_id = $('#student_id').val();
     request.save_row = true;
 
     $.ajax({
@@ -311,8 +269,7 @@ function onSelectPagination(selectedNumber) {
 }
 
 $(document).ready(function () {
-    $('.faculty-selectpicker').selectpicker();
-    $('#student_id').selectpicker();
+    $('.student-selectpicker').selectpicker();
 
     onLoadInitSelector();
 

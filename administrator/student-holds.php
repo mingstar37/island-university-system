@@ -13,32 +13,29 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $sqlAdvisees = "SELECT a.*, concat(u1.first_name, ' ', u1.last_name) as faculty_name, concat(u2.first_name, ' ', u2.last_name) as student_name";
-    $sqlAdvisees .= " FROM `advisor` as a";
-    $sqlAdvisees .= " INNER JOIN `faculty` as f ON f.id = a.faculty_id";
-    $sqlAdvisees .= " INNER JOIN `users` as u1 ON u1.id = f.user_id";
-    $sqlAdvisees .= " INNER JOIN student as s ON s.id = a.student_id";
-    $sqlAdvisees .= " INNER JOIN `users` as u2 ON u2.id = s.user_id";
-    $sqlAdvisees .= " WHERE a.id > 0";
+    $sqlStudentHolds = "SELECT sh.*, concat(u.first_name, ' ', u.last_name) as student_name";
+    $sqlStudentHolds .= " FROM `student_holds` as sh";
+    $sqlStudentHolds .= " LEFT JOIN `student` as s ON s.id = sh.student_id";
+    $sqlStudentHolds .= " LEFT JOIN `users` as u ON u.id = s.user_id";
+    $sqlStudentHolds .= " WHERE sh.id > 0";
 
-    $faculty_id = $_POST['faculty_id'];
-    if (!empty($faculty_id)) {
-        $sqlAdvisees .= " AND a.faculty_id = '$faculty_id'";
+    $student_id = $_POST['student_id'];
+    if (!empty($student_id)) {
+        $sqlStudentHolds .= " AND sh.student_id = '$student_id'";
     }
 
     if(!empty($search_text)) {
-        $sqlAdvisees .= " AND (a.id LIKE '%$search_text%' OR a.faculty_id LIKE '%$search_text%'";
-        $sqlAdvisees .= " OR a.student_id LIKE '%$search_text%' OR a.time_of_advisement LIKE '%$search_text%'";
-        $sqlAdvisees .= " OR u1.first_name LIKE '%$search_text%' OR u1.last_name LIKE '%$search_text%'";
-        $sqlAdvisees .= " OR u2.first_name LIKE '%$search_text%' OR u2.last_name LIKE '%$search_text%')";
+        $sqlStudentHolds .= " AND (sh.id LIKE '%$search_text%' OR sh.hold_date LIKE '%$search_text%'";
+        $sqlStudentHolds .= " OR sh.hold_type LIKE '%$search_text%' OR sh.student_id LIKE '%$search_text%'";
+        $sqlStudentHolds .= " OR u.first_name LIKE '%$search_text%' OR u.last_name LIKE '%$search_text%')";
     }
 
-    $totalQuery = mysqli_query($conn, $sqlAdvisees);
+    $totalQuery = mysqli_query($conn, $sqlStudentHolds);
     $total_count = mysqli_num_rows($totalQuery);
 
-    $sqlAdvisees .= " LIMIT $page_size OFFSET $start_number";
+    $sqlStudentHolds .= " LIMIT $page_size OFFSET $start_number";
 
-    $query = mysqli_query($conn, $sqlAdvisees);
+    $query = mysqli_query($conn, $sqlStudentHolds);
 
     $count = 0;
     $resultHtml = "";
@@ -47,11 +44,10 @@ if (isset($_POST['load_data'])) {
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'. $row["faculty_id"].'</td>';
-        $resultHtml .= '<td>'. $row['faculty_name'] . '</td>';
-        $resultHtml .= '<td>'. $row['student_id'] . '</td>';
-        $resultHtml .= '<td>'.$row["student_name"].'</td>';
-        $resultHtml .= '<td>'.$row["time_of_advisement"].'</td>';
+        $resultHtml .= '<td>'. $row["student_id"].'</td>';
+        $resultHtml .= '<td>'. $row['student_name'] . '</td>';
+        $resultHtml .= '<td>'. $row['hold_date'] . '</td>';
+        $resultHtml .= '<td>'.$row["hold_type"].'</td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
         $resultHtml .= '</tr>';
@@ -94,8 +90,8 @@ if (isset($_POST['get_init_arr'])) {
 
 //    get prereq course
 
-    $sql = "SELECT f.id, u.first_name, u.last_name";
-    $sql .= " FROM faculty as f INNER JOIN users as u ON u.id = f.user_id";
+    $sql = "SELECT s.id, u.first_name, u.last_name";
+    $sql .= " FROM student as s INNER JOIN users as u ON u.id = s.user_id";
 
     $query = mysqli_query($conn, $sql);
 
@@ -168,11 +164,11 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlAdvisees = "SELECT *";
-    $sqlAdvisees .= " FROM advisor";
-    $sqlAdvisees .= " WHERE id = '$edit_id' LIMIT 1";
+    $sqlStudentHolds = "SELECT *";
+    $sqlStudentHolds .= " FROM advisor";
+    $sqlStudentHolds .= " WHERE id = '$edit_id' LIMIT 1";
 
-    $query = mysqli_query($conn, $sqlAdvisees);
+    $query = mysqli_query($conn, $sqlStudentHolds);
     $row = mysqli_fetch_assoc($query);
 
     echo json_encode($row);
@@ -226,12 +222,12 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-5">
-                <h3>Advisees</h3>
+                <h3>Student - Holds</h3>
             </div>
             <div class="col-lg-3">
                 <div class="form-group px-1">
-                    Faculty: &nbsp;
-                    <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
+                    Student: &nbsp;
+                    <select class="student-selectpicker" id="student_id" data-live-search="true">
                     </select>
                 </div>
             </div>
@@ -255,11 +251,10 @@ include "header.php";
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Faculty_ID</th>
-                <th>Faculty Name</th>
                 <th>Student ID</th>
                 <th>Student Name</th>
-                <th>Time Of Advisement</th>
+                <th>Hold Date</th>
+                <th>Hold Type</th>
                 <th width="150px">Action</th>
             </tr>
             </thead>
@@ -306,11 +301,6 @@ include "header.php";
                         <input type="hidden" class="form-control" id="id" name="id" required/>
 
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="faculty_id">Faculty</label>
-                            <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1">
                             <label class="col-form-label" for="student_id">Student</label>
                             <select id="student_id" class="student-selectpicker" name="student_id"  data-live-search="true">
                             </select>
@@ -339,24 +329,6 @@ include "header.php";
             </div>
             <div class="modal-body">
                 <h3 style="color: red;" class="text-center">Do you want to delete?</h3>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="delete-prereq-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <h3 style="color: red;" class="text-center">Do you want to delete prereq info?</h3>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
