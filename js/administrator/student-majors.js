@@ -82,6 +82,9 @@ function onLoadData() {
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
 
+    request.first_major = $('#first_major').prop('checked') ? $('#first_major').val(): "";
+    request.second_major = $('#second_major').prop('checked') ? $('#second_major').val(): "";
+
     request.student_id = $('.student-selectpicker').val();
     request.load_data = true;
 
@@ -103,6 +106,34 @@ function onLoadData() {
                 }
                 onSetPageNumberSelect();
                 $('#table-body').html(res.html);
+
+                $('#major-table-body').html(res.majorHtml);
+            }
+        },
+        complete: function () {
+        }
+    });
+}
+
+function onAddToStudentMajor(major_id) {
+
+    let request = {};
+    request.major_id = major_id;
+    request.student_id = $('#student_id').val();
+    request.first_major = $('#first_major').prop('checked') ? $('#first_major').val(): "";
+    request.second_major = $('#second_major').prop('checked') ? $('#second_major').val(): "";
+    request.add_major = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res.success == true) {
+                onLoadData();
+            } else {
+                toastr.error(res.message);
             }
         },
         complete: function () {

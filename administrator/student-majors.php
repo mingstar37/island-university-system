@@ -66,10 +66,97 @@ if (isset($_POST['load_data'])) {
         $resultHtml .= '<tr>
                             <td colspan="10">There is no data</td></tr>';
     }
+
+    $majorHtml = "";
+
+//    get major html
+    if (!empty($student_id)) {
+        $first_major = $_POST["first_major"];
+        $second_major = $_POST["second_major"];
+
+        $str_type = "";
+
+        if (!empty($first_major) && !empty($second_major)) {
+            $str_type = $first_major . ", " . $second_major;
+        } else {
+            $str_type = $first_major . $second_major;
+        }
+
+        $sql = "SELECT major_id FROM student_major";
+        $sql .= " WHERE student_id = '$student_id'";
+        if (!empty($str_type)) {
+            $sql .= " AND type = '$str_type'";
+        }
+
+        $query = mysqli_query($conn, $sql);
+
+        $ids = [];
+        while ($row = mysqli_fetch_assoc($query)) {
+            $ids[] = $row["major_id"];
+        }
+
+        $str_ids = "";
+
+//        var_dump($ids);
+//        if (!empty($ids)) {
+//            $str_ids = implode(',', $str_ids);
+//        }
+
+        $sql = "SELECT m.*, d.name as department_name";
+        $sql .= " FROM major as m";
+        $sql .= " LEFT JOIN department as d ON d.id = m.department_id";
+
+        if (!empty($str_ids)) {
+            $sql .= " WHERE id NOT IN ('$str_ids')";
+        }
+
+        $query = mysqli_query($conn, $sql);
+
+        while ($row = mysqli_fetch_assoc($query)) {
+            $majorHtml .= '<tr id="major_row_' . $row["id"] . '">';
+            $majorHtml .= '<td>'.$row["id"].'</td>';
+            $majorHtml .= '<td>'. $row["major_name"].'</td>';
+            $majorHtml .= '<td>'. $row['department_id'] . '</td>';
+            $majorHtml .= '<td>'. $row['department_name'] . '</td>';
+            $majorHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onAddToStudentMajor(' . $row["id"] . ')" title="Add"><i class="fa fa-plus"></i>&nbsp;Add </button></td>';
+            $majorHtml .= '</tr>';
+        }
+    }
     $ret = [
         'html' => $resultHtml,
+        'majorHtml' => $majorHtml,
         'total_count' => $total_count
     ];
+
+    echo json_encode($ret);
+    exit;
+}
+
+if (isset($_POST['add_major'])) {
+    $major_id = $_POST['major_id'];
+
+    $student_id = $_POST['student_id'];
+    $first_major = $_POST["first_major"];
+    $second_major = $_POST["second_major"];
+
+    $str_type = "";
+
+    if (!empty($first_major) && !empty($second_major)) {
+        $str_type = $first_major . ", " . $second_major;
+    } else {
+        $str_type = $first_major . $second_major;
+    }
+
+    $sql = "INSERT INTO student_major (student_id, major_id, `type`) VALUES ('$student_id', '$major_id', '$str_type')";
+
+    $ret = [
+            'success' => false,
+        'message' => ''
+    ];
+
+    if ($conn->query($sql)) {
+        $ret['success'] = true;
+    }
 
     echo json_encode($ret);
     exit;
@@ -134,7 +221,7 @@ if (isset($_POST['get_student_arr'])) {
 }
 
 if (isset($_POST['save_row'])) {
-    $faculty_id = $_POST['faculty_id'];
+    $student_id = $_POST['student_id'];
     $student_id = $_POST['student_id'];
 
     $time_of_advisement = $_POST['time_of_advisement'];
@@ -143,7 +230,7 @@ if (isset($_POST['save_row'])) {
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO advisor (`faculty_id`, `student_id`, `time_of_advisement`) VALUES ('$faculty_id', '$student_id', '$time_of_advisement')";
+        $sql = "INSERT INTO advisor (`student_id`, `student_id`, `time_of_advisement`) VALUES ('$student_id', '$student_id', '$time_of_advisement')";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
@@ -154,7 +241,7 @@ if (isset($_POST['save_row'])) {
         // update
         $id = $_POST['id'];
 
-        $sql = "UPDATE advisor SET faculty_id = '$faculty_id', student_id = '$student_id', time_of_advisement = '$time_of_advisement'";
+        $sql = "UPDATE advisor SET student_id = '$student_id', student_id = '$student_id', time_of_advisement = '$time_of_advisement'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
@@ -311,24 +398,35 @@ include "header.php";
                         <input type="hidden" class="form-control" id="id" name="id" required/>
 
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="faculty_id">Faculty</label>
-                            <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1">
                             <label class="col-form-label" for="student_id">Student</label>
-                            <select id="student_id" class="student-selectpicker" name="student_id"  data-live-search="true">
+                            <select class="student-selectpicker" id="student_id" data-live-search="true">
                             </select>
                         </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Time Of Advisement</label>
-                            <input type="text" class="form-control" id="time_of_advisement" name="time_of_advisement" required/>
+                        <div class="col-sm-3 py-1 form-group">
+                            <input type="checkbox" id="first_major" value="First_major" name="first_major"/>&nbsp;First Major
                         </div>
+                        <div class="col-sm-3 py-1 form-group">
+                            <input type="checkbox" id="second_major" value="Second_major" name="second_major"/>&nbsp;Second Major
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 20px;max-height: 600px; overflow: auto">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Major ID</th>
+                                <th>Major Name</th>
+                                <th>Department ID</th>
+                                <th>Department Name</th>
+                                <th width="150px">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody id="major-table-body">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-success" id="btn-save">Save</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Close</button>
                 </div>
             </form>
         </div>
