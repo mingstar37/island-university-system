@@ -116,7 +116,7 @@ function onSelectPicker(event) {
     let value = event.target.value;
     $('.student-selectpicker').selectpicker('val', value);
 
-    onLoadStudentSelectPicker(value);
+    // onLoadStudentSelectPicker(value);
 
     onLoadData();
 }

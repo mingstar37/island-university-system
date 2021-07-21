@@ -47,6 +47,7 @@ if (isset($_POST['load_data'])) {
 
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
+        $resultHtml .= '<td>'.$row["id"].'</td>';
         $resultHtml .= '<td>'.$row["student_id"].'</td>';
         $resultHtml .= '<td>'. $row["student_name"].'</td>';
         $resultHtml .= '<td>'. $row['major_id'] . '</td>';
@@ -97,7 +98,7 @@ if (isset($_POST['get_init_arr'])) {
 //    get prereq course
 
     $sql = "SELECT s.id, u.first_name, u.last_name";
-    $sql .= " FROM student as s INNER JOIN users as u ON u.id = s.user_id";
+    $sql .= " FROM student as s LEFT JOIN users as u ON u.id = s.user_id";
 
     $query = mysqli_query($conn, $sql);
 
