@@ -4,6 +4,12 @@ let pagination = {
     pageSize: 12
 };
 
+let oldPagination = {
+    totalCount: 0,
+    currentNumber: 0,
+    pageSize: 12
+};
+
 let delete_id = 0;
 let editId = 0;
 
@@ -76,9 +82,16 @@ function onLoadStudentSelectPicker(student_id, default_val = 0) {
     });
 }
 
-function onLoadData(bLoadMain = true) {
+function onLoadData(bInit = true) {
     let request = {};
     request.search_text = $('#search-text').val();
+
+    if (bInit == true) {
+        pagination.currentNumber = oldPagination.currentNumber;
+        pagination.totalCount = oldPagination.totalCount;
+        pagination.pageSize = oldPagination.pageSize;
+    }
+
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
 
@@ -104,6 +117,31 @@ function onLoadData(bLoadMain = true) {
                 onSetPageNumberSelect();
                 $('#table-body').html(res.html);
             }
+        },
+        complete: function () {
+        }
+    });
+}
+
+function onShowDetail(student_id, student_name) {
+
+    let request = {};
+    request.student_id = student_id;
+    request.get_detail_info = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            $('#detail-modal-title').html(student_name + " Detail Info");
+
+            $('#hold-table-body').html(res.holdHtml);
+            $('#advisor-table-body').html(res.advisorHtml);
+            $('#history-table-body').html(res.historyHtml);
+
+            $('#detail-modal').modal('show');
         },
         complete: function () {
         }
@@ -161,7 +199,7 @@ function onChangePageNumber(event) {
     let selectedNumber = parseInt($('#' + event.target.id).val());
     onSelectPagination(selectedNumber);
 
-    onLoadData();
+    onLoadData(false);
 }
 
 function onSelectPagination(selectedNumber) {
@@ -227,6 +265,6 @@ $(document).ready(function () {
         onSelectPagination(cur_num);
         $('#page-select').val(cur_num);
 
-        onLoadData();
+        onLoadData(false);
     })
 });

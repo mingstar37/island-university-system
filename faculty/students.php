@@ -43,10 +43,11 @@ if (isset($_POST['load_data'])) {
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.$row["id"].'</td>';
         $resultHtml .= '<td>'. $row["student_name"].'</td>';
+        $resultHtml .= '<td>'. $row["student_gpa"].'</td>';
         $resultHtml .= '<td>'. $row['student_type'] . '</td>';
         $resultHtml .= '<td>'. $row['student_status'] . '</td>';
         $resultHtml .= '<td>'.$row["undergrad_type"].'</td>';
-        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onShowDetail(' . $row["id"] . ')" title="Show Detail Info"><i class="fa fa-info-circle"></i></td>';
+        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onShowDetail(' . $row["id"] . ', \'' . $row["student_name"] . '\')" title="Show Detail Info"><i class="fa fa-info-circle"></i></td>';
         $resultHtml .= '</tr>';
 
         $count ++;
@@ -83,6 +84,99 @@ if (isset($_POST['get_init_arr'])) {
 
     echo json_encode($student_arr);
     exit;
+}
+
+if (isset($_POST['get_detail_info'])) {
+    $student_id = $_POST['student_id'];
+
+    $ret = [];
+
+//    get student holds
+    $sqlHolds = "SELECT * FROM student_holds WHERE student_id = '$student_id'";
+
+    $query = mysqli_query($conn, $sqlHolds);
+
+    $holdHtml = "";
+    $count = 0;
+    while ($row = mysqli_fetch_assoc($query)) {
+        $holdHtml .= '<tr>';
+        $holdHtml .= '<td>'.$row["id"].'</td>';
+        $holdHtml .= '<td>'. $row["hold_date"].'</td>';
+        $holdHtml .= '<td>'. $row["hold_type"].'</td>';
+        $holdHtml .= '</tr>';
+
+        $count ++;
+    }
+
+    if ($count < 1) {
+        $holdHtml .= '<tr>
+                            <td colspan="3">There is no data</td></tr>';
+    }
+
+    $ret['holdHtml'] = $holdHtml;
+
+    //    get student advisors
+    $sqlAdvisors = "SELECT a.*, concat(u.first_name, ' ', u.last_name) as advisor_name FROM advisor as a";
+    $sqlAdvisors .= " LEFT JOIN faculty as f ON f.id = a.faculty_id";
+    $sqlAdvisors .= " LEFT JOIN users as u ON u.id = f.user_id";
+
+    $sqlAdvisors .= " WHERE a.student_id = '$student_id'";
+
+    $query = mysqli_query($conn, $sqlAdvisors);
+
+    $resHtml = "";
+    $count = 0;
+    while ($row = mysqli_fetch_assoc($query)) {
+        $resHtml .= '<tr>';
+        $resHtml .= '<td>'.$row["id"].'</td>';
+        $resHtml .= '<td>'. $row["advisor_name"].'</td>';
+        $resHtml .= '<td>'. $row["time_of_advisement"].'</td>';
+        $resHtml .= '</tr>';
+
+        $count ++;
+    }
+
+    if ($count < 1) {
+        $resHtml .= '<tr>
+                            <td colspan="3">There is no data</td></tr>';
+    }
+
+    $ret['advisorHtml'] = $resHtml;
+
+    //    get student advisors
+    $sqlAdvisors = "SELECT sh.*, c.course_name";
+    $sqlAdvisors .= " FROM student_history as sh";
+    $sqlAdvisors .= " LEFT JOIN section as sc ON sc.id = sh.section_id";
+    $sqlAdvisors .= " LEFT JOIN course as c ON c.id = sc.course_id";
+
+    $sqlAdvisors .= " WHERE sh.student_id = '$student_id'";
+
+    $query = mysqli_query($conn, $sqlAdvisors);
+
+    $resHtml = "";
+    $count = 0;
+    while ($row = mysqli_fetch_assoc($query)) {
+        $resHtml .= '<tr>';
+        $resHtml .= '<td>'.$row["id"].'</td>';
+        $resHtml .= '<td>'. $row["course_name"].'</td>';
+        $resHtml .= '<td>'. $row["grade"].'</td>';
+        $resHtml .= '<td>'. $row["year"].'</td>';
+        $resHtml .= '</tr>';
+
+        $count ++;
+    }
+
+    if ($count < 1) {
+        $resHtml .= '<tr>
+                            <td colspan="3">There is no data</td></tr>';
+    }
+
+    $ret['historyHtml'] = $resHtml;
+
+    echo json_encode($ret);
+    exit;
+
+//
 }
 ?>
 
@@ -158,6 +252,7 @@ include "header.php";
             <tr>
                 <th>ID</th>
                 <th>Student Name</th>
+                <th>Student GPA</th>
                 <th>Student Type</th>
                 <th>Student Status</th>
                 <th>Undergrad Type</th>
@@ -189,60 +284,8 @@ include "header.php";
         </div>
     </div>
 </div>
-<div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <form method="post" id="form-add" class="form-horizontal" onsubmit="return onSave(event)">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row py-1">
-                        <h3 class="text-center " style="margin: auto; color: red" id="add-modal-title">Add Row</h3>
-                    </div>
-
-                    <div class="row">
-                        <input type="hidden" class="form-control" id="id" name="id" required/>
-
-                        <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="student_id">Students</label>
-                            <select class="student-selectpicker" id="student_id" data-live-search="true">
-                            </select>
-                        </div>
-                        <div class="col-sm-3 py-1 form-group">
-                            <input type="checkbox" id="first_major" value="First major" onchange="onLoadData(false)" name="first_major"/>&nbsp;First Major
-                        </div>
-                        <div class="col-sm-3 py-1 form-group">
-                            <input type="checkbox" id="second_major" value="Second major" onchange="onLoadData(false)" name="second_major"/>&nbsp;Second Major
-                        </div>
-                    </div>
-                    <div class="row" style="padding: 20px;max-height: 600px; overflow: auto">
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th>Major ID</th>
-                                <th>Major Name</th>
-                                <th>Department ID</th>
-                                <th>Department Name</th>
-                                <th width="150px">Action</th>
-                            </tr>
-                            </thead>
-                            <tbody id="major-table-body">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Close</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -250,33 +293,61 @@ include "header.php";
                 </button>
             </div>
             <div class="modal-body">
-                <h3 style="color: red;" class="text-center">Do you want to delete?</h3>
+                <div class="row py-1">
+                    <h3 class="text-center " style="margin: auto; color: red" id="detail-modal-title">Show Detail info</h3>
+                </div>
+
+                <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
+                    <h4 style="margin:auto; padding-bottom: 10px">Student - Holds</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Hold ID</th>
+                            <th>Hold Date</th>
+                            <th>Hold Type</th>
+                        </tr>
+                        </thead>
+                        <tbody id="hold-table-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
+                    <h4 style="margin:auto; padding-bottom: 10px">Student - Advisors</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Advisor ID</th>
+                            <th>Advisor Name</th>
+                            <th>Time of Advisement</th>
+                        </tr>
+                        </thead>
+                        <tbody id="advisor-table-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
+                    <h4 style="margin:auto; padding-bottom: 10px">Student - Transcript</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Section ID</th>
+                            <th>Course Name</th>
+                            <th>Grade</th>
+                            <th>Year</th>
+                        </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Close</button>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="delete-prereq-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <h3 style="color: red;" class="text-center">Do you want to delete prereq info?</h3>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
