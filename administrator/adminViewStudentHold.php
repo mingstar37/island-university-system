@@ -9,7 +9,6 @@ if(isset($_POST["submit"])){
 
     $sqlStudent = "SELECT * FROM student_holds WHERE Student_ID='".$sId."'";
     $queryStudent = mysqli_query($conn,$sqlStudent);
-    // $rowStudent = mysqli_fetch_assoc($queryStudent);
 
 
     $student_fetched = true;

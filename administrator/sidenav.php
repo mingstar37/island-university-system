@@ -73,15 +73,6 @@
                             <a href="adminAddStudentCourse.php">Add Course</a>
                         </li>
                         <li>
-                            <a href="viewStudentMinor.php">View Student Minor</a>
-                        </li>
-                        <li>
-                            <a href="adminAddStudentMinor.php">Add Student Minor</a>
-                        </li>
-                        <li>
-                            <a href="adminRemoveStudentMinor.php">Remove Student Minor</a>
-                        </li>
-                        <li>
                             <a href="adminAddHold.php">Add Hold</a>
                         </li>
                         <li>

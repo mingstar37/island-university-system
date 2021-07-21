@@ -226,11 +226,12 @@ include "header.php";
     ?>
     <div class="main-page">
         <div class="row table-toolbar">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <h3>All Student Histories</h3>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-5">
                 <div class="form-group px-1">
+                    Year: &nbsp;
                     <select id="year" class="year-selectpicker" onchange="onLoadData()" data-live-search="true">
                         <option value="2017">2017</option>
                         <option value="2018">2018</option>
@@ -238,11 +239,9 @@ include "header.php";
                         <option value="2020">2020</option>
                         <option value="2021">2021</option>
                     </select>
-                    &nbsp;&nbsp;
+                    &nbsp;&nbsp Student:&nbsp;
                     <select class="student-selectpicker" id="student_id" data-live-search="true">
-                        <option value="800100002">Temp</option>
                     </select>
-
                 </div>
             </div>
 
