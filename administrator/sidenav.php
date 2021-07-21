@@ -64,6 +64,9 @@
                             <a href="./student-holds.php">Student - Holds</a>
                         </li>
                         <li>
+                            <a href="./student_histories.php">Student - Histories</a>
+                        </li>
+                        <li>
                             <a href="adminViewStudent.php">View Student</a>
                         </li>
                         <li>
@@ -80,15 +83,6 @@
                         </li>
                         <li>
                             <a href="removeHold.php">Remove Hold</a>
-                        </li>
-                        <li>
-                            <a href="adminViewStudentHold.php">View Student Hold</a>
-                        </li>
-                        <li>
-                            <a href="adminAddStudentHold.php">Add Student Hold</a>
-                        </li>
-                        <li>
-                            <a href="adminRemoveStudentHold.php">Remove Student Hold</a>
                         </li>
                         <li>
                             <a href="adminviewAdvisor.php">View Student Advisor</a>
@@ -111,24 +105,12 @@
                         <li>
                             <a href="./faculty_departments.php">Faculty - Departments</a>
                         </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">Advisees</a>
-                    <ul class="nolist">
                         <li>
-                            <a href="./advisees.php">Advisees</a>
+                            <a href="./advisees.php">Faculty - Advisees</a>
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a href="#">Student History</a>
-                    <ul class="nolist">
-                        <li>
-                            <a href="./student_histories.php">All Histories</a>
-                        </li>
-                    </ul>
-                </li>
+
             </ul>
         </nav>
     </aside>
