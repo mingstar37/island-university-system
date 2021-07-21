@@ -140,6 +140,7 @@ function onShowDetail(student_id, student_name) {
             $('#hold-table-body').html(res.holdHtml);
             $('#advisor-table-body').html(res.advisorHtml);
             $('#history-table-body').html(res.historyHtml);
+            $('#enrollment-table-body').html(res.enrollmentHtml);
 
             $('#detail-modal').modal('show');
         },

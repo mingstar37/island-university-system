@@ -143,7 +143,7 @@ if (isset($_POST['get_detail_info'])) {
 
     $ret['advisorHtml'] = $resHtml;
 
-    //    get student advisors
+    //    get student history
     $sqlAdvisors = "SELECT sh.*, c.course_name";
     $sqlAdvisors .= " FROM student_history as sh";
     $sqlAdvisors .= " LEFT JOIN section as sc ON sc.id = sh.section_id";
@@ -168,10 +168,40 @@ if (isset($_POST['get_detail_info'])) {
 
     if ($count < 1) {
         $resHtml .= '<tr>
-                            <td colspan="3">There is no data</td></tr>';
+                            <td colspan="4">There is no data</td></tr>';
     }
 
     $ret['historyHtml'] = $resHtml;
+
+    //    get enrollment history
+    $sqlAdvisors = "SELECT e.*, c.course_name";
+    $sqlAdvisors .= " FROM enrollment as e";
+    $sqlAdvisors .= " LEFT JOIN section as sc ON sc.id = e.section_id";
+    $sqlAdvisors .= " LEFT JOIN course as c ON c.id = sc.course_id";
+
+    $sqlAdvisors .= " WHERE e.student_id = '$student_id'";
+
+    $query = mysqli_query($conn, $sqlAdvisors);
+
+    $resHtml = "";
+    $count = 0;
+    while ($row = mysqli_fetch_assoc($query)) {
+        $resHtml .= '<tr>';
+        $resHtml .= '<td>'.$row["id"].'</td>';
+        $resHtml .= '<td>'. $row["course_name"].'</td>';
+        $resHtml .= '<td>'. $row["date_enrolled"].'</td>';
+        $resHtml .= '<td>'. $row["letter_grade"].'</td>';
+        $resHtml .= '</tr>';
+
+        $count ++;
+    }
+
+    if ($count < 1) {
+        $resHtml .= '<tr>
+                            <td colspan="4">There is no data</td></tr>';
+    }
+
+    $ret['enrollmentHtml'] = $resHtml;
 
     echo json_encode($ret);
     exit;
@@ -337,6 +367,21 @@ include "header.php";
                         </tr>
                         </thead>
                         <tbody id="history-table-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
+                    <h4 style="margin:auto; padding-bottom: 10px">Student - Enrolled Courses</h4>
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Enrollment ID</th>
+                            <th>Course Name</th>
+                            <th>Date Enrolled</th>
+                            <th>Letter Grade</th>
+                        </tr>
+                        </thead>
+                        <tbody id="enrollment-table-body">
                         </tbody>
                     </table>
                 </div>
