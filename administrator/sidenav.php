@@ -61,6 +61,9 @@
                             <a href="./student-minors.php">Student - Minors</a>
                         </li>
                         <li>
+                            <a href="./student-holds.php">Student - Holds</a>
+                        </li>
+                        <li>
                             <a href="adminViewStudent.php">View Student</a>
                         </li>
                         <li>
