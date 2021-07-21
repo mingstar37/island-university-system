@@ -9,63 +9,68 @@ include '../connection.php';
 
 if (isset($_POST['load_data'])) {
 
-    $search_text = $_POST['search_text'];
-    $start_number = $_POST['start_number'];
-    $page_size = $_POST['page_size'];
+    $load_main = $_POST['load_main'];
 
-    $sqlStudentMajors = "SELECT sm.*, concat(u.first_name, ' ', u.last_name) as student_name, m.major_name, m.department_id, d.name as department_name";
-    $sqlStudentMajors .= " FROM `student_major` as sm";
-    $sqlStudentMajors .= " LEFT JOIN `student` as s ON s.id = sm.student_id";
-    $sqlStudentMajors .= " LEFT JOIN `users` as u ON u.id = s.user_id";
-    $sqlStudentMajors .= " LEFT JOIN `major` as m ON m.id = sm.major_id";
-    $sqlStudentMajors .= " LEFT JOIN `department` as d ON d.id = m.department_id";
+    if ($load_main) {
+        $search_text = $_POST['search_text'];
+        $start_number = $_POST['start_number'];
+        $page_size = $_POST['page_size'];
 
-    $sqlStudentMajors .= " WHERE sm.id > 0";
+        $sqlStudentMajors = "SELECT sm.*, concat(u.first_name, ' ', u.last_name) as student_name, m.major_name, m.department_id, d.name as department_name";
+        $sqlStudentMajors .= " FROM `student_major` as sm";
+        $sqlStudentMajors .= " LEFT JOIN `student` as s ON s.id = sm.student_id";
+        $sqlStudentMajors .= " LEFT JOIN `users` as u ON u.id = s.user_id";
+        $sqlStudentMajors .= " LEFT JOIN `major` as m ON m.id = sm.major_id";
+        $sqlStudentMajors .= " LEFT JOIN `department` as d ON d.id = m.department_id";
 
-    $student_id = $_POST['student_id'];
-    if (!empty($student_id)) {
-        $sqlStudentMajors .= " AND sm.student_id = '$student_id'";
-    }
+        $sqlStudentMajors .= " WHERE sm.id > 0";
 
-    if(!empty($search_text)) {
-        $sqlStudentMajors .= " AND (sm.id LIKE '%$search_text%' OR sm.major_id LIKE '%$search_text%'";
-        $sqlStudentMajors .= " OR sm.type LIKE '%$search_text%' OR d.name LIKE '%$search_text%'";
-        $sqlStudentMajors .= " OR u.first_name LIKE '%$search_text%' OR u.last_name LIKE '%$search_text%'";
-        $sqlStudentMajors .= " OR m.major_name LIKE '%$search_text%' OR sm.student_id LIKE '%$search_text%')";
-    }
+        $student_id = $_POST['student_id'];
+        if (!empty($student_id)) {
+            $sqlStudentMajors .= " AND sm.student_id = '$student_id'";
+        }
 
-    $totalQuery = mysqli_query($conn, $sqlStudentMajors);
-    $total_count = mysqli_num_rows($totalQuery);
+        if(!empty($search_text)) {
+            $sqlStudentMajors .= " AND (sm.id LIKE '%$search_text%' OR sm.major_id LIKE '%$search_text%'";
+            $sqlStudentMajors .= " OR sm.type LIKE '%$search_text%' OR d.name LIKE '%$search_text%'";
+            $sqlStudentMajors .= " OR u.first_name LIKE '%$search_text%' OR u.last_name LIKE '%$search_text%'";
+            $sqlStudentMajors .= " OR m.major_name LIKE '%$search_text%' OR sm.student_id LIKE '%$search_text%')";
+        }
 
-    $sqlStudentMajors .= " LIMIT $page_size OFFSET $start_number";
+        $totalQuery = mysqli_query($conn, $sqlStudentMajors);
+        $total_count = mysqli_num_rows($totalQuery);
 
-    $query = mysqli_query($conn, $sqlStudentMajors);
+        $sqlStudentMajors .= " LIMIT $page_size OFFSET $start_number";
 
-    $count = 0;
-    $resultHtml = "";
-    while($row = mysqli_fetch_assoc($query)){
+        $query = mysqli_query($conn, $sqlStudentMajors);
+
+        $count = 0;
+        $resultHtml = "";
+        while($row = mysqli_fetch_assoc($query)){
 
 //        var_dump($row["prereq_course_name"]);
-        $resultHtml .= '<tr id="row_' . $row["id"] . '">';
-        $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'.$row["student_id"].'</td>';
-        $resultHtml .= '<td>'. $row["student_name"].'</td>';
-        $resultHtml .= '<td>'. $row['major_id'] . '</td>';
-        $resultHtml .= '<td>'. $row['major_name'] . '</td>';
-        $resultHtml .= '<td>'.$row["department_id"].'</td>';
-        $resultHtml .= '<td>'.$row["department_name"].'</td>';
-        $resultHtml .= '<td>'.$row["type"].'</td>';
-        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
-            <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
-        $resultHtml .= '</tr>';
+            $resultHtml .= '<tr id="row_' . $row["id"] . '">';
+            $resultHtml .= '<td>'.$row["id"].'</td>';
+            $resultHtml .= '<td>'.$row["student_id"].'</td>';
+            $resultHtml .= '<td>'. $row["student_name"].'</td>';
+            $resultHtml .= '<td>'. $row['major_id'] . '</td>';
+            $resultHtml .= '<td>'. $row['major_name'] . '</td>';
+            $resultHtml .= '<td>'.$row["department_id"].'</td>';
+            $resultHtml .= '<td>'.$row["department_name"].'</td>';
+            $resultHtml .= '<td>'.$row["type"].'</td>';
+            $resultHtml .= '<td> 
+                <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
+            $resultHtml .= '</tr>';
 
-        $count ++;
-    }
+            $count ++;
+        }
 
-    if ($count < 1) {
-        $resultHtml .= '<tr>
+        if ($count < 1) {
+            $resultHtml .= '<tr>
                             <td colspan="10">There is no data</td></tr>';
+        }
     }
+
 
     $majorHtml = "";
 
@@ -97,17 +102,17 @@ if (isset($_POST['load_data'])) {
 
         $str_ids = "";
 
-//        var_dump($ids);
-//        if (!empty($ids)) {
-//            $str_ids = implode(',', $str_ids);
-//        }
+
+        if (!empty($ids)) {
+            $str_ids = implode(", ", $ids);
+        }
 
         $sql = "SELECT m.*, d.name as department_name";
         $sql .= " FROM major as m";
         $sql .= " LEFT JOIN department as d ON d.id = m.department_id";
 
         if (!empty($str_ids)) {
-            $sql .= " WHERE id NOT IN ('$str_ids')";
+            $sql .= " WHERE m.id NOT IN ($str_ids)";
         }
 
         $query = mysqli_query($conn, $sql);
@@ -123,6 +128,7 @@ if (isset($_POST['load_data'])) {
         }
     }
     $ret = [
+            'load_main' => $load_main,
         'html' => $resultHtml,
         'majorHtml' => $majorHtml,
         'total_count' => $total_count
@@ -170,7 +176,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM advisor WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM student_major WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -403,10 +409,10 @@ include "header.php";
                             </select>
                         </div>
                         <div class="col-sm-3 py-1 form-group">
-                            <input type="checkbox" id="first_major" value="First_major" name="first_major"/>&nbsp;First Major
+                            <input type="checkbox" id="first_major" value="First major" onchange="onLoadData(false)" name="first_major"/>&nbsp;First Major
                         </div>
                         <div class="col-sm-3 py-1 form-group">
-                            <input type="checkbox" id="second_major" value="Second_major" name="second_major"/>&nbsp;Second Major
+                            <input type="checkbox" id="second_major" value="Second major" onchange="onLoadData(false)" name="second_major"/>&nbsp;Second Major
                         </div>
                     </div>
                     <div class="row" style="padding: 20px;max-height: 600px; overflow: auto">

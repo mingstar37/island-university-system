@@ -76,7 +76,7 @@ function onLoadStudentSelectPicker(student_id, default_val = 0) {
     });
 }
 
-function onLoadData() {
+function onLoadData(bLoadMain = true) {
     let request = {};
     request.search_text = $('#search-text').val();
     request.start_number = pagination.currentNumber * pagination.pageSize;
@@ -86,6 +86,7 @@ function onLoadData() {
     request.second_major = $('#second_major').prop('checked') ? $('#second_major').val(): "";
 
     request.student_id = $('.student-selectpicker').val();
+    request.load_main = bLoadMain;
     request.load_data = true;
 
 
@@ -96,16 +97,19 @@ function onLoadData() {
         dataType: 'json',
         success: function (res) {
             if (res !== undefined) {
-                pagination.totalCount = res.total_count;
 
-                if (pagination.totalCount <= pagination.pageSize) {
-                    $('#pagination-wrapper').hide();
-                } else {
-                    $('#pagination-wrapper').show();
-                    onSelectPagination(pagination.currentNumber + 1);
+                if (res.load_main == "true") {
+                    pagination.totalCount = res.total_count;
+
+                    if (pagination.totalCount <= pagination.pageSize) {
+                        $('#pagination-wrapper').hide();
+                    } else {
+                        $('#pagination-wrapper').show();
+                        onSelectPagination(pagination.currentNumber + 1);
+                    }
+                    onSetPageNumberSelect();
+                    $('#table-body').html(res.html);
                 }
-                onSetPageNumberSelect();
-                $('#table-body').html(res.html);
 
                 $('#major-table-body').html(res.majorHtml);
             }
