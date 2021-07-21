@@ -55,6 +55,9 @@
                             <a href="./student-courses.php">Student - Courses</a>
                         </li>
                         <li>
+                            <a href="./student-majors.php">Student - Majors</a>
+                        </li>
+                        <li>
                             <a href="adminViewStudent.php">View Student</a>
                         </li>
                         <li>

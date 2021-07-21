@@ -9,132 +9,69 @@ include '../connection.php';
 
 if (isset($_POST['load_data'])) {
 
-//    get enrolled data
     $search_text = $_POST['search_text'];
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $sqlStudentCourses = "SELECT e.*, concat(u.first_name, ' ', u.last_name) as student_name";
-    $sqlStudentCourses .= " FROM `enrollment` as e";
-    $sqlStudentCourses .= " INNER JOIN `student` as s ON s.id = e.student_id";
-    $sqlStudentCourses .= " INNER JOIN `users` as u ON u.id = s.user_id";
-    $sqlStudentCourses .= " WHERE e.id > 0";
+    $sqlStudentMajors = "SELECT sm.*, concat(u.first_name, ' ', u.last_name) as student_name, m.major_name, m.department_id, d.name as department_name";
+    $sqlStudentMajors .= " FROM `student_major` as sm";
+    $sqlStudentMajors .= " LEFT JOIN `student` as s ON s.id = sm.student_id";
+    $sqlStudentMajors .= " LEFT JOIN `users` as u ON u.id = s.user_id";
+    $sqlStudentMajors .= " LEFT JOIN `major` as m ON m.id = sm.major_id";
+    $sqlStudentMajors .= " LEFT JOIN `department` as d ON d.id = m.department_id";
+
+    $sqlStudentMajors .= " WHERE sm.id > 0";
 
     $student_id = $_POST['student_id'];
     if (!empty($student_id)) {
-        $sqlStudentCourses .= " AND e.student_id = '$student_id'";
+        $sqlStudentMajors .= " AND sm.student_id = '$student_id'";
     }
 
     if(!empty($search_text)) {
-        $sqlStudentCourses .= " AND (e.id LIKE '%$search_text%' OR e.student_id LIKE '%$search_text%'";
-        $sqlStudentCourses .= " OR e.section_id LIKE '%$search_text%'";
-        $sqlStudentCourses .= " OR u.first_name LIKE '%$search_text%' OR u.last_name LIKE '%$search_text%'";
-        $sqlStudentCourses .= " OR e.date_enrolled LIKE '%$search_text%' OR e.letter_grade LIKE '%$search_text%')";
+        $sqlStudentMajors .= " AND (sm.id LIKE '%$search_text%' OR sm.major_id LIKE '%$search_text%'";
+        $sqlStudentMajors .= " OR sm.type LIKE '%$search_text%' OR d.name LIKE '%$search_text%'";
+        $sqlStudentMajors .= " OR u.first_name LIKE '%$search_text%' OR u.last_name LIKE '%$search_text%'";
+        $sqlStudentMajors .= " OR m.major_name LIKE '%$search_text%' OR sm.student_id LIKE '%$search_text%')";
     }
 
-    $totalQuery = mysqli_query($conn, $sqlStudentCourses);
+    $totalQuery = mysqli_query($conn, $sqlStudentMajors);
     $total_count = mysqli_num_rows($totalQuery);
 
-    $sqlStudentCourses .= " LIMIT $page_size OFFSET $start_number";
-    $query = mysqli_query($conn, $sqlStudentCourses);
+    $sqlStudentMajors .= " LIMIT $page_size OFFSET $start_number";
+
+    $query = mysqli_query($conn, $sqlStudentMajors);
 
     $count = 0;
-    $enrollmentHtml = "";
+    $resultHtml = "";
     while($row = mysqli_fetch_assoc($query)){
 
 //        var_dump($row["prereq_course_name"]);
-        $enrollmentHtml .= '<tr id="row_' . $row["id"] . '">';
-        $enrollmentHtml .= '<td>'.$row["id"].'</td>';
-        $enrollmentHtml .= '<td>'. $row["student_id"].'</td>';
-        $enrollmentHtml .= '<td>'. $row['student_name'] . '</td>';
-        $enrollmentHtml .= '<td>'. $row['section_id'] . '</td>';
-        $enrollmentHtml .= '<td>'.$row["date_enrolled"].'</td>';
-        $enrollmentHtml .= '<td>'.$row["letter_grade"].'</td>';
-        $enrollmentHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
+        $resultHtml .= '<tr id="row_' . $row["id"] . '">';
+        $resultHtml .= '<td>'.$row["student_id"].'</td>';
+        $resultHtml .= '<td>'. $row["student_name"].'</td>';
+        $resultHtml .= '<td>'. $row['major_id'] . '</td>';
+        $resultHtml .= '<td>'. $row['major_name'] . '</td>';
+        $resultHtml .= '<td>'.$row["department_id"].'</td>';
+        $resultHtml .= '<td>'.$row["department_name"].'</td>';
+        $resultHtml .= '<td>'.$row["type"].'</td>';
+        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
-        $enrollmentHtml .= '</tr>';
+        $resultHtml .= '</tr>';
 
         $count ++;
     }
 
     if ($count < 1) {
-        $enrollmentHtml .= '<tr>
+        $resultHtml .= '<tr>
                             <td colspan="10">There is no data</td></tr>';
     }
-
-    $courseHtml = "";
-//    get available courses
-    if (!empty($student_id)) {
-        $term = $_POST['term'];
-        $year = $_POST['year'];
-
-//        get course ids
-        $sql = "SELECT course_id FROM enrollment";
-        $sql .= " WHERE student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
-        $sql .= " GROUP BY s.course_id";
-
-
-        $query = mysqli_query($conn, $sql);
-
-        $courseIds = [];
-        while ($row = mysqli_fetch_assoc($query)) {
-            $courseIds[] = $row["course_id"];
-        }
-
-        $strCourseIds = implode(",", $courseIds);
-
-        $sql = "SELECT sc.id as section_id, c.*, cp.course_name as prereq_course_name, d.name as department_name";
-        $sql .= " FROM section as sc";
-        $sql .= " LEFT JOIN course as c";
-        $sql .= " LEFT JOIN course as cp ON cp.prereq_course_id = c.id";
-        $sql .= " LEFT JOIN department as d ON d.id = c.department_id";
-        $sql .= " LEFT JOIN enrollment as e ON e.id = s.section_id";
-        $sql .= " WHERE e.student_id != '$student_id'";
-        $sql .= " AND e.student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
-
-        if (!empty($strCourseIds)) {
-            $sql .= " WHERE c.id NOT IN ($strCourseIds)";
-        }
-
-        $sql .= " GROUP BY c.id";
-        $query = mysqli_query($conn, $sql);
-
-        $count = 0;
-        while ($row = mysqli_fetch_assoc($query)) {
-            //        var_dump($row["prereq_course_name"]);
-            $courseHtml .= '<tr id="row_' . $row["id"] . '">';
-            $courseHtml .= '<td>'.$row["id"].'</td>';
-            $courseHtml .= '<td>'.$row["course_name"].'</td>';
-            $courseHtml .= '<td>'. $row['department_id'] . '</td>';
-            $courseHtml .= '<td>'.$row["department_name"].'</td>';
-            $courseHtml .= '<td>'. $row["prereq_course_id"].'</td>';
-            $courseHtml .= '<td>'. $row['prereq_course_name'] . '</td>';
-            $courseHtml .= '<td>'.$row["course_credits"].'</td>';
-            $courseHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onAddToEnrollment(' . $row["id"] . ')" title="Edit"><i class="fa fa-plus"></i> Add</button> </td>';
-            $courseHtml .= '</tr>';
-
-            $count ++;
-        }
-
-        if ($count < 1) {
-            $courseHtml .= '<tr>
-                 <td colspan="10">There is no data</td></tr>';
-        }
-    }
-
     $ret = [
-        'enrollmentHtml' => $enrollmentHtml,
-        'total_count' => $total_count,
-        'courseHtml' => $courseHtml
+        'html' => $resultHtml,
+        'total_count' => $total_count
     ];
 
     echo json_encode($ret);
     exit;
-}
-
-if (isset($_POST['add_to_enrollment'])) {
-    $student_id = $_POST['student_id'];
-    $term = $_POST["term"];
 }
 
 if (isset($_POST['delete_row'])) {
@@ -161,6 +98,27 @@ if (isset($_POST['get_init_arr'])) {
 
     $sql = "SELECT s.id, u.first_name, u.last_name";
     $sql .= " FROM student as s INNER JOIN users as u ON u.id = s.user_id";
+
+    $query = mysqli_query($conn, $sql);
+
+    $student_arr = [];
+
+    while ($row = mysqli_fetch_assoc($query)) {
+        $student_arr[] = $row;
+    }
+
+    echo json_encode($student_arr);
+    exit;
+}
+
+if (isset($_POST['get_student_arr'])) {
+
+//    get prereq course
+
+    $sql = "SELECT s.id, concat(u.first_name, ' ', u.last_name) as student_name";
+    $sql .= " FROM student as s";
+    $sql .= " INNER JOIN users as u ON u.id = s.user_id";
+    $sql .= " GROUP BY s.id";
 
     $query = mysqli_query($conn, $sql);
 
@@ -212,11 +170,11 @@ if (isset($_POST['save_row'])) {
 if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
-    $sqlStudentCourses = "SELECT *";
-    $sqlStudentCourses .= " FROM advisor";
-    $sqlStudentCourses .= " WHERE id = '$edit_id' LIMIT 1";
+    $sqlStudentMajors = "SELECT *";
+    $sqlStudentMajors .= " FROM advisor";
+    $sqlStudentMajors .= " WHERE id = '$edit_id' LIMIT 1";
 
-    $query = mysqli_query($conn, $sqlStudentCourses);
+    $query = mysqli_query($conn, $sqlStudentMajors);
     $row = mysqli_fetch_assoc($query);
 
     echo json_encode($row);
@@ -270,7 +228,7 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-5">
-                <h3>Student - Courses</h3>
+                <h3>Student - Majors</h3>
             </div>
             <div class="col-lg-3">
                 <div class="form-group px-1">
@@ -301,13 +259,15 @@ include "header.php";
                 <th>ID</th>
                 <th>Student ID</th>
                 <th>Student Name</th>
-                <th>CRN Number</th>
-                <th>Date Enrolled</th>
-                <th>Letter Grade</th>
+                <th>Major ID</th>
+                <th>Major Name</th>
+                <th>Department ID</th>
+                <th>Department Name</th>
+                <th>Type</th>
                 <th width="150px">Action</th>
             </tr>
             </thead>
-            <tbody id="enrollment-table-body">
+            <tbody id="table-body">
 
             </tbody>
             <tfoot>
@@ -333,7 +293,7 @@ include "header.php";
     </div>
 </div>
 <div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <form method="post" id="form-add" class="form-horizontal" onsubmit="return onSave(event)">
                 <div class="modal-header">
@@ -348,49 +308,26 @@ include "header.php";
 
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
-                        <div class="col-sm-4 py-1">
+
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="faculty_id">Faculty</label>
+                            <select class="faculty-selectpicker" id="faculty_id" data-live-search="true">
+                            </select>
+                        </div>
+                        <div class="col-sm-6 py-1">
                             <label class="col-form-label" for="student_id">Student</label>
                             <select id="student_id" class="student-selectpicker" name="student_id"  data-live-search="true">
                             </select>
                         </div>
-                        <div class="col-sm-4 py-1 form-group">
-                            <label class="col-form-label" for="available_seat">Term</label>
-                            <select class="term-selectpicker" name="term" id="term" data-live-search="true">
-                                <option value="Spring">Spring</option>
-                                <option value="Fall">Fall</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-4 py-1 form-group">
-                            <label class="col-form-label" for="available_seat">Year</label>
-                            <select class="year-selectpicker" name="year" id="year" data-live-search="true">
-                                <option value="2020">2020</option>
-                                <option value="2021">2021</option>
-                                <option value="2022">2022</option>
-                                <option value="2023">2023</option>
-                                <option value="2024">2024</option>
-                                <option value="2025">2025</option>
-                            </select>
+                        <div class="col-sm-6 py-1 form-group">
+                            <label class="col-form-label" for="name">Time Of Advisement</label>
+                            <input type="text" class="form-control" id="time_of_advisement" name="time_of_advisement" required/>
                         </div>
                     </div>
-                    <div class="row" style="padding: 20px;max-height: 600px; overflow: auto">
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Course Name</th>
-                                <th>Department ID</th>
-                                <th>Department Name</th>
-                                <th>Prereq Course ID</th>
-                                <th>Prereq Course Name</th>
-                                <th>Course Credits</th>
-                                <th width="150px">Action</th>
-                            </tr>
-                            </thead>
-                            <tbody id="course-table-body">
-
-                            </tbody>
-                        </table>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success" id="btn-save">Save</button>
                 </div>
             </form>
         </div>
@@ -440,8 +377,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/student-courses.js"></script>
-
+<script src="../js/administrator/student-majors.js"></script>
 
 </body>
 </html>
