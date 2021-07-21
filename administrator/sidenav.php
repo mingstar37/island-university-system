@@ -58,6 +58,9 @@
                             <a href="./student-majors.php">Student - Majors</a>
                         </li>
                         <li>
+                            <a href="./student-minors.php">Student - Minors</a>
+                        </li>
+                        <li>
                             <a href="adminViewStudent.php">View Student</a>
                         </li>
                         <li>
@@ -68,12 +71,6 @@
                         </li>
                         <li>
                             <a href="adminAddStudentCourse.php">Add Course</a>
-                        </li>
-                        <li>
-                            <a href="adminViewStudentMajor.php">View Student Major</a>
-                        </li>
-                        <li>
-                            <a href="adminAddStudentMajor.php">Add Student Major</a>
                         </li>
                         <li>
                             <a href="viewStudentMinor.php">View Student Minor</a>
