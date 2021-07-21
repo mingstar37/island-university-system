@@ -49,11 +49,6 @@ if(isset($_POST["submit"])){
 
 
 
-
-
-
-
-
     // major
     $sqlMajor = "SELECT * FROM student_major WHERE Student_ID = '".$sId."'";
     $queryMajor = mysqli_query($conn,$sqlMajor);

@@ -6,10 +6,13 @@
                     <a href="profile.php">Hello Faculty <?php echo $_SESSION["user_email"] ?></a>
                 </li>
                 <li>
-                    <a href="index.php">Home</a>
+                    <a href="./index.php">Home</a>
                 </li>
                 <li>
-                    <a href="courses.php">View Schedule</a>
+                    <a href="./courses.php">View Schedule</a>
+                </li>
+                <li>
+                    <a href="./students.php">View Student</a>
                 </li>
                 <li>
                     <a href="facultyViewStudent.php">View Student</a>
