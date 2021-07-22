@@ -27,7 +27,7 @@
                     <a href="./rosters.php">View Roster</a>
                 </li>
                 <li>
-                    <a href="submitGrades.php">Submit Grades</a>
+                    <a href="./submit-grades.php">Submit Grades</a>
                 </li>
                 <li>
                     <a href="./student-grades.php">View Student Grades</a>

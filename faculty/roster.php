@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["user_id"]];
+$userId = $_SESSION["user_id"];
 
 // echo 'this user faculty id  = ' . $userId;
 // exit;
