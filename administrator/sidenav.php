@@ -64,30 +64,9 @@
                             <a href="./student-holds.php">Student - Holds</a>
                         </li>
                         <li>
-                            <a href="./student_histories.php">Student - Histories</a>
+                            <a href="student-histories.php">Student - Histories</a>
                         </li>
-                        <li>
-                            <a href="adminViewStudent.php">View Student</a>
-                        </li>
-                        <li>
-                            <a href="adminEditStudent.php">Edit Student</a>
-                        </li>
-                        <li>
-                            <a href="adminViewStudentCourse.php">View Courses</a>
-                        </li>
-                        <li>
-                            <a href="adminAddStudentCourse.php">Add Course</a>
-                        </li>
-                        <li>
-                            <a href="adminAddHold.php">Add Hold</a>
-                        </li>
-                        <li>
-                            <a href="removeHold.php">Remove Hold</a>
-                        </li>
-                        <li>
-                            <a href="adminviewAdvisor.php">View Student Advisor</a>
-                        </li>
-
+                        
                     </ul>
                 </li>
                 <li>
@@ -103,7 +82,7 @@
                     <a href="#">Faculty</a>
                     <ul class="nolist">
                         <li>
-                            <a href="./faculty_departments.php">Faculty - Departments</a>
+                            <a href="faculty-departments.php">Faculty - Departments</a>
                         </li>
                         <li>
                             <a href="./advisees.php">Faculty - Advisees</a>

@@ -8,7 +8,7 @@ include '../connection.php';
 
     $term = $_GET["term"];
     echo $term;
-    $studentId = $_SESSION["user_id"]];
+    $studentId = $_SESSION["user_id"];
 
     $sqlPre = "SELECT * FROM course WHERE Course_ID = '".$courseID."'";
     $queryPre = mysqli_query($conn, $sqlPre);
@@ -42,7 +42,4 @@ include '../connection.php';
         echo "Error: " . $sql . "<br>" . $conn->error;
       }
     }
-
-
-
 ?>
