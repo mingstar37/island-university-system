@@ -89,9 +89,10 @@ function onSelectPicker(event) {
     onLoadData();
 }
 
-function onLoadInitSelecter() {
+function onDelete() {
     let request = {};
-    request.get_init_arr = true;
+    request.delete_id = delete_id;
+    request.delete_row = true;
 
     $.ajax({
         method: "POST",
@@ -99,31 +100,24 @@ function onLoadInitSelecter() {
         data: request,
         dataType: 'json',
         success: function (res) {
-            if (res != undefined) {
-                let course_arr = res;
+            if (res !== undefined && res.success == true) {
 
-                let courseHtml = '<select id="course_id" name="course_id" class="course-selectpicker" onchange="onSelectPicker(event)" data-live-search="true" required><option value="0">All</option>';
-                course_arr.forEach(item => {
-                    courseHtml += "<option value='" + item.id + "'>" + item.course_name + "</option>"
-                });
-
-                courseHtml += "</select>";
-
-                $('.bootstrap-select.course-').replaceWith(courseHtml);
-
-
-                $('.course-selectpicker').selectpicker();
-
+                toastr.success("Deleted Successfully!");
+                $('#delete-modal').modal('hide');
                 onLoadData();
             } else {
-                toastr.error('Error');
+                toastr.error("There are some issues!");
             }
         },
         complete: function () {
-            $('#btn-save').removeClass('disabled');
-            $('#btn-cancel').removeClass('disabled');
         }
     });
+}
+
+function onDeleteRow(id) {
+    delete_id = id;
+
+    $('#delete-modal').modal('show');
 }
 
 function onChangePageNumber(event) {

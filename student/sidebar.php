@@ -46,9 +46,6 @@
                 <li>
                     <a href="./view-advisors.php">View Advisor</a>
                 </li>
-                <li>
-                    <a href="viewStudentHistories.php">Student History</a>
-                </li>
             </ul>
         </nav>
     </aside>

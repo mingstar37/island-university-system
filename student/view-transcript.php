@@ -53,6 +53,12 @@ if (isset($_POST['load_data'])) {
         $resultHtml .= '<td>'.$row["grade"].'</td>';
         $resultHtml .= '<td>'.$row["term"].'</td>';
         $resultHtml .= '<td>'.$row["year"].'</td>';
+
+        if ($year == 2021) {
+            $resultHtml .= '<td><button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button></td>';
+        } else {
+            $resultHtml .= '<td></td>';
+        }
         $resultHtml .= '</tr>';
 
         $count ++;
@@ -66,6 +72,24 @@ if (isset($_POST['load_data'])) {
         'html' => $resultHtml,
         'total_count' => $total_count
     ];
+
+    echo json_encode($ret);
+    exit;
+}
+
+if (isset($_POST['delete_row'])) {
+    $delete_id = $_POST['delete_id'];
+
+    $ret = [
+        'success' => false
+    ];
+
+    if (!empty($delete_id)) {
+        $sql  = "DELETE FROM student_history WHERE id = '".$delete_id."'";
+        if ($conn->query($sql)) {
+            $ret['success'] = true;
+        }
+    }
 
     echo json_encode($ret);
     exit;
@@ -151,6 +175,7 @@ include "header.php";
                 <th>Grade</th>
                 <th>Semester</th>
                 <th>Year</th>
+                <th width="100px">Action</th>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -171,6 +196,24 @@ include "header.php";
                     </select>
                 </li>
             </ul>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h3 style="color: red;" class="text-center">Do you want to delete?</h3>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
+            </div>
         </div>
     </div>
 </div>
