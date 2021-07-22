@@ -51,7 +51,7 @@ if (isset($_POST['load_data'])) {
         $resultHtml .= '<td>'. $row['building_name'] . '</td>';
         $resultHtml .= '<td>'. $row['semester'] . '</td>';
         $resultHtml .= '<td>'. $row["section"].'</td>';
-        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onShowDetail(' . $row["id"] . ', \'' . $row['course_name'] . '\')" title="Show Detail Grade Info"><i class="fa fa-info-circle"></i></td>';
+        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onShowDetail(' . $row["id"] . ', \'' . $row['course_name'] . '\')" title="View Roster Detail Info"><i class="fa fa-info-circle"></i></td>';
         $resultHtml .= '</tr>';
 
         $count ++;
@@ -99,16 +99,15 @@ if (isset($_POST['get_detail_info'])) {
     $ret = [];
 
 //    get student holds
-    $sqlEnrollment = "SELECT e.*, concat(u.first_name, ' ', u.last_name) as student_name, c.course_name, e.date_enrolled, e.letter_grade";
-    $sqlEnrollment .= " FROM enrollment as e";
-    $sqlEnrollment .= " LEFT JOIN student as s ON s.id = e.student_id";
-    $sqlEnrollment .= " LEFT JOIN users as u ON u.id = s.user_id";
-    $sqlEnrollment .= " LEFT JOIN section as sc ON sc.id = e.section_id";
-    $sqlEnrollment .= " LEFT JOIN course as c ON c.id = sc.course_id";
+    $sqlAttentance = "SELECT a.*, concat(u.first_name, ' ', u.last_name) as student_name";
+    $sqlAttentance .= " FROM attendance as a";
+    $sqlAttentance .= " LEFT JOIN student as s ON s.id = a.student_id";
+    $sqlAttentance .= " LEFT JOIN users as u ON u.id = s.user_id";
 
-    $sqlEnrollment .= " WHERE e.section_id = '$section_id'";
+    $sqlAttentance .= " WHERE a.section_id = '$section_id'";
+    $sqlAttentance .= " ORDER BY a.date_attended DESC";
 
-    $query = mysqli_query($conn, $sqlEnrollment);
+    $query = mysqli_query($conn, $sqlAttentance);
 
     $html = "";
     $count = 0;
@@ -117,9 +116,8 @@ if (isset($_POST['get_detail_info'])) {
         $html .= '<td>'.$row["id"].'</td>';
         $html .= '<td>'. $row["student_id"].'</td>';
         $html .= '<td>'. $row["student_name"].'</td>';
-        $html .= '<td>'. $row["course_name"].'</td>';
-        $html .= '<td>'. $row["date_enrolled"].'</td>';
-        $html .= '<td>'. $row["letter_grade"].'</td>';
+        $html .= '<td>'. $row["date_attended"].'</td>';
+        $html .= '<td>'. $row["present"].'</td>';
         $html .= '</tr>';
 
         $count ++;
@@ -127,7 +125,7 @@ if (isset($_POST['get_detail_info'])) {
 
     if ($count < 1) {
         $html .= '<tr>
-                            <td colspan="6">There is no data</td></tr>';
+                            <td colspan="5">There is no data</td></tr>';
     }
 
     $ret['attendanceHtml'] = $html;
@@ -185,7 +183,7 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-5">
-                <h3>Student Grades</h3>
+                <h3>Rosters</h3>
             </div>
             <div class="col-lg-3">
                 <div class="form-group px-1">
@@ -261,12 +259,11 @@ include "header.php";
                             <th>ID</th>
                             <th>Student ID</th>
                             <th>Student Name</th>
-                            <th>Course Name</th>
-                            <th>Date Enrolled</th>
-                            <th>Letter Grade</th>
+                            <th>Date Attended</th>
+                            <th>Present</th>
                         </tr>
                         </thead>
-                        <tbody id="enrollment-table-body">
+                        <tbody id="attendance-table-body">
                         </tbody>
                     </table>
                 </div>
@@ -286,7 +283,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/faculty/student-grades.js"></script>
+<script src="../js/faculty/rosters.js"></script>
 
 </body>
 </html>

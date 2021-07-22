@@ -135,9 +135,9 @@ function onShowDetail(section_id, course_name) {
         data: request,
         dataType: 'json',
         success: function (res) {
-            $('#detail-modal-title').html('Attendance of ' + course_name);
+            $('#detail-modal-title').html('Grades of "' + course_name + '"');
 
-            $('#attendance-table-body').html(res.attendanceHtml);
+            $('#enrollment-table-body').html(res.attendanceHtml);
 
             $('#detail-modal').modal('show');
         },

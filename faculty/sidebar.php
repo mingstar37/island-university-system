@@ -24,7 +24,7 @@
                     <a href="updateAttendance.php">Update Attendance</a>
                 </li> -->
                 <li>
-                    <a href="roster.php">View Roster</a>
+                    <a href="./rosters.php">View Roster</a>
                 </li>
                 <li>
                     <a href="submitGrades.php">Submit Grades</a>

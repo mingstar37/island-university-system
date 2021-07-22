@@ -17,31 +17,41 @@ while($row = mysqli_fetch_assoc($querySection)){
     array_push($sections, $row);
 }
 
-
-$attendance = array();
+$students = array();
 for($i=0; $i<count($crns); $i++){
     $crn = $crns[$i];
-    $sql = "SELECT * FROM attendance where CRN_Num = '".$crn."'";
+    $sql = "SELECT * FROM enrollment where CRN_Num = '".$crn."'";
     $query = mysqli_query($conn,$sql);
 
     while($row2 = mysqli_fetch_assoc($query)){
-        array_push($attendance, $row2);
+        array_push($students, $row2);
+    }
+
+}
+
+$courseNames = array();
+for($i=0; $i<count($CourseIds); $i++){
+    $sqlCNames = "SELECT * FROM course WHERE Course_ID = '".$CourseIds[$i]."'";
+    $queryCNames = mysqli_query($conn, $sqlCNames);
+
+    while($rowCNames = mysqli_fetch_assoc($queryCNames)){
+        array_push($courseNames, $rowCNames["Course_Name"]);
     }
 }
 
 
 
 
+
 if(isset($_POST["edit"])){
-    $sid = $_POST['dId'];
-    $crn = $_POST['dl'];
-    $date = $_POST['dbn'];
-    $present = $_POST['present'];
-    $sql3 = "UPDATE attendance SET Present = '".$present."' WHERE Student_ID = '".$sid."' and CRN_Num = '".$crn."' and Date_Attended='".$date."'";
+    $dId = $_POST['dId'];
+    $dl = $_POST['dl'];
+    $dbn = $_POST['dbn'];
+    $sql3 = "UPDATE enrollment SET Letter_Grade = '".$dbn."' WHERE Student_ID = '".$dId."' AND CRN_Num = '".$dl."'";
 
     if ($conn->query($sql3) === TRUE) {
-        echo 'Successfully updated attendance';
-        header('location:attendance.php');
+        echo 'Successfully updated grades';
+        header('location:students.php');
     } else {
       echo "Error: " . $sql3 . "<br>" . $conn->error;
     }
@@ -85,13 +95,13 @@ if(isset($_POST["edit"])){
 
     <div id="main-section">
 
-    <?php
+         <?php
             include 'sidebar.php';
         ?>
 
-
-        <h2 style="margin-left:50px;"> Attendance </h2>
+        <h2 style="margin-left:50px;"> Student Grades </h2>
         <br>
+
         <table class="view-table">
                 <tr>
                     <th>Course ID</th>
@@ -116,7 +126,7 @@ if(isset($_POST["edit"])){
                     echo '<td>'.$sections[$i]["Building_Name"].'</td>';
                     echo '<td>'.$sections[$i]["Sem_Term_Year"].'</td>';
                     echo '<td>'.$sections[$i]["Section"].'</td>';
-                    echo '<td><a href="attendanceCourses.php?crn='.$sections[$i]["CRN_Num"].'&cname='.$result["Course_Name"].'">View</a></td>';
+                    echo '<td><a href="studentGrades.php?crn='.$sections[$i]["CRN_Num"].'&cname='.$result["Course_Name"].'">View</a></td>';
                     echo '</tr>';
                 }
             ?>
@@ -128,21 +138,7 @@ if(isset($_POST["edit"])){
     <br>
     <hr>
     <br>
-    <!-- <div>
-        <h3>Update Attendance</h3>
-        <br>
-        <form method="post" action="">
-                Student Id: <input type="text" name="dId" placeholder="Student Id" /> <br><br>
-                CRN Number: <input type="text" name="dl" placeholder="CRN Number" /> <br><br>
-                Date: <input type="date" name="dbn" placeholder="Date" /> <br><br>
-                Present: <select name="present">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-                <br><br>
-                <input type="submit" name="edit" value="Update Attendance" class="btn btn-primary"/>
-        <form>
-    </div> -->
+
 </div>
 
 <script src="../plugins/js/nav.js"></script>
