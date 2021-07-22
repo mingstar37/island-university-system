@@ -123,10 +123,10 @@ function onLoadData(bInit = true) {
     });
 }
 
-function onShowDetail(student_id, student_name) {
+function onShowDetail(section_id, course_name) {
 
     let request = {};
-    request.student_id = student_id;
+    request.section_id = section_id;
     request.get_detail_info = true;
 
     $.ajax({
@@ -135,12 +135,9 @@ function onShowDetail(student_id, student_name) {
         data: request,
         dataType: 'json',
         success: function (res) {
-            $('#detail-modal-title').html(student_name + " Detail Info");
+            $('#detail-modal-title').html('Attence of ' + course_name);
 
-            $('#hold-table-body').html(res.holdHtml);
-            $('#advisor-table-body').html(res.advisorHtml);
-            $('#history-table-body').html(res.historyHtml);
-            $('#enrollment-table-body').html(res.enrollmentHtml);
+            $('#attendance-table-body').html(res.attendanceHtml);
 
             $('#detail-modal').modal('show');
         },

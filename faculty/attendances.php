@@ -45,12 +45,13 @@ if (isset($_POST['load_data'])) {
 
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'. $row["id"] . '</td>';
+        $resultHtml .= '<td>'. $row["course_id"] . '</td>';
         $resultHtml .= '<td>'. $row["course_name"] . '</td>';
         $resultHtml .= '<td>'. $row["room_num"].'</td>';
         $resultHtml .= '<td>'. $row['building_name'] . '</td>';
         $resultHtml .= '<td>'. $row['semester'] . '</td>';
         $resultHtml .= '<td>'. $row["section"].'</td>';
-        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onShowDetail(' . $row["id"] . ', \'' . $row["student_name"] . '\')" title="Show Detail Info"><i class="fa fa-info-circle"></i></td>';
+        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onShowDetail(' . $row["id"] . ', \'' . $row['course_name'] . '\')" title="Show Attendance Info"><i class="fa fa-info-circle"></i></td>';
         $resultHtml .= '</tr>';
 
         $count ++;
@@ -76,8 +77,8 @@ if (isset($_POST['get_init_arr'])) {
 
     $sql = "SELECT c.id, c.course_name";
     $sql .= " FROM course as c LEFT JOIN section as s ON s.course_id = c.id";
-
-    $sql .= " WHERE s.faculty_id = '$user_id'";
+    $sql .= " LEFT JOIN faculty as f ON f.id = s.faculty_id";
+    $sql .= " WHERE f.user_id = '$user_id'";
     $sql .= " GROUP BY c.id";
 
     $query = mysqli_query($conn, $sql);
@@ -93,121 +94,41 @@ if (isset($_POST['get_init_arr'])) {
 }
 
 if (isset($_POST['get_detail_info'])) {
-    $student_id = $_POST['student_id'];
+    $section_id = $_POST['section_id'];
 
     $ret = [];
 
 //    get student holds
-    $sqlHolds = "SELECT * FROM student_holds WHERE student_id = '$student_id'";
+    $sqlAttentance = "SELECT a.*, concat(u.first_name, ' ', u.last_name) as student_name";
+    $sqlAttentance .= " FROM attendance as a";
+    $sqlAttentance .= " LEFT JOIN student as s ON s.id = a.student_id";
+    $sqlAttentance .= " LEFT JOIN users as u ON u.id = s.user_id";
 
-    $query = mysqli_query($conn, $sqlHolds);
+    $sqlAttentance .= " WHERE a.section_id = '$section_id'";
+    $sqlAttentance .= " ORDER BY a.date_attended DESC";
 
-    $holdHtml = "";
+    $query = mysqli_query($conn, $sqlAttentance);
+
+    $html = "";
     $count = 0;
     while ($row = mysqli_fetch_assoc($query)) {
-        $holdHtml .= '<tr>';
-        $holdHtml .= '<td>'.$row["id"].'</td>';
-        $holdHtml .= '<td>'. $row["hold_date"].'</td>';
-        $holdHtml .= '<td>'. $row["hold_type"].'</td>';
-        $holdHtml .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<td>'.$row["id"].'</td>';
+        $html .= '<td>'. $row["student_id"].'</td>';
+        $html .= '<td>'. $row["student_name"].'</td>';
+        $html .= '<td>'. $row["date_attended"].'</td>';
+        $html .= '<td>'. $row["present"].'</td>';
+        $html .= '</tr>';
 
         $count ++;
     }
 
     if ($count < 1) {
-        $holdHtml .= '<tr>
-                            <td colspan="3">There is no data</td></tr>';
+        $html .= '<tr>
+                            <td colspan="5">There is no data</td></tr>';
     }
 
-    $ret['holdHtml'] = $holdHtml;
-
-    //    get student advisors
-    $sqlAdvisors = "SELECT a.*, concat(u.first_name, ' ', u.last_name) as advisor_name FROM advisor as a";
-    $sqlAdvisors .= " LEFT JOIN faculty as f ON f.id = a.faculty_id";
-    $sqlAdvisors .= " LEFT JOIN users as u ON u.id = f.user_id";
-
-    $sqlAdvisors .= " WHERE a.student_id = '$student_id'";
-
-    $query = mysqli_query($conn, $sqlAdvisors);
-
-    $resHtml = "";
-    $count = 0;
-    while ($row = mysqli_fetch_assoc($query)) {
-        $resHtml .= '<tr>';
-        $resHtml .= '<td>'.$row["id"].'</td>';
-        $resHtml .= '<td>'. $row["advisor_name"].'</td>';
-        $resHtml .= '<td>'. $row["time_of_advisement"].'</td>';
-        $resHtml .= '</tr>';
-
-        $count ++;
-    }
-
-    if ($count < 1) {
-        $resHtml .= '<tr>
-                            <td colspan="3">There is no data</td></tr>';
-    }
-
-    $ret['advisorHtml'] = $resHtml;
-
-    //    get student history
-    $sqlAdvisors = "SELECT sh.*, c.course_name";
-    $sqlAdvisors .= " FROM student_history as sh";
-    $sqlAdvisors .= " LEFT JOIN section as sc ON sc.id = sh.section_id";
-    $sqlAdvisors .= " LEFT JOIN course as c ON c.id = sc.course_id";
-
-    $sqlAdvisors .= " WHERE sh.student_id = '$student_id'";
-
-    $query = mysqli_query($conn, $sqlAdvisors);
-
-    $resHtml = "";
-    $count = 0;
-    while ($row = mysqli_fetch_assoc($query)) {
-        $resHtml .= '<tr>';
-        $resHtml .= '<td>'.$row["id"].'</td>';
-        $resHtml .= '<td>'. $row["course_name"].'</td>';
-        $resHtml .= '<td>'. $row["grade"].'</td>';
-        $resHtml .= '<td>'. $row["year"].'</td>';
-        $resHtml .= '</tr>';
-
-        $count ++;
-    }
-
-    if ($count < 1) {
-        $resHtml .= '<tr>
-                            <td colspan="4">There is no data</td></tr>';
-    }
-
-    $ret['historyHtml'] = $resHtml;
-
-    //    get enrollment history
-    $sqlAdvisors = "SELECT e.*, c.course_name";
-    $sqlAdvisors .= " FROM enrollment as e";
-    $sqlAdvisors .= " LEFT JOIN section as sc ON sc.id = e.section_id";
-    $sqlAdvisors .= " LEFT JOIN course as c ON c.id = sc.course_id";
-
-    $sqlAdvisors .= " WHERE e.student_id = '$student_id'";
-
-    $query = mysqli_query($conn, $sqlAdvisors);
-
-    $resHtml = "";
-    $count = 0;
-    while ($row = mysqli_fetch_assoc($query)) {
-        $resHtml .= '<tr>';
-        $resHtml .= '<td>'.$row["id"].'</td>';
-        $resHtml .= '<td>'. $row["course_name"].'</td>';
-        $resHtml .= '<td>'. $row["date_enrolled"].'</td>';
-        $resHtml .= '<td>'. $row["letter_grade"].'</td>';
-        $resHtml .= '</tr>';
-
-        $count ++;
-    }
-
-    if ($count < 1) {
-        $resHtml .= '<tr>
-                            <td colspan="4">There is no data</td></tr>';
-    }
-
-    $ret['enrollmentHtml'] = $resHtml;
+    $ret['attendanceHtml'] = $html;
 
     echo json_encode($ret);
     exit;
@@ -328,64 +249,21 @@ include "header.php";
             </div>
             <div class="modal-body">
                 <div class="row py-1">
-                    <h3 class="text-center " style="margin: auto; color: red" id="detail-modal-title">Show Detail info</h3>
+                    <h3 class="text-center " style="margin: auto; color: red" id="detail-modal-title"></h3>
                 </div>
 
                 <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
-                    <h4 style="margin:auto; padding-bottom: 10px">Student - Holds</h4>
                     <table class="table table-bordered">
                         <thead>
                         <tr>
-                            <th>Hold ID</th>
-                            <th>Hold Date</th>
-                            <th>Hold Type</th>
+                            <th>ID</th>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Date Attended</th>
+                            <th>Present</th>
                         </tr>
                         </thead>
-                        <tbody id="hold-table-body">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
-                    <h4 style="margin:auto; padding-bottom: 10px">Student - Advisors</h4>
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            <th>Advisor ID</th>
-                            <th>Advisor Name</th>
-                            <th>Time of Advisement</th>
-                        </tr>
-                        </thead>
-                        <tbody id="advisor-table-body">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
-                    <h4 style="margin:auto; padding-bottom: 10px">Student - Transcript</h4>
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            <th>Section ID</th>
-                            <th>Course Name</th>
-                            <th>Grade</th>
-                            <th>Year</th>
-                        </tr>
-                        </thead>
-                        <tbody id="history-table-body">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
-                    <h4 style="margin:auto; padding-bottom: 10px">Student - Enrolled Courses</h4>
-                    <table class="table table-bordered">
-                        <thead>
-                        <tr>
-                            <th>Enrollment ID</th>
-                            <th>Course Name</th>
-                            <th>Date Enrolled</th>
-                            <th>Letter Grade</th>
-                        </tr>
-                        </thead>
-                        <tbody id="enrollment-table-body">
+                        <tbody id="attendance-table-body">
                         </tbody>
                     </table>
                 </div>
