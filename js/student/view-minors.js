@@ -117,7 +117,6 @@ function onSelectPagination(selectedNumber) {
 }
 
 $(document).ready(function () {
-
     onLoadData();
 
     $('.page-item a').click(function (event) {
