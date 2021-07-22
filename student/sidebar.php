@@ -32,7 +32,7 @@
                     <a href="schedule.php">View Schedule</a>
                 </li> -->
                 <li>
-                    <a href="holds.php">View Holds</a>
+                    <a href="./view-holds.php">View Holds</a>
                 </li>
                 <!-- <li>
                     <a href="timeslot.php">Time Slots</a>

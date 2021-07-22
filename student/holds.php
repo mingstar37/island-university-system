@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-    $userId = $_SESSION["user_id"]];
+    $userId = $_SESSION["user_id"];
     $sql = "SELECT * FROM student_holds WHERE Student_ID='".$userId."' ";
     $query = mysqli_query($conn,$sql);
 
