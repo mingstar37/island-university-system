@@ -15,44 +15,37 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $year = $_POST['year'];
+    $sqlStudentMajor = "SELECT sm.*, m.major_name, d.name as department_name";
+    $sqlStudentMajor .= " FROM `student_major` as sm";
+    $sqlStudentMajor .= " LEFT JOIN `student` as s ON s.id = sm.student_id";
+    $sqlStudentMajor .= " LEFT JOIN `major` as m ON m.id = sm.major_id";
+    $sqlStudentMajor .= " LEFT JOIN `department` as d ON d.id = m.department_id";
 
-    $sqlHistory = "SELECT sh.*, c.course_name";
-    $sqlHistory .= " FROM `student_history` as sh";
-    $sqlHistory .= " INNER JOIN `student` as s ON s.id = sh.student_id";
-    $sqlHistory .= " INNER JOIN `users` as u ON u.id = s.user_id";
-    $sqlHistory .= " INNER JOIN `section` as sc ON sc.id = sh.section_id";
-    $sqlHistory .= " INNER JOIN `course` as c ON c.id = sc.course_id";
-
-    $sqlHistory .= " WHERE s.user_id = '$user_id'";
-
-    if (!empty($year)) {
-        $sqlHistory .= " AND sh.year = '$year'";
-    }
+    $sqlStudentMajor .= " WHERE s.user_id = '$user_id'";
 
     if(!empty($search_text)) {
-        $sqlHistory .= " AND (sh.id LIKE '%$search_text%'";
-        $sqlHistory .= " OR sh.section_id LIKE '%$search_text%' OR c.course_name LIKE '%$search_text%'";
-        $sqlHistory .= " OR sh.grade LIKE '%$search_text%' OR sh.year LIKE '%$search_text%')";
+        $sqlStudentMajor .= " AND (sm.type LIKE '%$search_text%'";
+        $sqlStudentMajor .= " OR m.major_name LIKE '%$search_text%' OR d.name LIKE '%$search_text%')";
     }
 
-    $totalQuery = mysqli_query($conn, $sqlHistory);
+    $totalQuery = mysqli_query($conn, $sqlStudentMajor);
     $total_count = mysqli_num_rows($totalQuery);
 
-    $sqlHistory .= " LIMIT $page_size OFFSET $start_number";
+    $sqlStudentMajor .= " LIMIT $page_size OFFSET $start_number";
 
-    $query = mysqli_query($conn, $sqlHistory);
+
+    $query = mysqli_query($conn, $sqlStudentMajor);
 
     $count = 0;
     $resultHtml = "";
+
     while($row = mysqli_fetch_assoc($query)){
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
         $resultHtml .= '<td>'.($start_number + $count + 1).'</td>';
-        $resultHtml .= '<td>'. $row["course_name"].'</td>';
-        $resultHtml .= '<td>'.$row["grade"].'</td>';
-        $resultHtml .= '<td>'.$row["term"].'</td>';
-        $resultHtml .= '<td>'.$row["year"].'</td>';
+        $resultHtml .= '<td>'. $row["major_name"].'</td>';
+        $resultHtml .= '<td>'.$row["department_name"].'</td>';
+        $resultHtml .= '<td>'.$row["type"].'</td>';
         $resultHtml .= '</tr>';
 
         $count ++;
@@ -118,19 +111,9 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-5">
-                <h3>Student Transcript</h3>
+                <h3>Student Majors</h3>
             </div>
             <div class="col-lg-3">
-                <div class="form-group px-1">
-                    Year: &nbsp;
-                    <select id="year" class="year-selectpicker" onchange="onLoadData()" data-live-search="true">
-                        <option value="2017">2017</option>
-                        <option value="2018">2018</option>
-                        <option value="2019">2019</option>
-                        <option value="2020">2020</option>
-                        <option value="2021">2021</option>
-                    </select>
-                </div>
             </div>
             <div class="col-lg-4 text-right" style="display: flex; justify-content: flex-end">
                 <div class="input-group search-input" style="max-width: 300px; margin-right: 20px">
@@ -147,10 +130,9 @@ include "header.php";
             <thead>
             <tr>
                 <th>No</th>
-                <th>Course Name</th>
-                <th>Grade</th>
-                <th>Semester</th>
-                <th>Year</th>
+                <th>Major Name</th>
+                <th>Department Name</th>
+                <th>Type</th>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -182,7 +164,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/student/view-transcript.js"></script>
+<script src="../js/student/view-majors.js"></script>
 
 
 </body>

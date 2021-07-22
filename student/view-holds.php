@@ -40,7 +40,7 @@ if (isset($_POST['load_data'])) {
     while($row = mysqli_fetch_assoc($query)){
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
-        $resultHtml .= '<td>'.$row["id"].'</td>';
+        $resultHtml .= '<td>'.($start_number + $count + 1).'</td>';
         $resultHtml .= '<td>'. $row["hold_date"].'</td>';
         $resultHtml .= '<td>'.$row["hold_type"].'</td>';
         $resultHtml .= '</tr>';
@@ -126,7 +126,7 @@ include "header.php";
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>ID</th>
+                <th>No</th>
                 <th>Hold Date</th>
                 <th>Hold Type</th>
             </tr>

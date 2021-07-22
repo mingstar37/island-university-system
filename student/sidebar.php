@@ -38,7 +38,7 @@
                     <a href="timeslot.php">Time Slots</a>
                 </li> -->
                 <li>
-                    <a href="viewmajor.php">View Major</a>
+                    <a href="./view-majors.php">View Major</a>
                 </li>
                 <li>
                     <a href="viewminor.php">View Minor</a>
