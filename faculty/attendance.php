@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["user_id"]];
+$userId = $_SESSION["user_id"];
 
 $sqlSection = "Select * from section where Faculty_ID = '".$userId."'";
 $querySection = mysqli_query($conn,$sqlSection);

@@ -15,10 +15,10 @@
                     <a href="./students.php">View Student</a>
                 </li>
                 <li>
-                    <a href="facultyViewStudent.php">View Student</a>
+                    <a href="./advisees.php">View Advisees</a>
                 </li>
                 <li>
-                    <a href="attendance.php"> View Attendance </a>
+                    <a href="./attendances.php"> View Attendance </a>
                 </li>
                 <!-- <li>
                     <a href="updateAttendance.php">Update Attendance</a>
@@ -32,13 +32,6 @@
                 <li>
                     <a href="students.php">View Student Grades</a>
                 </li>
-                <!-- <li>
-                    <a href="updateGrades.php">Update Student Grades</a>
-                </li> -->
-                <li>
-                    <a href="viewAdvisees.php">View Advisees</a>
-                </li>
-
             </ul>
         </nav>
     </aside>
