@@ -382,129 +382,6 @@ include "header.php";
         </div>
     </div>
 </div>
-<div class="modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
-    <div class="modal-dialog modal-lg" style="margin-left: 350px !important;" role="document">
-        <div class="modal-content">
-            <form method="post" id="form-add" class="form-horizontal" onsubmit="return onSave(event)">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row py-1">
-                        <h3 class="text-center " style="margin: auto; color: red" id="add-modal-title">Add Row</h3>
-                    </div>
-                    <div class="row">
-                        <input type="hidden" class="form-control" id="id" name="id"/>
-                        <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="course_id">Course</label>
-                            <select class="course-selectpicker" id="course_id" data-live-search="true">
-                            </select>
-
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="department_id">Faculty</label>
-                            <select class="faculty-selectpicker" name="faculty_id" id="faculty_id" data-live-search="true">
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="room_num">Room Number</label>
-                            <input type="text" class="form-control" id="room_num" name="room_num" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="building_name">Building Name</label>
-                            <input type="text" class="form-control" id="building_name" name="building_name" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="available_seat">Available Seat</label>
-                            <input type="text" class="form-control" id="available_seat" name="available_seat" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="available_seat">Section</label>
-                            <input type="text" class="form-control" id="section" name="section" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="available_seat">Term</label>
-                            <select class="term-selectpicker" name="term" id="term" data-live-search="true">
-                                <option value="Spring">Spring</option>
-                                <option value="Fall">Fall</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="available_seat">Year</label>
-                            <select class="year-selectpicker" name="year" id="year" data-live-search="true">
-                                <option value="2020">2020</option>
-                                <option value="2021">2021</option>
-                                <option value="2022">2022</option>
-                                <option value="2023">2023</option>
-                                <option value="2024">2024</option>
-                                <option value="2025">2025</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <div class="row" style="width: 100%">
-                                <div class="col-sm-6">
-                                    <label class="col-form-label" for="available_seat">Select Days: </label>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" id="Monday" name="week_day[]" value="Monday">&nbsp;Monday</label>
-                                    </div>
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" id="Tuesday" name="week_day[]" value="Tuesday">&nbsp;Tuesday</label>
-                                    </div>
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" id="Wednesday" name="week_day[]" value="Wednesday">&nbsp;Wednesday</label>
-                                    </div>
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" id="Thursday" name="week_day[]" value="Thursday">&nbsp;Thursday</label>
-                                    </div>
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" id="Friday" name="week_day[]" value="Friday">&nbsp;Friday</label>
-                                    </div>
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" id="Saturday" name="week_day[]" value="Saturday">&nbsp;Saturday</label>
-                                    </div>
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" id="Sunday" name="week_day[]" value="Sunday">&nbsp;Sunday</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="period_id">Period</label>
-                            <select class="period-selectpicker" name="period_id" id="period_id"  data-live-search="true">
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-success" id="btn-save">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <h3 style="color: red;" class="text-center">Do you want to delete?</h3>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -513,7 +390,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/student/viewClass.js"></script>
+<script src="../js/student/view-class.js"></script>
 
 
 </body>

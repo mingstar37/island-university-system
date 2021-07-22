@@ -9,10 +9,10 @@
                     <a href="index.php">Home</a>
                 </li>
                 <li>
-                    <a href="viewClass.php">Schedule</a>
+                    <a href="view-class.php">Schedule</a>
                 </li>
                 <li>
-                    <a href="history.php"> View Transcript </a>
+                    <a href="./view-transcript.php"> View Transcript </a>
                 </li>
                 <li>
 
