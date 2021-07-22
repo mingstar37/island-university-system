@@ -44,7 +44,7 @@
                     <a href="./view-minors.php">View Minor</a>
                 </li>
                 <li>
-                    <a href="viewadvisor.php">View Advisor</a>
+                    <a href="./view-advisors.php">View Advisor</a>
                 </li>
                 <li>
                     <a href="viewStudentHistories.php">Student History</a>

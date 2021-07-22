@@ -150,8 +150,6 @@ if (isset($_POST['deleteRow'])) {
             <?php
         }
         ?>
-
-
     </div>
 
 </div>
