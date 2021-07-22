@@ -107,6 +107,7 @@ if (isset($_POST['get_detail_info'])) {
     $sqlEnrollment .= " LEFT JOIN course as c ON c.id = sc.course_id";
 
     $sqlEnrollment .= " WHERE e.section_id = '$section_id'";
+    $sqlEnrollment .= " AND e.date_enrolled LIKE '%2021%'";
 
     $query = mysqli_query($conn, $sqlEnrollment);
 

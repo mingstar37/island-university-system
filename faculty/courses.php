@@ -15,7 +15,7 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $sqlSection = "SELECT sc.*, c.course_name, concat(p.start_time, ' ~ ', P.end_time) as period_time";
+    $sqlSection = "SELECT sc.*, c.course_name, concat(p.start_time, ' ~ ', p.end_time) as period_time";
     $sqlSection .= " FROM `section` as sc";
     $sqlSection .= " INNER JOIN course as c ON c.id = sc.course_id";
     $sqlSection .= " INNER JOIN faculty as f ON f.id = sc.faculty_id";

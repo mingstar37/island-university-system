@@ -2,7 +2,7 @@
 session_start();
 include '../connection.php';
 
-$userId = $_SESSION["user_id"]];
+$userId = $_SESSION["user_id"];
 if(isset($_POST["submit"])){
     $password = $_POST["password"];
     $cpassword = $_POST["cpassword"];
