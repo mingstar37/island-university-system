@@ -30,7 +30,7 @@
                     <a href="submitGrades.php">Submit Grades</a>
                 </li>
                 <li>
-                    <a href="students.php">View Student Grades</a>
+                    <a href="./student-grades.php">View Student Grades</a>
                 </li>
             </ul>
         </nav>
