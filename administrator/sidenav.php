@@ -73,7 +73,10 @@
                     <a href="#">Time Slots</a>
                     <ul class="nolist">
                         <li>
-                            <a href="due-dates.php">Due Dates</a>
+                            <a href="./due-dates.php">Due Dates</a>
+                        </li>
+                        <li>
+                            <a href="./faculty-due-dates.php">Faculty Due Dates</a>
                         </li>
                         <li>
                             <a href="dueDates.php">Old Due Dates</a>

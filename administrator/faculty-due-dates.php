@@ -13,28 +13,27 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $sqlStudentHolds = "SELECT dd.*";
-    $sqlStudentHolds .= " FROM `due_dates` as dd";
-    $sqlStudentHolds .= " WHERE dd.id > 0";
+    $sqlStudentHolds = "SELECT *";
+    $sqlStudentHolds .= " FROM `faculty_due_dates`";
+    $sqlStudentHolds .= " WHERE id > 0";
 
     $year = $_POST['year'];
     $term = $_POST['term'];
 
     if (!empty($year)) {
-        $sqlStudentHolds .= " AND dd.year = '$year'";
+        $sqlStudentHolds .= " AND year = '$year'";
     }
 
     if (!empty($term)) {
-        $sqlStudentHolds .= " AND dd.term = '$term'";
+        $sqlStudentHolds .= " AND term = '$term'";
     }
 
     if(!empty($search_text)) {
-        $sqlStudentHolds .= " AND (dd.id LIKE '%$search_text%' OR dd.year LIKE '%$search_text%'";
-        $sqlStudentHolds .= " OR dd.term LIKE '%$search_text%' OR dd.start_date LIKE '%$search_text%'";
-        $sqlStudentHolds .= " OR dd.end_date LIKE '%$search_text%')";
+        $sqlStudentHolds .= " AND (id LIKE '%$search_text%' OR year LIKE '%$search_text%'";
+        $sqlStudentHolds .= " OR term LIKE '%$search_text%' OR last_date LIKE '%$search_text%')";
     }
 
-    $sqlStudentHolds .= " ORDER BY dd.year DESC, dd.term DESC";
+    $sqlStudentHolds .= " ORDER BY year DESC, term DESC";
 
     $totalQuery = mysqli_query($conn, $sqlStudentHolds);
     $total_count = mysqli_num_rows($totalQuery);
@@ -53,8 +52,7 @@ if (isset($_POST['load_data'])) {
         $resultHtml .= '<td>'.$row["id"].'</td>';
         $resultHtml .= '<td>'. $row["term"].'</td>';
         $resultHtml .= '<td>'. $row['year'] . '</td>';
-        $resultHtml .= '<td>'. $row['start_date'] . '</td>';
-        $resultHtml .= '<td>'.$row["end_date"].'</td>';
+        $resultHtml .= '<td>'. $row['last_date'] . '</td>';
         $resultHtml .= '<td><input type="checkbox" onchange="onUpdateStatus(event, ' . $row["id"] . ')" style="width: 28px; height: 28px;" class="form-control-md"' . $checked . ' value="' . $row["status"] . '"></td>';
         $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
@@ -80,7 +78,7 @@ if (isset($_POST['update_status'])) {
     $update_id = $_POST['update_id'];
     $status = $_POST['status'];
 
-    $sql = "UPDATE due_dates SET `status` = '$status' WHERE id = '$update_id'";
+    $sql = "UPDATE faculty_due_dates SET `status` = '$status' WHERE id = '$update_id'";
 
     $ret = [
             'success' => false,
@@ -105,7 +103,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM due_dates WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM faculty_due_dates WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -158,13 +156,12 @@ if (isset($_POST['get_student_arr'])) {
 if (isset($_POST['save_row'])) {
     $year = $_POST['year'];
     $term = $_POST['term'];
-    $start_date = $_POST['start_date'];
-    $end_date = $_POST['end_date'];
+    $last_date = $_POST['last_date'];
 
     $id = $_POST['id'];
 
 //    check
-    $sql = "SELECT * FROM due_dates WHERE year = '$year' AND term = '$term'";
+    $sql = "SELECT * FROM faculty_due_dates WHERE year = '$year' AND term = '$term'";
 
     if (!empty($id)) {
         $sql .= " AND id <> '$id'";
@@ -186,7 +183,7 @@ if (isset($_POST['save_row'])) {
 
     if(empty($id)) {
         //    add to users
-        $sql = "INSERT INTO due_dates (`year`, `term`, `start_date`, `end_date`) VALUES ('$year', '$term', '$start_date', '$end_date')";
+        $sql = "INSERT INTO faculty_due_dates (`year`, `term`, `last_date`) VALUES ('$year', '$term', '$last_date')";
 
         if ($conn->query($sql)) {
             $ret['success'] = true;
@@ -197,7 +194,7 @@ if (isset($_POST['save_row'])) {
         // update
         $id = $_POST['id'];
 
-        $sql = "UPDATE due_dates SET year = '$year', term = '$term', start_date = '$start_date', end_date = '$end_date'";
+        $sql = "UPDATE faculty_due_dates SET year = '$year', term = '$term', last_date = '$last_date'";
         $sql .= " WHERE id = $id";
 
         if ($conn->query($sql)) {
@@ -215,7 +212,7 @@ if (isset($_POST['get_row'])) {
     $edit_id = $_POST['edit_id'];
 
     $sqlStudentHolds = "SELECT *";
-    $sqlStudentHolds .= " FROM due_dates";
+    $sqlStudentHolds .= " FROM faculty_due_dates";
     $sqlStudentHolds .= " WHERE id = '$edit_id' LIMIT 1";
 
     $query = mysqli_query($conn, $sqlStudentHolds);
@@ -272,7 +269,7 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-3">
-                <h3>Due - Dates</h3>
+                <h3>Last Dates for Faculty</h3>
             </div>
             <div class="col-lg-5">
                 <div class="form-group px-1">
@@ -311,9 +308,8 @@ include "header.php";
                 <th>ID</th>
                 <th>Semester</th>
                 <th>Year</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Status</th>
+                <th>Last Date</th>
+                <th width="100px">Status</th>
                 <th width="150px">Action</th>
             </tr>
             </thead>
@@ -372,12 +368,8 @@ include "header.php";
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="start_date">Start Date</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" required/>
-                        </div>
-                        <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="end_date">End Date</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" required/>
+                            <label class="col-form-label" for="last_date">Last Date</label>
+                            <input type="date" class="form-control" id="last_date" name="last_date" required/>
                         </div>
                     </div>
                 </div>
@@ -415,7 +407,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/due-dates.js"></script>
+<script src="../js/administrator/faculty-due-dates.js"></script>
 
 
 </body>

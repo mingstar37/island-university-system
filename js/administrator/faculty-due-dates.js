@@ -136,8 +136,7 @@ function onUpdateStatus(event, id) {
 function onAddNew() {
 
     $('#id').val(0);
-    $('#start_date').val("");
-    $('#end_date').val("");
+    $('#last_date').val("");
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
