@@ -63,6 +63,9 @@
                         <li>
                             <a href="./student-holds.php">Student - Holds</a>
                         </li>
+                        <li>
+                            <a href="./student-advisors.php">Student - Advisors</a>
+                        </li>
 <!--                        <li>-->
 <!--                            <a href="./student-enrollments.php">Student - Enrollments</a>-->
 <!--                        </li>-->
@@ -91,7 +94,7 @@
                             <a href="faculty-departments.php">Faculty - Departments</a>
                         </li>
                         <li>
-                            <a href="./advisees.php">Faculty - Advisees</a>
+                            <a href="faculty-advisees.php">Faculty - Advisees</a>
                         </li>
                     </ul>
                 </li>

@@ -39,6 +39,45 @@ function onSetPageNumberSelect() {
     $('#page-select').val(pagination.currentNumber + 1);
 }
 
+
+function onLoadFacultySelectPicker(student_id, default_val = 0) {
+
+    let request = {};
+    request.student_id = student_id;
+    request.faculty_id = default_val;
+    request.get_faculty_arr = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res != undefined) {
+                let faculty_arr = res;
+
+                let facultyHtml = '<select class="faculty-selectpicker" name="faculty_id" id="faculty_id" data-live-search="true">';
+                faculty_arr.forEach(item => {
+                    facultyHtml += "<option value='" + item.id + "'>" + item.faculty_name + "</option>"
+                });
+
+                facultyHtml += "</select>";
+
+                $('.bootstrap-select.faculty-').replaceWith(facultyHtml);
+
+                $('#faculty_id').selectpicker();
+
+            } else {
+                toastr.error('Error');
+            }
+        },
+        complete: function () {
+            $('#btn-save').removeClass('disabled');
+            $('#btn-cancel').removeClass('disabled');
+        }
+    });
+}
+
 function onLoadData(bInit = false) {
     let request = {};
     request.search_text = $('#search-text').val();
@@ -52,8 +91,6 @@ function onLoadData(bInit = false) {
     request.page_size = pagination.pageSize;
 
     request.student_id = $('.student-selectpicker').val();
-    request.term = $('#term').val();
-    request.year = $('#year').val();
     request.load_data = true;
 
 
@@ -73,8 +110,7 @@ function onLoadData(bInit = false) {
                     onSelectPagination(pagination.currentNumber + 1);
                 }
                 onSetPageNumberSelect();
-                $('#enrollment-table-body').html(res.enrollmentHtml);
-                $('#course-table-body').html(res.courseHtml);
+                $('#table-body').html(res.html);
             }
         },
         complete: function () {
@@ -82,55 +118,13 @@ function onLoadData(bInit = false) {
     });
 }
 
-function onAddToEnrollment(section_id) {
-    let student_id = $('#student_id').val();
-
-    let request = {
-        student_id,
-        section_id,
-        add_to_enrollment: true
-    };
-
-    $.ajax({
-        method: "POST",
-        url: window.location.href,
-        data: request,
-        dataType: 'json',
-        success: function (res) {
-            if (res != undefined) {
-                onLoadData();
-            } else {
-                toastr.error('Error');
-            }
-        },
-        complete: function () {
-        }
-    });
-}
-
-function onSelectStudentPicker(event) {
+function onSelectPicker(event) {
     event.preventDefault();
 
     let value = event.target.value;
     $('.student-selectpicker').selectpicker('val', value);
 
-    onLoadData(true);
-}
-
-function onSelectYearPicker(event) {
-    event.preventDefault();
-
-    let value = event.target.value;
-    $('.year-selectpicker').selectpicker('val', value);
-
-    onLoadData(true);
-}
-
-function onSelectTermPicker(event) {
-    event.preventDefault();
-
-    let value = event.target.value;
-    $('.term-selectpicker').selectpicker('val', value);
+    onLoadFacultySelectPicker(value);
 
     onLoadData(true);
 }
@@ -146,24 +140,11 @@ function onLoadInitSelector() {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
-
-                let curYear = new Date().getFullYear();
-
-                let yearHtml = '<select id="year" name="year" class="year-selectpicker" onchange="onSelectYearPicker(event)" data-live-search="true"><option value="0">All</option>';
-
-                for (let i = curYear; i > curYear - 15; i--) {
-                    yearHtml += "<option value='" + i + "'>" + i + "</option>"
-                }
-
-                yearHtml += "</select>";
-                $('.bootstrap-select.year-').replaceWith(yearHtml);
-                $('.year-selectpicker').selectpicker();
-
                 let student_arr = res;
 
-                let studentHtml = '<select id="student_id" class="student-selectpicker" onchange="onSelectStudentPicker(event)" data-live-search="true"><option value="0">All</option>';
+                let studentHtml = '<select id="student_id" name="student_id" class="student-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
                 student_arr.forEach(item => {
-                    studentHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
+                    studentHtml += "<option value='" + item.id + "'>" + item.student_name + "</option>"
                 });
 
                 studentHtml += "</select>";
@@ -244,7 +225,6 @@ function onSave(event) {
     formData.forEach(item => {
         request[item.name] = item.value;
     });
-    request.faculty_id = $('#faculty_id').val();
     request.save_row = true;
 
     $.ajax({
@@ -339,8 +319,7 @@ function onSelectPagination(selectedNumber) {
 
 $(document).ready(function () {
     $('.student-selectpicker').selectpicker();
-    $('.term-selectpicker').selectpicker();
-    $('.year-selectpicker').selectpicker('val', '2021');
+    $('.faculty-selectpicker').selectpicker();
 
     onLoadInitSelector();
 

@@ -373,7 +373,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/advisees.js"></script>
+<script src="../js/administrator/faculty-advisees.js"></script>
 
 
 </body>
