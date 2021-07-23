@@ -100,7 +100,7 @@ function onLoadInitSelector() {
     yearHtml += "</select>";
 
     $('.bootstrap-select.year-').replaceWith(yearHtml);
-    $('.year-selectpicker').selectpicker('val', curYear);
+    $('.year-selectpicker').selectpicker();
 
     onLoadData();
 }
