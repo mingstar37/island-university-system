@@ -148,7 +148,7 @@ if (isset($_POST['get_attendance_info'])) {
     $count = 0;
     while ($row = mysqli_fetch_assoc($query)) {
         $html .= '<tr>';
-        $html .= '<td>'.$row["id"].'</td>';
+        $html .= '<td>'.($count + 1).'</td>';
         $html .= '<td>'. $row["student_id"].'</td>';
         $html .= '<td>'. $row["student_name"].'</td>';
         $html .= '<td>'. $row["date_attended"].'</td>';
@@ -392,7 +392,7 @@ include "header.php";
                     <table class="table table-bordered">
                         <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>No</th>
                             <th>Student ID</th>
                             <th>Student Name</th>
                             <th>Date Attended</th>

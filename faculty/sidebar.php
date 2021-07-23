@@ -27,11 +27,11 @@
                     <a href="./rosters.php">View Roster</a>
                 </li>
                 <li>
-                    <a href="./submit-grades.php">Submit Grades</a>
+                    <a href="view-grades.php">View Grades</a>
                 </li>
-                <li>
-                    <a href="./student-grades.php">View Student Grades</a>
-                </li>
+<!--                <li>-->
+<!--                    <a href="./student-grades.php">View Student Grades</a>-->
+<!--                </li>-->
             </ul>
         </nav>
     </aside>

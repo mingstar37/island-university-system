@@ -13,6 +13,9 @@ let oldPagination = {
 let delete_id = 0;
 let editId = 0;
 
+let limit_days = [];
+let dayArr = ["Sunday", "Monday", "Tuesday", 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 function onSearchKeyup(event) {
     if (event.keyCode !== 13) {
         return;
@@ -96,6 +99,9 @@ function onLoadData(bInit = false) {
     request.page_size = pagination.pageSize;
 
     request.course_id = $('.course-selectpicker').val();
+    request.term = $('.term-selectpicker').val();
+    request.year = $('.year-selectpicker').val();
+
     request.load_data = true;
 
 
@@ -123,11 +129,11 @@ function onLoadData(bInit = false) {
     });
 }
 
-function onShowDetail(section_id, course_name) {
+function onShowGrades(section_id, course_name) {
 
     let request = {};
     request.section_id = section_id;
-    request.get_detail_info = true;
+    request.get_attendance_info = true;
 
     $.ajax({
         method: "POST",
@@ -135,15 +141,88 @@ function onShowDetail(section_id, course_name) {
         data: request,
         dataType: 'json',
         success: function (res) {
-            $('#detail-modal-title').html('Attendance of "' + course_name + '"');
+            $('#attendance-modal-title').html('Grades of "' + course_name + '"');
 
             $('#attendance-table-body').html(res.attendanceHtml);
 
-            $('#detail-modal').modal('show');
+            $('#detail-attendance-modal').modal('show');
         },
         complete: function () {
         }
     });
+}
+
+function onShowRoster(section_id, course_name) {
+
+    let request = {};
+    request.section_id = section_id;
+    request.get_grade_info = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            $('#roster-modal-title').html('Submit Grades for "' + course_name + '"');
+
+            $('#roster-table-body').html(res.attendanceHtml);
+
+            $('#last_date_info').html(res.last_date_info);
+
+            $('#detail-roster-modal').modal('show');
+        },
+        complete: function () {
+        }
+    });
+}
+
+function onChangeLetterGrade(id) {
+    $('#btn_submit_' + id).removeClass('disabled');
+}
+
+function onChangeGrade(id) {
+
+    let letter_grade = $('#letter_grade_' + id).val();
+
+    if (letter_grade == "") {
+        toastr.warning('Please insert grade value!');
+        return;
+    }
+
+    let request = {};
+    request.id = id;
+    request.letter_grade = letter_grade;
+
+    request.update_grade = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res.success == true) {
+                toastr.success("Successfully Added!");
+                $('#btn_submit_' + id).addClass('disabled');
+            } else {
+                toastr.error(res.message);
+            }
+        },
+        complete: function () {
+            $('#btn-save').removeClass('disabled');
+            $('#btn-cancel').removeClass('disabled');
+        }
+    });
+
+}
+
+function onChangeDate(student_id) {
+    $('#btn_submit_' + student_id).removeClass('disabled');
+}
+
+function onChangePresent(student_id) {
+    $('#btn_submit_' + student_id).removeClass('disabled');
 }
 
 function onSelectPicker(event) {
@@ -168,6 +247,19 @@ function onLoadInitSelector() {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
+                let curYear = new Date().getFullYear();
+
+                let yearHtml = '<select id="year" name="year" class="year-selectpicker" onchange="onLoadData(true)" data-live-search="true"><option value="0">All</option>';
+
+                for (let i = curYear + 1; i > curYear - 10; i--) {
+                    yearHtml += "<option value='" + i + "'>" + i + "</option>"
+                }
+
+                yearHtml += "</select>";
+
+                $('.bootstrap-select.year-').replaceWith(yearHtml);
+                $('.year-selectpicker').selectpicker();
+
                 let course_arr = res;
 
                 let courseHtml = '<select id="course_id" class="course-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
@@ -232,7 +324,8 @@ function onSelectPagination(selectedNumber) {
 
 $(document).ready(function () {
     $('.course-selectpicker').selectpicker();
-    // $('#student_id').selectpicker();
+    $('.term-selectpicker').selectpicker();
+    $('.year-selectpicker').selectpicker();
 
     onLoadInitSelector();
 
