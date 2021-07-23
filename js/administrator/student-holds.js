@@ -85,7 +85,7 @@ function onSelectPicker(event) {
     let value = event.target.value;
     $('.student-selectpicker').selectpicker('val', value);
 
-    onLoadData();
+    onLoadData(true);
 }
 
 function onLoadInitSelector() {

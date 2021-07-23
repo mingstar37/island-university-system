@@ -130,7 +130,7 @@ function onSelectPicker(event) {
 
     $('.faculty-selectpicker').selectpicker('val', value);
 
-    onLoadData();
+    onLoadData(true);
 }
 
 function onLoadInitSelectors() {

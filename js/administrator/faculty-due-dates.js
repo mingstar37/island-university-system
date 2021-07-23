@@ -86,7 +86,7 @@ function onSelectYearPicker(event) {
     let value = event.target.value;
     $('.year-selectpicker').selectpicker('val', value);
 
-    onLoadData();
+    onLoadData(true);
 }
 
 function onSelectTermPicker(event) {
@@ -95,7 +95,7 @@ function onSelectTermPicker(event) {
     let value = event.target.value;
     $('.term-selectpicker').selectpicker('val', value);
 
-    onLoadData();
+    onLoadData(true);
 }
 
 function onLoadInitSelector() {

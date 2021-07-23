@@ -124,14 +124,14 @@ function onSelectYearPicker(event) {
     let value = event.target.value;
     $('.year-selectpicker').selectpicker('val', value);
 
-    onLoadData();
+    onLoadData(true);
 }
 
 function onSelectStudentPicker(event) {
     let value = event.target.value;
     $('.student-selectpicker').selectpicker('val', value);
 
-    onLoadData();
+    onLoadData(true);
 }
 
 

@@ -82,15 +82,12 @@ function onLoadData(bInit = false) {
     });
 }
 
-function onAddToEnrollment(add_id) {
+function onAddToEnrollment(section_id) {
     let student_id = $('#student_id').val();
-    let term = $('#term').val();
-    let year = $('#year').val();
 
     let request = {
         student_id,
-        term,
-        year,
+        section_id,
         add_to_enrollment: true
     };
 
@@ -111,13 +108,31 @@ function onAddToEnrollment(add_id) {
     });
 }
 
-function onSelectPicker(event) {
+function onSelectStudentPicker(event) {
     event.preventDefault();
 
     let value = event.target.value;
     $('.student-selectpicker').selectpicker('val', value);
 
-    onLoadData();
+    onLoadData(true);
+}
+
+function onSelectYearPicker(event) {
+    event.preventDefault();
+
+    let value = event.target.value;
+    $('.year-selectpicker').selectpicker('val', value);
+
+    onLoadData(true);
+}
+
+function onSelectTermPicker(event) {
+    event.preventDefault();
+
+    let value = event.target.value;
+    $('.term-selectpicker').selectpicker('val', value);
+
+    onLoadData(true);
 }
 
 function onLoadInitSelector() {
@@ -131,9 +146,22 @@ function onLoadInitSelector() {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
+
+                let curYear = new Date().getFullYear();
+
+                let yearHtml = '<select id="year" name="year" class="year-selectpicker" onchange="onSelectYearPicker(event)" data-live-search="true"><option value="0">All</option>';
+
+                for (let i = curYear; i > curYear - 15; i--) {
+                    yearHtml += "<option value='" + i + "'>" + i + "</option>"
+                }
+
+                yearHtml += "</select>";
+                $('.bootstrap-select.year-').replaceWith(yearHtml);
+                $('.year-selectpicker').selectpicker();
+
                 let student_arr = res;
 
-                let studentHtml = '<select id="student_id" class="student-selectpicker" onchange="onSelectPicker(event)" data-live-search="true"><option value="0">All</option>';
+                let studentHtml = '<select id="student_id" class="student-selectpicker" onchange="onSelectStudentPicker(event)" data-live-search="true"><option value="0">All</option>';
                 student_arr.forEach(item => {
                     studentHtml += "<option value='" + item.id + "'>" + item.first_name + " " + item.last_name + "</option>"
                 });

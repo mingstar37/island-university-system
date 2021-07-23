@@ -14,20 +14,28 @@ if (isset($_POST['load_data'])) {
     $start_number = $_POST['start_number'];
     $page_size = $_POST['page_size'];
 
-    $sqlStudentCourses = "SELECT e.*, concat(u.first_name, ' ', u.last_name) as student_name";
+    $sqlStudentCourses = "SELECT e.*, concat(u.first_name, ' ', u.last_name) as student_name, concat(c.course_name, ' - ', sc.section) as course_name";
     $sqlStudentCourses .= " FROM `enrollment` as e";
     $sqlStudentCourses .= " LEFT JOIN `student` as s ON s.id = e.student_id";
     $sqlStudentCourses .= " LEFT JOIN `users` as u ON u.id = s.user_id";
+    $sqlStudentCourses .= " LEFT JOIN `section` as sc ON sc.id = e.section_id";
+    $sqlStudentCourses .= " LEFT JOIN `course` as c ON c.id = sc.course_id";
+
     $sqlStudentCourses .= " WHERE e.id > 0";
 
     $student_id = $_POST['student_id'];
+    $year = $_POST['year'];
     if (!empty($student_id)) {
         $sqlStudentCourses .= " AND e.student_id = '$student_id'";
     }
 
+    if (!empty($year)) {
+        $sqlStudentCourses .= " AND e.date_enrolled LIKE '%$year%'";
+    }
+
     if(!empty($search_text)) {
         $sqlStudentCourses .= " AND (e.id LIKE '%$search_text%' OR e.student_id LIKE '%$search_text%'";
-        $sqlStudentCourses .= " OR e.section_id LIKE '%$search_text%'";
+        $sqlStudentCourses .= " OR e.section_id LIKE '%$search_text%' OR c.course_name LIKE '%$search_text%'";
         $sqlStudentCourses .= " OR u.first_name LIKE '%$search_text%' OR u.last_name LIKE '%$search_text%'";
         $sqlStudentCourses .= " OR e.date_enrolled LIKE '%$search_text%' OR e.letter_grade LIKE '%$search_text%')";
     }
@@ -48,9 +56,10 @@ if (isset($_POST['load_data'])) {
         $enrollmentHtml .= '<td>'. $row["student_id"].'</td>';
         $enrollmentHtml .= '<td>'. $row['student_name'] . '</td>';
         $enrollmentHtml .= '<td>'. $row['section_id'] . '</td>';
+        $enrollmentHtml .= '<td>'. $row['course_name'] . '</td>';
         $enrollmentHtml .= '<td>'.$row["date_enrolled"].'</td>';
         $enrollmentHtml .= '<td>'.$row["letter_grade"].'</td>';
-        $enrollmentHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onEditRow(' . $row["id"] . ')" title="Edit"><i class="fa fa-edit"></i> </button> 
+        $enrollmentHtml .= '<td> 
             <button type="button" class="btn btn-sm btn-danger" onclick="onDeleteRow(' . $row["id"] . ')" title="Delete Row"><i class="fa fa-trash"></i> </button> </td>';
         $enrollmentHtml .= '</tr>';
 
@@ -69,25 +78,35 @@ if (isset($_POST['load_data'])) {
         $year = $_POST['year'];
 
 //        get course ids
-        $sql = "SELECT e.section_id FROM enrollment as e LEFT JOIN section as s ON s.id = e.section_id";
-        $sql .= " WHERE e.student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
+        $sql = "SELECT section_id FROM enrollment";
+        $sql .= " WHERE student_id = '$student_id'";
 
         $query = mysqli_query($conn, $sql);
 
         $sectionIds = [];
         while ($row = mysqli_fetch_assoc($query)) {
-            $sectionIds[] = $row["course_id"];
+            $sectionIds[] = $row["section_id"];
         }
 
         $strSectionIds = implode(",", $sectionIds);
 
-        $sql = "SELECT sc.id as section_id, sc.section, c.*, cp.course_name as prereq_course_name, d.name as department_name";
+
+
+        $sql = "SELECT sc.id, sc.section, c.course_name, c.department_id, c.prereq_course_id, c.course_credits, cp.course_name as prereq_course_name, d.name as department_name";
         $sql .= " FROM section as sc";
-        $sql .= " LEFT JOIN course as c";
+        $sql .= " LEFT JOIN course as c ON c.id = sc.course_id";
         $sql .= " LEFT JOIN course as cp ON cp.prereq_course_id = c.id";
         $sql .= " LEFT JOIN department as d ON d.id = c.department_id";
-        $sql .= " LEFT JOIN enrollment as e ON e.id = s.section_id";
-        $sql .= " WHERE e.student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
+
+        $sql .= " WHERE sc.id > 0";
+
+        if (!empty($term)) {
+            $sql .= " AND sc.term = '$term'";
+        }
+
+        if (!empty($year)) {
+            $sql .= " AND sc.year = '$year'";
+        }
 
         if (!empty($strSectionIds)) {
             $sql .= " AND sc.id NOT IN ($strSectionIds)";
@@ -100,7 +119,7 @@ if (isset($_POST['load_data'])) {
             //        var_dump($row["prereq_course_name"]);
             $courseHtml .= '<tr id="row_' . $row["id"] . '">';
             $courseHtml .= '<td>'.$row["id"].'</td>';
-            $courseHtml .= '<td>'.$row["course_name"] . " " . $row["section"].'</td>';
+            $courseHtml .= '<td>'.$row["course_name"] . " - " . $row["section"].'</td>';
             $courseHtml .= '<td>'. $row['department_id'] . '</td>';
             $courseHtml .= '<td>'.$row["department_name"].'</td>';
             $courseHtml .= '<td>'. $row["prereq_course_id"].'</td>';
@@ -130,7 +149,22 @@ if (isset($_POST['load_data'])) {
 
 if (isset($_POST['add_to_enrollment'])) {
     $student_id = $_POST['student_id'];
-    $term = $_POST["term"];
+    $section_id = $_POST["section_id"];
+
+    $ret = [
+            "success" => true,
+        "message" => ""
+    ];
+
+    $sql = "INSERT INTO enrollment (student_id, section_id, date_enrolled) VALUES ('$student_id', '$section_id', NOW())";
+
+    if (!$conn->query($sql)) {
+        $ret['success'] = false;
+        $ret['message'] = "Error";
+    }
+
+    echo json_encode($ret);
+    exit;
 }
 
 if (isset($_POST['delete_row'])) {
@@ -141,7 +175,7 @@ if (isset($_POST['delete_row'])) {
     ];
 
     if (!empty($delete_id)) {
-        $sql  = "DELETE FROM advisor WHERE id = '".$delete_id."'";
+        $sql  = "DELETE FROM enrollment WHERE id = '".$delete_id."'";
         if ($conn->query($sql)) {
             $ret['success'] = true;
         }
@@ -156,7 +190,7 @@ if (isset($_POST['get_init_arr'])) {
 //    get prereq course
 
     $sql = "SELECT s.id, u.first_name, u.last_name";
-    $sql .= " FROM student as s INNER JOIN users as u ON u.id = s.user_id";
+    $sql .= " FROM student as s LEFT JOIN users as u ON u.id = s.user_id";
 
     $query = mysqli_query($conn, $sql);
 
@@ -265,12 +299,15 @@ include "header.php";
     ?>
     <div class="main-page">
         <div class="row table-toolbar">
-            <div class="col-lg-5">
+            <div class="col-lg-3">
                 <h3>Student - Courses</h3>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-5">
                 <div class="form-group px-1">
-                    Student: &nbsp;
+                    Year: &nbsp;
+                    <select id="year" class="year-selectpicker" onchange="onLoadData()" data-live-search="true">
+                    </select>
+                    &nbsp;&nbsp Student:&nbsp;
                     <select class="student-selectpicker" id="student_id" data-live-search="true">
                     </select>
                 </div>
@@ -298,6 +335,7 @@ include "header.php";
                 <th>Student ID</th>
                 <th>Student Name</th>
                 <th>CRN Number</th>
+                <th>Course - Section</th>
                 <th>Date Enrolled</th>
                 <th>Letter Grade</th>
                 <th width="150px">Action</th>
@@ -306,9 +344,6 @@ include "header.php";
             <tbody id="enrollment-table-body">
 
             </tbody>
-            <tfoot>
-
-            </tfoot>
         </table>
         <div class="pagination-wrapper text-center" id="pagination-wrapper">
             <ul class="pagination pagination-sm">
@@ -351,7 +386,7 @@ include "header.php";
                         </div>
                         <div class="col-sm-4 py-1 form-group">
                             <label class="col-form-label" for="available_seat">Term</label>
-                            <select class="term-selectpicker" name="term" id="term" data-live-search="true">
+                            <select class="term-selectpicker" name="term" id="term" onchange="onSelectTermPicker(event)" data-live-search="true">
                                 <option value="Spring">Spring</option>
                                 <option value="Fall">Fall</option>
                             </select>
@@ -359,12 +394,6 @@ include "header.php";
                         <div class="col-sm-4 py-1 form-group">
                             <label class="col-form-label" for="available_seat">Year</label>
                             <select class="year-selectpicker" name="year" id="year" data-live-search="true">
-                                <option value="2020">2020</option>
-                                <option value="2021">2021</option>
-                                <option value="2022">2022</option>
-                                <option value="2023">2023</option>
-                                <option value="2024">2024</option>
-                                <option value="2025">2025</option>
                             </select>
                         </div>
                     </div>
@@ -402,24 +431,6 @@ include "header.php";
             </div>
             <div class="modal-body">
                 <h3 style="color: red;" class="text-center">Do you want to delete?</h3>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-success" onclick="onDelete()">Yes</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="delete-prereq-modal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <h3 style="color: red;" class="text-center">Do you want to delete prereq info?</h3>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>

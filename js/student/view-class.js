@@ -84,9 +84,11 @@ function onSelectPicker(event) {
     event.preventDefault();
 
     let value = event.target.value;
-    $('.course-selectpicker').selectpicker('val', value);
+    $('.student-selectpicker').selectpicker('val', value);
 
-    onLoadData();
+    // onLoadStudentSelectPicker(value);
+
+    onLoadData(true);
 }
 
 

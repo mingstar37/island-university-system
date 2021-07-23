@@ -157,7 +157,7 @@ function onSelectPicker(event) {
 
     // onLoadStudentSelectPicker(value);
 
-    onLoadData();
+    onLoadData(true);
 }
 
 function onLoadInitSelector() {
