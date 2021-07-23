@@ -66,14 +66,17 @@
                         <li>
                             <a href="student-histories.php">Student - Histories</a>
                         </li>
-                        
+
                     </ul>
                 </li>
                 <li>
                     <a href="#">Time Slots</a>
                     <ul class="nolist">
                         <li>
-                            <a href="dueDates.php">Due Dates</a>
+                            <a href="due-dates.php">Due Dates</a>
+                        </li>
+                        <li>
+                            <a href="dueDates.php">Old Due Dates</a>
                         </li>
                     </ul>
                 </li>
