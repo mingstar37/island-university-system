@@ -41,7 +41,7 @@ if (isset($_POST['load_data'])) {
     while($row = mysqli_fetch_assoc($query)){
 
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
-        $resultHtml .= '<td>'.$row["id"].'</td>';
+        $resultHtml .= '<td>'.($start_number + $count + 1).'</td>';
         $resultHtml .= '<td>'. $row["student_name"].'</td>';
         $resultHtml .= '<td>'. $row["student_gpa"].'</td>';
         $resultHtml .= '<td>'. $row['student_type'] . '</td>';
@@ -100,7 +100,7 @@ if (isset($_POST['get_detail_info'])) {
     $count = 0;
     while ($row = mysqli_fetch_assoc($query)) {
         $holdHtml .= '<tr>';
-        $holdHtml .= '<td>'.$row["id"].'</td>';
+        $holdHtml .= '<td>'.($count + 1).'</td>';
         $holdHtml .= '<td>'. $row["hold_date"].'</td>';
         $holdHtml .= '<td>'. $row["hold_type"].'</td>';
         $holdHtml .= '</tr>';
@@ -128,7 +128,7 @@ if (isset($_POST['get_detail_info'])) {
     $count = 0;
     while ($row = mysqli_fetch_assoc($query)) {
         $resHtml .= '<tr>';
-        $resHtml .= '<td>'.$row["id"].'</td>';
+        $resHtml .= '<td>'.($count + 1).'</td>';
         $resHtml .= '<td>'. $row["advisor_name"].'</td>';
         $resHtml .= '<td>'. $row["time_of_advisement"].'</td>';
         $resHtml .= '</tr>';
@@ -157,7 +157,7 @@ if (isset($_POST['get_detail_info'])) {
     $count = 0;
     while ($row = mysqli_fetch_assoc($query)) {
         $resHtml .= '<tr>';
-        $resHtml .= '<td>'.$row["id"].'</td>';
+        $resHtml .= '<td>'.($count + 1).'</td>';
         $resHtml .= '<td>'. $row["course_name"].'</td>';
         $resHtml .= '<td>'. $row["grade"].'</td>';
         $resHtml .= '<td>'. $row["year"].'</td>';
@@ -187,7 +187,7 @@ if (isset($_POST['get_detail_info'])) {
     $count = 0;
     while ($row = mysqli_fetch_assoc($query)) {
         $resHtml .= '<tr>';
-        $resHtml .= '<td>'.$row["id"].'</td>';
+        $resHtml .= '<td>'.($count + 1).'</td>';
         $resHtml .= '<td>'. $row["course_name"].'</td>';
         $resHtml .= '<td>'. $row["date_enrolled"].'</td>';
         $resHtml .= '<td>'. $row["letter_grade"].'</td>';
@@ -256,7 +256,7 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-5">
-                <h3>Student</h3>
+                <h3>Students</h3>
             </div>
             <div class="col-lg-3">
                 <div class="form-group px-1">
@@ -280,7 +280,7 @@ include "header.php";
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>ID</th>
+                <th>No</th>
                 <th>Student Name</th>
                 <th>Student GPA</th>
                 <th>Student Type</th>
@@ -332,7 +332,7 @@ include "header.php";
                     <table class="table table-bordered">
                         <thead>
                         <tr>
-                            <th>Hold ID</th>
+                            <th>No</th>
                             <th>Hold Date</th>
                             <th>Hold Type</th>
                         </tr>
@@ -346,7 +346,7 @@ include "header.php";
                     <table class="table table-bordered">
                         <thead>
                         <tr>
-                            <th>Advisor ID</th>
+                            <th>No</th>
                             <th>Advisor Name</th>
                             <th>Time of Advisement</th>
                         </tr>
@@ -360,7 +360,7 @@ include "header.php";
                     <table class="table table-bordered">
                         <thead>
                         <tr>
-                            <th>Section ID</th>
+                            <th>No</th>
                             <th>Course Name</th>
                             <th>Grade</th>
                             <th>Year</th>
@@ -375,7 +375,7 @@ include "header.php";
                     <table class="table table-bordered">
                         <thead>
                         <tr>
-                            <th>Enrollment ID</th>
+                            <th>No</th>
                             <th>Course Name</th>
                             <th>Date Enrolled</th>
                             <th>Letter Grade</th>

@@ -71,8 +71,7 @@ if (isset($_POST['load_data'])) {
 
 //        var_dump($row["prereq_course_name"]);
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
-        $resultHtml .= '<td>'.$row["id"].'</td>';
-        $resultHtml .= '<td>'. $row["course_id"].'</td>';
+        $resultHtml .= '<td>'.($start_number + $count + 1).'</td>';
         $resultHtml .= '<td>'. $row["course_name"].'</td>';
         $resultHtml .= '<td>'.$row["room_num"].'</td>';
         $resultHtml .= '<td>'.$row["building_name"].'</td>';
@@ -390,8 +389,7 @@ include "header.php";
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Course ID</th>
+                <th>No</th>
                 <th>Course Name</th>
                 <th>Room Num</th>
                 <th>Building Name</th>

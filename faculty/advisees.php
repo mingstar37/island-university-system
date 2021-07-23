@@ -44,7 +44,7 @@ if (isset($_POST['load_data'])) {
     while($row = mysqli_fetch_assoc($query)){
 
         $resultHtml .= '<tr>';
-        $resultHtml .= '<td>'.$row["id"].'</td>';
+        $resultHtml .= '<td>'.($start_number + $count + 1).'</td>';
         $resultHtml .= '<td>'. $row["advisee_name"].'</td>';
         $resultHtml .= '<td>'. $row["time_of_advisement"].'</td>';
         $resultHtml .= '</tr>';
@@ -156,7 +156,7 @@ include "header.php";
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>ID</th>
+                <th width="100px">No</th>
                 <th>Advisee Name</th>
                 <th>Time of Advisement</th>
             </tr>
