@@ -3,6 +3,11 @@ let pagination = {
     currentNumber: 0,
     pageSize: 12
 };
+let oldPagination = {
+    totalCount: 0,
+    currentNumber: 0,
+    pageSize: 12
+};
 
 let delete_id = 0;
 let editId = 0;
@@ -18,7 +23,7 @@ function onSearchKeyup(event) {
 function onSearch() {
     onSelectPagination(1);
     $('#page-select').val(1);
-    onLoadData();
+    onLoadData(true);
 }
 
 function onSetPageNumberSelect() {

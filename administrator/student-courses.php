@@ -16,8 +16,8 @@ if (isset($_POST['load_data'])) {
 
     $sqlStudentCourses = "SELECT e.*, concat(u.first_name, ' ', u.last_name) as student_name";
     $sqlStudentCourses .= " FROM `enrollment` as e";
-    $sqlStudentCourses .= " INNER JOIN `student` as s ON s.id = e.student_id";
-    $sqlStudentCourses .= " INNER JOIN `users` as u ON u.id = s.user_id";
+    $sqlStudentCourses .= " LEFT JOIN `student` as s ON s.id = e.student_id";
+    $sqlStudentCourses .= " LEFT JOIN `users` as u ON u.id = s.user_id";
     $sqlStudentCourses .= " WHERE e.id > 0";
 
     $student_id = $_POST['student_id'];
@@ -69,34 +69,30 @@ if (isset($_POST['load_data'])) {
         $year = $_POST['year'];
 
 //        get course ids
-        $sql = "SELECT course_id FROM enrollment";
-        $sql .= " WHERE student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
-        $sql .= " GROUP BY s.course_id";
-
+        $sql = "SELECT e.section_id FROM enrollment as e LEFT JOIN section as s ON s.id = e.section_id";
+        $sql .= " WHERE e.student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
 
         $query = mysqli_query($conn, $sql);
 
-        $courseIds = [];
+        $sectionIds = [];
         while ($row = mysqli_fetch_assoc($query)) {
-            $courseIds[] = $row["course_id"];
+            $sectionIds[] = $row["course_id"];
         }
 
-        $strCourseIds = implode(",", $courseIds);
+        $strSectionIds = implode(",", $sectionIds);
 
-        $sql = "SELECT sc.id as section_id, c.*, cp.course_name as prereq_course_name, d.name as department_name";
+        $sql = "SELECT sc.id as section_id, sc.section, c.*, cp.course_name as prereq_course_name, d.name as department_name";
         $sql .= " FROM section as sc";
         $sql .= " LEFT JOIN course as c";
         $sql .= " LEFT JOIN course as cp ON cp.prereq_course_id = c.id";
         $sql .= " LEFT JOIN department as d ON d.id = c.department_id";
         $sql .= " LEFT JOIN enrollment as e ON e.id = s.section_id";
-        $sql .= " WHERE e.student_id != '$student_id'";
-        $sql .= " AND e.student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
+        $sql .= " WHERE e.student_id = '$student_id' AND s.term = '$term' AND s.year = '$year'";
 
-        if (!empty($strCourseIds)) {
-            $sql .= " WHERE c.id NOT IN ($strCourseIds)";
+        if (!empty($strSectionIds)) {
+            $sql .= " AND sc.id NOT IN ($strSectionIds)";
         }
 
-        $sql .= " GROUP BY c.id";
         $query = mysqli_query($conn, $sql);
 
         $count = 0;
@@ -104,7 +100,7 @@ if (isset($_POST['load_data'])) {
             //        var_dump($row["prereq_course_name"]);
             $courseHtml .= '<tr id="row_' . $row["id"] . '">';
             $courseHtml .= '<td>'.$row["id"].'</td>';
-            $courseHtml .= '<td>'.$row["course_name"].'</td>';
+            $courseHtml .= '<td>'.$row["course_name"] . " " . $row["section"].'</td>';
             $courseHtml .= '<td>'. $row['department_id'] . '</td>';
             $courseHtml .= '<td>'.$row["department_name"].'</td>';
             $courseHtml .= '<td>'. $row["prereq_course_id"].'</td>';
@@ -377,7 +373,7 @@ include "header.php";
                             <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Course Name</th>
+                                <th>Course - Section</th>
                                 <th>Department ID</th>
                                 <th>Department Name</th>
                                 <th>Prereq Course ID</th>

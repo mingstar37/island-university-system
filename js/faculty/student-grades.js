@@ -24,7 +24,7 @@ function onSearchKeyup(event) {
 function onSearch() {
     onSelectPagination(1);
     $('#page-select').val(1);
-    onLoadData();
+    onLoadData(true);
 }
 
 function onSetPageNumberSelect() {
@@ -82,7 +82,7 @@ function onLoadStudentSelectPicker(student_id, default_val = 0) {
     });
 }
 
-function onLoadData(bInit = true) {
+function onLoadData(bInit = false) {
     let request = {};
     request.search_text = $('#search-text').val();
 

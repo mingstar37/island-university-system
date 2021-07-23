@@ -410,7 +410,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/faculty_departments.js"></script>
+<script src="../js/administrator/faculty-departments.js"></script>
 
 
 </body>

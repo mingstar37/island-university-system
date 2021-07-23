@@ -3,6 +3,11 @@ let pagination = {
     currentNumber: 0,
     pageSize: 12
 };
+let oldPagination = {
+    totalCount: 0,
+    currentNumber: 0,
+    pageSize: 12
+};
 
 let delete_id = 0;
 let editId = 0;
@@ -18,7 +23,7 @@ function onSearchKeyup(event) {
 function onSearch() {
     onSelectPagination(1);
     $('#page-select').val(1);
-    onLoadData();
+    onLoadData(true);
 }
 
 function onSetPageNumberSelect() {
@@ -76,9 +81,15 @@ function onLoadStudentSelectPicker(faculty_id, default_val = 0) {
     });
 }
 
-function onLoadData() {
+function onLoadData(bInit = false) {
     let request = {};
     request.search_text = $('#search-text').val();
+
+    if (bInit == true) {
+        pagination.currentNumber = oldPagination.currentNumber;
+        pagination.pageSize = oldPagination.pageSize;
+        pagination.totalCount = oldPagination.totalCount;
+    }
     request.start_number = pagination.currentNumber * pagination.pageSize;
     request.page_size = pagination.pageSize;
 

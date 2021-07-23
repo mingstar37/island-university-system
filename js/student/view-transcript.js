@@ -24,7 +24,7 @@ function onSearchKeyup(event) {
 function onSearch() {
     onSelectPagination(1);
     $('#page-select').val(1);
-    onLoadData();
+    onLoadData(true);
 }
 
 function onSetPageNumberSelect() {
@@ -40,7 +40,7 @@ function onSetPageNumberSelect() {
     $('#page-select').val(pagination.currentNumber + 1);
 }
 
-function onLoadData(bInit = true) {
+function onLoadData(bInit = false) {
     let request = {};
     request.search_text = $('#search-text').val();
 
