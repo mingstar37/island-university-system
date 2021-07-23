@@ -44,7 +44,7 @@ if (isset($_POST['load_data'])) {
     while($row = mysqli_fetch_assoc($query)){
 
         $resultHtml .= '<tr id="row_' . $row["id"] . '">';
-        $resultHtml .= '<td>'. $row["id"] . '</td>';
+        $resultHtml .= '<td>'. ($start_number + $count + 1) . '</td>';
         $resultHtml .= '<td>'. $row["course_id"] . '</td>';
         $resultHtml .= '<td>'. $row["course_name"] . '</td>';
         $resultHtml .= '<td>'. $row["room_num"].'</td>';
@@ -207,7 +207,7 @@ include "header.php";
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>ID</th>
+                <th>No</th>
                 <th>Course ID</th>
                 <th>Course Name</th>
                 <th>Room Number</th>
