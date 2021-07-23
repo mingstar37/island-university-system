@@ -18,12 +18,20 @@ if (isset($_POST['load_data'])) {
 
     $sqlHistory = "SELECT sh.*, concat(u.first_name, ' ', u.last_name) as student_name, c.course_name";
     $sqlHistory .= " FROM `student_history` as sh";
-    $sqlHistory .= " INNER JOIN `student` as s ON s.id = sh.student_id";
-    $sqlHistory .= " INNER JOIN `users` as u ON u.id = s.user_id";
-    $sqlHistory .= " INNER JOIN `section` as sc ON sc.id = sh.section_id";
-    $sqlHistory .= " INNER JOIN `course` as c ON c.id = sc.course_id";
+    $sqlHistory .= " LEFT JOIN `student` as s ON s.id = sh.student_id";
+    $sqlHistory .= " LEFT JOIN `users` as u ON u.id = s.user_id";
+    $sqlHistory .= " LEFT JOIN `section` as sc ON sc.id = sh.section_id";
+    $sqlHistory .= " LEFT JOIN `course` as c ON c.id = sc.course_id";
 
-    $sqlHistory .= " WHERE sh.student_id = '$student_id' AND sh.year = '$year'";
+    $sqlHistory .= " WHERE sh.id > 0";
+
+    if (!empty($student_id)) {
+        $sqlHistory .= " AND sh.student_id = '$student_id'";
+    }
+
+    if (!empty($year)) {
+        $sqlHistory .= " AND sh.year = '$year'";
+    }
 
     if(!empty($search_text)) {
         $sqlHistory .= " AND (sh.id LIKE '%$search_text%' OR sh.student_id LIKE '%$search_text%'";
@@ -116,6 +124,7 @@ if (isset($_POST['get_crn_arr'])) {
     $sql .= " FROM section as s";
     $sql .= " INNER JOIN course as c ON c.id = s.course_id";
 
+//    $sql .= " WHERE s.year = '$year'";
     $query = mysqli_query($conn, $sql);
 
     $student_arr = [];
@@ -227,17 +236,12 @@ include "header.php";
     <div class="main-page">
         <div class="row table-toolbar">
             <div class="col-lg-3">
-                <h3>All Student Histories</h3>
+                <h3>Student Histories</h3>
             </div>
             <div class="col-lg-5">
                 <div class="form-group px-1">
                     Year: &nbsp;
                     <select id="year" class="year-selectpicker" onchange="onLoadData()" data-live-search="true">
-                        <option value="2017">2017</option>
-                        <option value="2018">2018</option>
-                        <option value="2019">2019</option>
-                        <option value="2020">2020</option>
-                        <option value="2021">2021</option>
                     </select>
                     &nbsp;&nbsp Student:&nbsp;
                     <select class="student-selectpicker" id="student_id" data-live-search="true">
@@ -315,12 +319,22 @@ include "header.php";
                     <div class="row">
                         <input type="hidden" class="form-control" id="id" name="id" required/>
                         <div class="col-sm-6 py-1">
-                            <label class="col-form-label" for="section_id">CRN Number</label>
-                            <select id="section_id" class="crn-selectpicker" name="section_id"  data-live-search="true">
+                            <label class="col-form-label" for="section_id">Year: &nbsp;</label>
+                            <select id="year" class="year-selectpicker" name="year"  data-live-search="true">
+                            </select>
+                        </div>
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="section_id">Student: &nbsp;</label>
+                            <select id="student_id" class="student-selectpicker" name="student_id"  data-live-search="true">
+                            </select>
+                        </div>
+                        <div class="col-sm-6 py-1">
+                            <label class="col-form-label" for="section_id">CRN Number: &nbsp;</label>
+                            <select id="section_id" class="section-selectpicker" name="section_id"  data-live-search="true">
                             </select>
                         </div>
                         <div class="col-sm-6 py-1 form-group">
-                            <label class="col-form-label" for="name">Grade</label>
+                            <label class="col-form-label" for="name">Grade: &nbsp;</label>
                             <input type="text" class="form-control" id="grade" name="grade" required/>
                         </div>
                     </div>
@@ -377,7 +391,7 @@ include "header.php";
 
 <script src="../plugins/js/toastr.js"></script>
 <script src="../plugins/js/nav.js"></script>
-<script src="../js/administrator/student_histories.js"></script>
+<script src="../js/administrator/student-histories.js"></script>
 
 
 </body>

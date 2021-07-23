@@ -35,11 +35,12 @@ function onSetPageNumberSelect() {
 }
 
 
-function onLoadCRNSelectPicker(student_id, default_val = 0) {
+function onLoadCRNSelectPicker() {
 
     let request = {};
-    request.student_id = student_id;
-    request.section_id = default_val;
+    request.student_id = $('.student-selectpicker').val();
+    request.section_id = $('.section-selectpicker').val();
+    request.year = $('.year-selectpicker').val();
     request.get_crn_arr = true;
 
     $.ajax({
@@ -49,22 +50,20 @@ function onLoadCRNSelectPicker(student_id, default_val = 0) {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
+
                 let crn_arr = res;
 
-                let studentHtml = '<select class="crn-selectpicker" name="section_id" id="section_id" data-live-search="true">';
+                let sectionHtml = '<select class="section-selectpicker" name="section_id" id="section_id" data-live-search="true">';
                 crn_arr.forEach(item => {
-                    studentHtml += "<option value='" + item.id + "'>" + item.id + "</option>"
+                    sectionHtml += "<option value='" + item.id + "'>" + item.id + "</option>"
                 });
 
-                studentHtml += "</select>";
+                sectionHtml += "</select>";
 
-                $('.bootstrap-select.crn-').replaceWith(studentHtml);
+                $('.bootstrap-select.section-').replaceWith(sectionHtml);
 
-                if (default_val != 0) {
-                    $('#section_id').selectpicker('val', default_val);
-                } else {
-                    $('#section_id').selectpicker();
-                }
+                $('#section_id').selectpicker();
+
             } else {
                 toastr.error('Error');
             }
@@ -85,8 +84,6 @@ function onLoadData() {
     request.student_id = $('#student_id').val();
     request.year = $('#year').val();
     request.load_data = true;
-
-    onLoadCRNSelectPicker(request.student_id);
 
     $.ajax({
         method: "POST",
@@ -112,8 +109,22 @@ function onLoadData() {
     });
 }
 
+function onSelectYearPicker(event) {
+    let value = event.target.value;
+    $('.year-selectpicker').selectpicker('val', value);
 
-function onLoadFilterPicker() {
+    onLoadData();
+}
+
+function onSelectStudentPicker(event) {
+    let value = event.target.value;
+    $('.student-selectpicker').selectpicker('val', value);
+
+    onLoadData();
+}
+
+
+function onLoadInitSelector() {
     let request = {};
     request.get_student_arr = true;
 
@@ -124,9 +135,22 @@ function onLoadFilterPicker() {
         dataType: 'json',
         success: function (res) {
             if (res != undefined) {
+
+                let curYear = new Date().getFullYear();
+
+                let yearHtml = '<select id="year" name="year" class="year-selectpicker" onchange="onSelectYearPicker(event)" data-live-search="true"><option value="0">All</option>';
+
+                for (let i = curYear; i > curYear - 15; i--) {
+                    yearHtml += "<option value='" + i + "'>" + i + "</option>"
+                }
+
+                yearHtml += "</select>";
+
+                $('.bootstrap-select.year-').replaceWith(yearHtml);
+                $('.year-selectpicker').selectpicker();
                 let student_arr = res;
 
-                let studentHtml = '<select id="student_id" class="student-selectpicker" onchange="onLoadData()" data-live-search="true">';
+                let studentHtml = '<select id="student_id" class="student-selectpicker" onchange="onSelectStudentPicker(event)" data-live-search="true"><option value="0">All</option>';
                 student_arr.forEach(item => {
                     studentHtml += "<option value='" + item.id + "'>" + item.student_name + "</option>"
                 });
@@ -151,10 +175,9 @@ function onLoadFilterPicker() {
 
 function onAddNew() {
 
-    onLoadCRNSelectPicker($('#student_id').val());
 
     $('#id').val(0);
-    $('#time_of_advisement').val("");
+    $('#grade').val("");
 
     $('#add-modal-title').html('Add Row');
     $('#add-modal').modal('show');
@@ -175,7 +198,6 @@ function onEditRow(id) {
 
                 let student_id = $('#student_id').val();
                 let section_id = res.section_id;
-                onLoadCRNSelectPicker(student_id, section_id);
 
                 let keys = Object.keys(res);
 
@@ -202,6 +224,21 @@ function onSave(event) {
 
     $('#btn-save').addClass('disabled');
     $('#btn-cancel').addClass('disabled');
+
+    if ($('#year').val() == 0) {
+        alert('Select Year!');
+        return;
+    }
+
+    if ($('#student_id').val() == 0) {
+        alert('Select Student!');
+        return;
+    }
+
+    if ($('#section_id').val() == 0) {
+        alert('Select Section!');
+        return;
+    }
 
     let formData = $('#form-add').serializeArray();
 
@@ -305,12 +342,13 @@ function onSelectPagination(selectedNumber) {
 }
 
 $(document).ready(function () {
-    $('#student_id').selectpicker();
-    $('#year').selectpicker();
+    $('.student-selectpicker').selectpicker();
+    $('.year-selectpicker').selectpicker();
 
-    $('#section_id').selectpicker();
+    $('.section-selectpicker').selectpicker();
 
-    onLoadFilterPicker();
+    onLoadInitSelector();
+    onLoadCRNSelectPicker();
 
     $('.page-item a').click(function (event) {
         let totalPageCount = Math.ceil(pagination.totalCount / pagination.pageSize);
