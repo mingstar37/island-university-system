@@ -50,7 +50,8 @@ if (isset($_POST['load_data'])) {
         $resultHtml .= '<td>'. $row['building_name'] . '</td>';
         $resultHtml .= '<td>'. $row['semester'] . '</td>';
         $resultHtml .= '<td>'. $row["section"].'</td>';
-        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onShowDetail(' . $row["id"] . ', \'' . $row['course_name'] . '\')" title="View Roster Detail Info"><i class="fa fa-info-circle"></i></td>';
+        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-primary" onclick="onShowAttendance(' . $row["id"] . ', \'' . $row['course_name'] . '\')" title="View Roster Detail Info"><i class="fa fa-info-circle"></i>&nbsp;View</td>';
+        $resultHtml .= '<td><button type="button" class="btn btn-sm btn-success" onclick="onShowRoster(' . $row["id"] . ', \'' . $row['course_name'] . '\')" title="View Roster Detail Info"><i class="fa fa-plus"></i>&nbsp;Roster</td>';
         $resultHtml .= '</tr>';
 
         $count ++;
@@ -92,7 +93,42 @@ if (isset($_POST['get_init_arr'])) {
     exit;
 }
 
-if (isset($_POST['get_detail_info'])) {
+if (isset($_POST["submit_attendance"])) {
+    $section_id = $_POST['section_id'];
+    $student_id = $_POST['student_id'];
+    $date_attended = $_POST['date_attended'];
+    $present = $_POST['present'];
+
+    $ret = [
+            'success' => true,
+        'message' => ''
+    ];
+
+//    check exists
+    $sql = "SELECT * FROM attendance WHERE section_id = '$section_id' AND student_id = '$student_id' AND date_attended = '$date_attended'";
+    $query = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($query) > 0) {
+//        update
+        $sqlUpdate = "UPDATE attendance SET present = '$present' WHERE section_id = '$section_id' AND student_id = '$student_id' AND date_attended = '$date_attended'";
+        if (!$conn->query($sqlUpdate)) {
+            $ret['success'] = false;
+            $ret['message'] = "Error";
+        }
+    } else {
+        // insert
+        $sqlInsert = "INSERT INTO attendance (section_id, student_id, date_attended, present) VALUES ('$section_id', '$student_id', '$date_attended', '$present')";
+        if (!$conn->query($sqlInsert)) {
+            $ret['success'] = false;
+            $ret['message'] = "Error";
+        }
+    }
+
+    echo json_encode($ret);
+    exit;
+}
+
+if (isset($_POST['get_attendance_info'])) {
     $section_id = $_POST['section_id'];
 
     $ret = [];
@@ -128,6 +164,68 @@ if (isset($_POST['get_detail_info'])) {
     }
 
     $ret['attendanceHtml'] = $html;
+
+    echo json_encode($ret);
+    exit;
+
+//
+}
+
+if (isset($_POST['get_roster_info'])) {
+    $section_id = $_POST['section_id'];
+
+    $ret = [];
+
+//    get week days
+    $sqlWeekDays = "SELECT week_day FROM time_slot_day WHERE `section_id` = $section_id";
+
+    $query = mysqli_query($conn, $sqlWeekDays);
+
+    $limitWeekDays = [];
+    while ($row = mysqli_fetch_assoc($query)) {
+        $limitWeekDays[] = $row['week_day'];
+    }
+
+    $strLimitWeekDays = "";
+    if (!empty($limitWeekDays)) {
+        $strLimitWeekDays = implode(", ", $limitWeekDays);
+    }
+
+//    get student holds
+    $sqlEnrollment = "SELECT e.*, concat(u.first_name, ' ', u.last_name) as student_name";
+    $sqlEnrollment .= " FROM enrollment as e";
+    $sqlEnrollment .= " LEFT JOIN student as s ON s.id = e.student_id";
+    $sqlEnrollment .= " LEFT JOIN users as u ON u.id = s.user_id";
+    $sqlEnrollment .= " WHERE e.section_id = '$section_id'";
+    $sqlEnrollment .= " GROUP BY e.student_id";
+
+    $query = mysqli_query($conn, $sqlEnrollment);
+
+    $html = "";
+    $count = 0;
+    while ($row = mysqli_fetch_assoc($query)) {
+        $html .= '<tr>';
+        $html .= '<td>'.($count + 1).'</td>';
+        $html .= '<td>'. $row["student_id"].'</td>';
+        $html .= '<td>'. $row["student_name"].'</td>';
+        $html .= '<td><input type="date" onchange="onChangeDate(' . $row['student_id'] .')" value="' . date('Y-m-d') . '" id="attendance_' . $row['student_id'] . '"></td>';
+        $html .= '<td><select onchange="onChangePresent(' . $row['student_id'] . ')" style="width: 100%" id="present_'.$row['student_id'].'">
+                        <option value="Yes">Present</option>
+                        <option value="No">Absent</option>
+                    </select></td>';
+        $html .= '<td><button class="btn btn-sm btn-success" onclick="onSubmitToAttendance(' . $section_id . ', ' . $row['student_id'] . ')" title="Submit to Attendance" id="btn_submit_' . $row['student_id'] . '"><i class="fa fa-check"></i> </button> </td>';
+        $html .= '</tr>';
+
+        $count ++;
+    }
+
+    if ($count < 1) {
+        $html .= '<tr>
+                            <td colspan="5">There is no data</td></tr>';
+    }
+
+    $ret['attendanceHtml'] = $html;
+    $ret['limitDays'] = $strLimitWeekDays;
 
     echo json_encode($ret);
     exit;
@@ -212,7 +310,8 @@ include "header.php";
                 <th>Building</th>
                 <th>Semester</th>
                 <th>Section</th>
-                <th width="100px">Action</th>
+                <th width="100px">View Attendance</th>
+                <th width="100px">Add Attendance</th>
             </tr>
             </thead>
             <tbody id="table-body">
@@ -237,7 +336,7 @@ include "header.php";
         </div>
     </div>
 </div>
-<div class="modal fade" id="detail-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
+<div class="modal fade" id="detail-roster-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -247,7 +346,46 @@ include "header.php";
             </div>
             <div class="modal-body">
                 <div class="row py-1">
-                    <h3 class="text-center " style="margin: auto; color: red" id="detail-modal-title"></h3>
+                    <h3 style="margin: auto; color: red" id="roster-modal-title"></h3>
+                </div>
+                <div class="row">
+                    <h4 style="margin: auto; ">Please select these days - <span id="detail-limit-days" style="color: #155bff"></span></h4>
+                </div>
+
+                <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Attendance</th>
+                            <th>Present</th>
+                            <th>Submit</th>
+                        </tr>
+                        </thead>
+                        <tbody id="roster-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-cancel">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="detail-attendance-modal" tabindex="-1" role="dialog" aria-labelledby="addModal" aria-hidden="true" data-backdrop="false" style="background: rgba(0, 0, 0, 0.5);">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row py-1">
+                    <h3 class="text-center " style="margin: auto; color: red" id="attendance-modal-title"></h3>
                 </div>
 
                 <div class="row" style="padding: 20px;max-height: 400px; overflow: auto">

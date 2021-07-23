@@ -13,6 +13,9 @@ let oldPagination = {
 let delete_id = 0;
 let editId = 0;
 
+let limit_days = [];
+let dayArr = ["Sunday", "Monday", "Tuesday", 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 function onSearchKeyup(event) {
     if (event.keyCode !== 13) {
         return;
@@ -123,11 +126,11 @@ function onLoadData(bInit = false) {
     });
 }
 
-function onShowDetail(section_id, course_name) {
+function onShowAttendance(section_id, course_name) {
 
     let request = {};
     request.section_id = section_id;
-    request.get_detail_info = true;
+    request.get_attendance_info = true;
 
     $.ajax({
         method: "POST",
@@ -135,15 +138,94 @@ function onShowDetail(section_id, course_name) {
         data: request,
         dataType: 'json',
         success: function (res) {
-            $('#detail-modal-title').html('Submit Attendance for "' + course_name + '"');
+            $('#attendance-modal-title').html('Attendance of "' + course_name + '"');
 
             $('#attendance-table-body').html(res.attendanceHtml);
 
-            $('#detail-modal').modal('show');
+            $('#detail-attendance-modal').modal('show');
         },
         complete: function () {
         }
     });
+}
+
+function onShowRoster(section_id, course_name) {
+
+    let request = {};
+    request.section_id = section_id;
+    request.get_roster_info = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            $('#roster-modal-title').html('Submit Attendance for "' + course_name + '"');
+
+            $('#roster-table-body').html(res.attendanceHtml);
+
+            limit_days = res.limitDays.split(", ");
+            $('#detail-limit-days').html(res.limitDays);
+
+            $('#detail-roster-modal').modal('show');
+        },
+        complete: function () {
+        }
+    });
+}
+
+function onSubmitToAttendance(section_id, student_id) {
+
+    let attendance = $('#attendance_' + student_id).val();
+
+    let realDate = new Date(attendance);
+    let weekNumber = realDate.getDay();
+
+    let selDay = dayArr[weekNumber];
+
+    if (!limit_days.includes(selDay)) {
+        toastr.error('Select Correct Day - Date!');
+        return;
+    }
+
+    let present = $('#present_' + student_id).val();
+
+    let request = {};
+    request.student_id = student_id;
+    request.date_attended = attendance;
+    request.present = present;
+    request.section_id = section_id;
+
+    request.submit_attendance = true;
+
+    $.ajax({
+        method: "POST",
+        url: window.location.href,
+        data: request,
+        dataType: 'json',
+        success: function (res) {
+            if (res.success == true) {
+                toastr.success("Successfully Added!");
+                $('#btn_submit_' + student_id).addClass('disabled');
+            } else {
+                toastr.error(res.message);
+            }
+        },
+        complete: function () {
+            $('#btn-save').removeClass('disabled');
+            $('#btn-cancel').removeClass('disabled');
+        }
+    });
+
+}
+
+function onChangeDate(student_id) {
+    $('#btn_submit_' + student_id).removeClass('disabled');
+}
+
+function onChangePresent(student_id) {
+    $('#btn_submit_' + student_id).removeClass('disabled');
 }
 
 function onSelectPicker(event) {
