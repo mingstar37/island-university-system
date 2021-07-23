@@ -64,7 +64,10 @@
                             <a href="./student-holds.php">Student - Holds</a>
                         </li>
                         <li>
-                            <a href="student-histories.php">Student - Histories</a>
+                            <a href="./student-enrollments.php">Student - Enrollments</a>
+                        </li>
+                        <li>
+                            <a href="./student-histories.php">Student - Histories</a>
                         </li>
 
                     </ul>
